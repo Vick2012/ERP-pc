@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Logística de Eventos</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Fuentes personalizadas: Open Sans (similar a Visual México) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="static/img/logo.png" type="image/png">
+</head>
+<body>
+    <!-- Encabezado -->
+    <header class="header">
+        <div class="header-top bg-primary text-white py-2">
+            <div class="container d-flex justify-content-between align-items-center">
+                <div class="contact-info">
+                    <span><i class="fas fa-phone me-2"></i> Contacto: 601 4563214</span>
+                    <span class="ms-4"><i class="fas fa-envelope me-2"></i> Erplogistica@gmail.com.co</span>
+                </div>
+                <div class="social-links">
+                    <a href="#" class="text-white me-2"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white me-2"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <nav class="navbar navbar-expand-lg bg-white shadow-sm">
+            <div class="container">
+                <a href="#" class="navbar-brand">
+                    <img src="static/img/logo.png" alt="Logo ERP" style="height: 50px;">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#inicio">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#proveedores">Proveedores</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#clientes">Clientes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#soluciones">Soluciones</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Sección principal -->
+    <section id="inicio" class="hero-section py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold text-primary">ERP Logística</h1>                
+                    <p class="lead text-dark my-4">Gestiona tus proveedores, clientes y operaciones de manera eficiente con nuestro sistema ERP especializado para la logística de eventos.</p>
+                    <a href="#soluciones" class="btn btn-primary btn-lg">Conoce Más</a>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="static/img/imagen1.png" alt="Equipo trabajando en logística" class="img-fluid rounded shadow">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Módulo de Proveedores -->
+    <section id="proveedores" class="module py-5 bg-light">
+        <div class="container">
+            <h2 class="text-primary mb-4">Módulo de Proveedores</h2>
+            <p class="mb-4">Gestiona tus proveedores de manera eficiente con herramientas de seguimiento de cotizaciones, pagos y entregas.</p>
+            <div class="search-bar mb-4 d-flex gap-3">
+                <input type="text" id="search-proveedores" class="form-control" placeholder="Buscar proveedor...">
+                <button class="btn btn-primary" onclick="buscarProveedor()">Buscar</button>
+            </div>
+            <div class="table-responsive">
+                <table id="tabla-proveedores" class="table table-striped table-bordered">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Contacto</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Datos dinámicos -->
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn btn-success mt-3" onclick="mostrarFormularioProveedor()">Agregar Proveedor</button>
+            <form id="formulario-proveedor" class="hidden mt-4 p-4 bg-white rounded shadow">
+                <h3 class="text-primary mb-3">Agregar/Editar Proveedor</h3>
+                <div class="mb-3">
+                    <input type="text" id="nombre-proveedor" class="form-control" placeholder="Nombre" required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" id="contacto-proveedor" class="form-control" placeholder="Contacto" required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" id="direccion-proveedor" class="form-control" placeholder="Direccion" required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" id="telefono-proveedor" class="form-control" placeholder="Telefono" required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" id="email-proveedor" class="form-control" placeholder="E-mail" required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" id="tipo_proveedor" class="form-control" placeholder="Tipo de proveedor" required>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="guardarProveedor()">Guardar</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Módulo de Clientes -->
+    <section id="clientes" class="module py-5">
+        <div class="container">
+            <h2 class="text-primary mb-4">Módulo de Clientes</h2>
+            <p class="mb-4">Gestiona tus clientes con herramientas de registro, seguimiento y análisis para mejorar su experiencia.</p>
+            <div class="search-bar mb-4 d-flex gap-3">
+                <input type="text" id="search-clientes" class="form-control" placeholder="Buscar cliente...">
+                <button class="btn btn-primary" onclick="buscarCliente()">Buscar</button>
+            </div>
+            <div class="table-responsive">
+                <table id="tabla-clientes" class="table table-striped table-bordered">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Contacto</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Datos dinámicos -->
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn btn-success mt-3" onclick="mostrarFormularioCliente()">Agregar Cliente</button>
+            <form id="formulario-cliente" class="hidden mt-4 p-4 bg-white rounded shadow">
+                <h3 class="text-primary mb-3">Agregar/Editar Cliente</h3>
+                <div class="mb-3">
+                    <input type="text" id="nombre-cliente" class="form-control" placeholder="Nombre" required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" id="contacto-cliente" class="form-control" placeholder="Contacto" required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" id="preferencias-cliente" class="form-control" placeholder="Preferencias" required>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="guardarCliente()">Guardar</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Pie de página -->
+    <footer class="footer bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h3 class="text-white">Contacto</h3>
+                    <p>Teléfono: 601 4563214</p>
+                    <p>Email: Erplogistica@gmail.com.co</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h3 class="text-white">Redes Sociales</h3>
+                    <a href="#" class="d-block text-white mb-2"><i class="fab fa-facebook me-2"></i> Facebook</a>
+                    <a href="#" class="d-block text-white mb-2"><i class="fab fa-twitter me-2"></i> Twitter</a>
+                    <a href="#" class="d-block text-white mb-2"><i class="fab fa-linkedin me-2"></i> LinkedIn</a>
+                    <a href="#" class="d-block text-white mb-2"><i class="fab fa-instagram me-2"></i> Instagram</a>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h3 class="text-white">Enlaces Rápidos</h3>
+                    <a href="#inicio" class="d-block text-white mb-2">Inicio</a>
+                    <a href="#proveedores" class="d-block text-white mb-2">Proveedores</a>
+                    <a href="#clientes" class="d-block text-white mb-2">Clientes</a>
+                    <a href="#soluciones" class="d-block text-white mb-2">Soluciones</a>
+                    <a href="#contacto" class="d-block text-white mb-2">Contacto</a>
+                </div>
+            </div>
+            <div class="footer-bottom text-center border-top pt-3">
+                <p>© 2025 ERP Logística de Eventos. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

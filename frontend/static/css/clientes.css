@@ -1,0 +1,32 @@
+.clientes-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.clientes-table th, .clientes-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+.clientes-table th {
+    background-color: #007bff;
+    color: white;
+}
+.clientes-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+.btn {
+    padding: 5px 10px;
+    margin-right: 5px;
+    border-radius: 3px;
+    color: white;
+}
+.btn-edit {
+    background-color: #28a745;
+}
+.btn-deactivate {
+    background-color: #dc3545;
+}
+.btn-history {
+    background-color: #17a2b8;
+}

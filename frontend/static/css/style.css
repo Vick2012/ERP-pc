@@ -1,0 +1,27 @@
+/* frontend/static/css/styles.css */
+.hidden {
+    display: none;
+}
+
+.module {
+    background-color: #f8f9fa;
+}
+
+.table-primary {
+    background-color: #003087;
+    color: white;
+}
+
+.btn-primary {
+    background-color: #003087;
+    border-color: #003087;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.form-control {
+    border-radius: 0.25rem;
+}
