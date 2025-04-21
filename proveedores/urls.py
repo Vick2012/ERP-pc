@@ -11,5 +11,9 @@ frontend_urlpatterns = [
 
 # Rutas de API
 api_urlpatterns = [
-    path('', views.ProveedorListCreate.as_view(), name='proveedor-list-create'),  # Cambia 'list-create/' por ''
+    path('', views.ProveedorListCreate.as_view(), name='proveedor-list-create'),
+    path('<int:pk>/', views.ProveedorRetrieveUpdateDestroy.as_view(), name='proveedor-detail'),
 ]
+
+# Combinar las URLs
+urlpatterns = frontend_urlpatterns + api_urlpatterns

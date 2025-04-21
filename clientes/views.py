@@ -57,3 +57,50 @@ def historial(request, cliente_id):
     cliente = Cliente.objects.get(id=cliente_id)
     # Aquí podrías agregar lógica para mostrar el historial
     return render(request, 'clientes/historial.html', {'cliente': cliente})
+
+
+
+# Vista de API para listar y crear clientes
+class ClienteListCreate(generics.ListCreateAPIView):
+    queryset = Cliente.objects.all()
+    serializer_class = ClienteSerializer
+    permission_classes = [AllowAny]
+
+# Vista de API para obtener, actualizar y eliminar un cliente específico
+class ClienteRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Cliente.objects.all()
+    serializer_class = ClienteSerializer
+    permission_classes = [AllowAny]
+
+# Vistas del frontend (si las necesitas)
+def index(request):
+    clientes = Cliente.objects.all()
+    return render(request, 'clientes/index.html', {'clientes': clientes})
+
+def registrar(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        contacto = request.POST.get('contacto')
+        preferencias = request.POST.get('preferencias')
+        Cliente.objects.create(
+            nombre=nombre,
+            contacto=contacto,
+            preferencias=preferencias
+        )
+        return redirect('clientes:index')
+    return render(request, 'clientes/registrar.html')
+
+def editar(request, cliente_id):
+    cliente = Cliente.objects.get(id=cliente_id)
+    if request.method == 'POST':
+        cliente.nombre = request.POST.get('nombre')
+        cliente.contacto = request.POST.get('contacto')
+        cliente.preferencias = request.POST.get('preferencias')
+        cliente.save()
+        return redirect('clientes:index')
+    return render(request, 'clientes/editar.html', {'cliente': cliente})
+
+def eliminar(request, cliente_id):
+    cliente = Cliente.objects.get(id=cliente_id)
+    cliente.delete()
+    return redirect('clientes:index')
