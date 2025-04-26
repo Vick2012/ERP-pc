@@ -1,7 +1,7 @@
 from pathlib import Path
 import os
 
-# Ruta base del proyecto
+# Directorio base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Clave secreta (cámbiala en producción)
@@ -12,6 +12,42 @@ DEBUG = True
 
 # Hosts permitidos (ajústalos en producción)
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',  # Necesario para manejar archivos estáticos
+    'rest_framework',
+    'proveedores',
+    'clientes',
+    'frontend',
+]
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',  # Necesario para usar {% static %}
+            ],
+        },
+    },
+]
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "frontend/static",
+]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Aplicaciones instaladas
 INSTALLED_APPS = [
@@ -47,14 +83,15 @@ ROOT_URLCONF = 'erp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'frontend/templates')],
-        'APP_DIRS': True,
+        'DIRS': [],  # Puedes dejarlo vacío si las plantillas están dentro de las apps
+        'APP_DIRS': True,  # Esto permite que Django busque plantillas en las carpetas 'templates' de las apps
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',  # Necesario para usar {% static %}
             ],
         },
     },
@@ -75,42 +112,6 @@ DATABASES = {
     }
 }
 
-# Archivos estáticos
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend/static')]
-
-# Configuración de CSRF
-CSRF_COOKIE_SECURE = False  # Cambia a True en producción con HTTPS
-CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
-
-# Configuración de CORS
-CORS_ALLOW_ALL_ORIGINS = True  # Para desarrollo; en producción, usa CORS_ALLOWED_ORIGINS
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost:8000',
-#     'http://127.0.0.1:8000',
-# ]
-
-# Configuración de REST Framework
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # Permitir acceso sin autenticación para pruebas
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-    ],
-}
-
-# Internacionalización
-LANGUAGE_CODE = 'es'
-TIME_ZONE = 'America/Bogota'
-USE_I18N = True
-USE_TZ = True
-
-# Campo primario por defecto
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 # Configuración de autenticación (opcional, para mejorar la seguridad de contraseñas)
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -126,3 +127,41 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Configuración de archivos estáticos
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend/static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Configuración de CSRF
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+
+# Configuración de CORS
+CORS_ALLOW_ALL_ORIGINS = True  # Para desarrollo; en producción, usa CORS_ALLOWED_ORIGINS
+
+# Configuración de REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Permitir acceso sin autenticación para pruebas
+    ],
+}
+
+# Internacionalización
+LANGUAGE_CODE = 'es'
+TIME_ZONE = 'America/Bogota'
+USE_I18N = True
+USE_TZ = True
+
+# Campo primario por defecto
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuración de autenticación
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'

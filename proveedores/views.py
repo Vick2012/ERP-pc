@@ -1,14 +1,18 @@
 from django.shortcuts import render, redirect
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from .models import Proveedor
 from .serializers import ProveedorSerializer
 
+@method_decorator(csrf_exempt, name='dispatch')
 class ProveedorListCreate(generics.ListCreateAPIView):
     queryset = Proveedor.objects.all()
     serializer_class = ProveedorSerializer
     permission_classes = [AllowAny]
 
+@method_decorator(csrf_exempt, name='dispatch')
 class ProveedorRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = Proveedor.objects.all()
     serializer_class = ProveedorSerializer

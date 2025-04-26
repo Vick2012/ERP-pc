@@ -7,7 +7,7 @@
     <title>ERP Logística de Eventos</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Fuentes personalizadas: Open Sans (similar a Visual México) -->
+    <!-- Fuentes personalizadas: Open Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -37,7 +37,6 @@
         <nav class="navbar navbar-expand-lg bg-white shadow-sm">
             <div class="container">
                 <a href="#" class="navbar-brand">
-                    <img src="{% static 'img/logo.png' %}" alt="Logo ERP" style="height: 50px;">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -60,9 +59,8 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold text-primary">ERP Logística</h1>
-                    <p class="lead text-dark my-4">Gestiona tus proveedores, clientes y operaciones de manera eficiente con nuestro sistema ERP especializado para la logística de eventos.</p>
-                    <a href="#soluciones" class="btn btn-primary btn-lg">Conoce Más</a>
+                    <img src="{% static 'img/logo.png' %}" alt="Logo ERP" style="height: 250px;">
+                                        
                 </div>
                 <div class="col-lg-6 text-center">
                     <img src="{% static 'img/imagen1.png' %}" alt="Equipo trabajando en logística" class="img-fluid rounded shadow">
@@ -142,6 +140,7 @@
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Contacto</th>
+                            <th>Preferencias</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>

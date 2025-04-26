@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Logística</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="bg-light text-dark">
+    <!-- Encabezado -->
+    <header class="bg-dark text-white py-3 shadow">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">EventSync</h1>
+            <nav class="d-flex align-items-center">
+                <a href="{% url 'index' %}" class="text-white mx-2">Inicio</a>
+                <a href="#modulos" class="text-white mx-2">Módulos</a>
+                <a href="#mision-vision" class="text-white mx-2">Misión y Visión</a>
+                <a href="#contacto" class="text-white mx-2">Contactanós</a>
+                <a href="#" id="buy-erp-btn" class="btn btn-success mx-2" style="display: none;">Comprar ERP</a>
+                <a href="#" id="login-btn" class="btn btn-primary mx-2">Iniciar Sesión</a>
+                <a href="{% url 'logout' %}" id="logout-btn" class="btn btn-secondary mx-2" style="display: none;">Cerrar Sesión</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-primary text-white text-center py-5">
+        <div class="container">
+            <img src="{% static 'img/logo.png' %}" alt="Logo ERP" style="height: 200px;">
+            <h2 class="display-4 font-weight-bold mb-4">Optimiza tu logística con nuestro ERP</h2>
+            <p class="lead mb-4">Gestiona tu empresa de manera eficiente y profesional</p>
+            <a href="#modulos" class="btn btn-light btn-lg text-primary font-weight-bold">Explora Módulos</a>
+        </div>
+    </section>
+
+    <!-- Módulos -->
+    <section id="modulos" class="container py-5">
+        <h3 class="text-center mb-5 display-6">Módulos Principales</h3>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Proveedores</h5>
+                        <p class="card-text">Administración de proveedores y pedidos.</p>
+                        <a href="{% url 'modulos' %}#proveedores-section" class="btn btn-primary">Acceder</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Clientes</h5>
+                        <p class="card-text">Gestión de clientes y CRM básico.</p>
+                        <a href="{% url 'modulos' %}#clientes-section" class="btn btn-primary">Acceder</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Recursos Humanos</h5>
+                        <p class="card-text">Gestión de empleados, nómina y permisos.</p>
+                        <a href="#" class="btn btn-primary disabled">Próximamente</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Inventario</h5>
+                        <p class="card-text">Control de stock, entradas y salidas.</p>
+                        <a href="#" class="btn btn-primary disabled">Próximamente</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Contabilidad</h5>
+                        <p class="card-text">Facturación, pagos y reportes financieros.</p>
+                        <a href="#" class="btn btn-primary disabled">Próximamente</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Servicios</h5>
+                        <p class="card-text">Control de servicios logísticos ofrecidos.</p>
+                        <a href="#" class="btn btn-primary disabled">Próximamente</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Misión y Visión -->
+    <section id="mision-vision" class="bg-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h3 class="h4 font-weight-bold mb-3">Nuestra Misión</h3>
+                    <p>
+                        "Optimizar la gestión logística de empresas mediante un sistema ERP innovador, eficiente 
+                        y confiable, que integra tecnología avanzada con soluciones prácticas. Nuestro compromiso 
+                        es empoderar a nuestros clientes para que maximicen su productividad, reduzcan costos operativos
+                        y mejoren su competitividad en el mercado, garantizando siempre un servicio personalizado, 
+                        seguro y sostenible."
+                    </p>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <h3 class="h4 font-weight-bold mb-3">Nuestra Visión</h3>
+                    <p>
+                        "Ser líderes globales en el desarrollo de soluciones ERP logísticas, reconocidos por nuestra excelencia 
+                        tecnológica, capacidad de innovación y enfoque centrado en el cliente. Aspiramos a transformar la industria
+                        logística mediante herramientas inteligentes que impulsen la eficiencia, la sostenibilidad y el crecimiento
+                        empresarial en un mundo cada vez más conectado."
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contacto -->
+    <section id="contacto" class="container py-5">
+        <h3 class="text-center mb-5 display-6">Contáctanos</h3>
+        <form id="contact-form" class="col-md-6 mx-auto">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label font-weight-bold">Nombre</label>
+                <input type="text" class="form-control" id="contact-name" placeholder="Tu nombre" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label font-weight-bold">Correo Electrónico</label>
+                <input type="email" class="form-control" id="contact-email" placeholder="tucorreo@ejemplo.com" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label font-weight-bold">Mensaje</label>
+                <textarea class="form-control" id="contact-message" rows="5" placeholder="Escribe tu mensaje..." required></textarea>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="enviarContacto()">Enviar</button>
+        </form>
+    </section>
+
+    <!-- Modal de Login -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Iniciar Sesión</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="login-form">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Usuario</label>
+                            <input type="text" class="form-control" id="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="iniciarSesion()">Iniciar Sesión</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 border-top">
+        <p>© 2025 ERP Logística. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>
