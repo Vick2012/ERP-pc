@@ -4,19 +4,16 @@ from rest_framework.permissions import AllowAny
 from .models import Proveedor
 from .serializers import ProveedorSerializer
 
-# Vista de API para listar y crear proveedores
 class ProveedorListCreate(generics.ListCreateAPIView):
     queryset = Proveedor.objects.all()
     serializer_class = ProveedorSerializer
     permission_classes = [AllowAny]
 
-# Vista de API para obtener, actualizar y eliminar un proveedor específico
 class ProveedorRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = Proveedor.objects.all()
     serializer_class = ProveedorSerializer
     permission_classes = [AllowAny]
 
-# Vistas del frontend
 def index(request):
     proveedores = Proveedor.objects.all()
     return render(request, 'proveedores/index.html', {'proveedores': proveedores})

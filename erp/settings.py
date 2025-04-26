@@ -11,7 +11,7 @@ SECRET_KEY = 'django-insecure-d^hjn8u&xsv@f$$t86ip%3=09rf)l%d6wx%oq_qibu+u$vtkj5
 DEBUG = True
 
 # Hosts permitidos (ajústalos en producción)
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Agregado para desarrollo local
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Aplicaciones instaladas
 INSTALLED_APPS = [
@@ -22,7 +22,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',    # Para APIs
-    'frontend',       # Para conectar con frontend externo
+    'corsheaders',      # Para manejar CORS
+    'frontend',         # Para conectar con frontend externo
     'proveedores',       # Módulo Proveedores
     'clientes',          # Módulo Clientes
 ]
@@ -46,7 +47,7 @@ ROOT_URLCONF = 'erp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'frontend/templates')],  # Directorio de plantillas
+        'DIRS': [os.path.join(BASE_DIR, 'frontend/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -59,10 +60,8 @@ TEMPLATES = [
     },
 ]
 
-
 # Configuración de WSGI (necesaria para el despliegue)
-WSGI_APPLICATION = 'erp.wsgi.application'  # Agregado explícitamente
-
+WSGI_APPLICATION = 'erp.wsgi.application'
 
 # Base de datos PostgreSQL
 DATABASES = {
@@ -72,43 +71,40 @@ DATABASES = {
         'USER': 'erp_user',
         'PASSWORD': 'J@ir1017',
         'HOST': 'localhost',
-        'PORT': '5432',  # Asegúrate de que coincide con tu configuración de PostgreSQL
+        'PORT': '5432',
     }
 }
+
 # Archivos estáticos
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend/static')]  # Directorio de archivos estáticos
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend/static')]
 
-# Configuración de CORS (para desarrollo)
-CORS_ALLOW_ALL_ORIGINS = True  # En producción, usa CORS_ALLOWED_ORIGINS
+# Configuración de CSRF
+CSRF_COOKIE_SECURE = False  # Cambia a True en producción con HTTPS
+CSRF_COOKIE_HTTPONLY = False
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+
+# Configuración de CORS
+CORS_ALLOW_ALL_ORIGINS = True  # Para desarrollo; en producción, usa CORS_ALLOWED_ORIGINS
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:8000',
+#     'http://127.0.0.1:8000',
+# ]
 
 # Configuración de REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # Para pruebas; en producción, ajusta según necesites
+        'rest_framework.permissions.AllowAny',  # Permitir acceso sin autenticación para pruebas
     ],
-}
-
-# Asegúrate de que DEBUG esté activado para ver errores detallados
-DEBUG = True
-# Configuración de Django REST Framework
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated'],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',  # Agregado para más opciones
+        'rest_framework.authentication.BasicAuthentication',
     ],
 }
 
-# Configuración de CORS (ajústalos según tu frontend)
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-]
-
 # Internacionalización
-LANGUAGE_CODE = 'es'  # Cambiado a español, ya que el proyecto está en español
-TIME_ZONE = 'America/Bogota'  # Ajustado para Colombia (ajústalo según tu ubicación)
+LANGUAGE_CODE = 'es'
+TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
 
