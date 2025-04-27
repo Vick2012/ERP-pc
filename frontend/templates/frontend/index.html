@@ -1,10 +1,10 @@
-<!DOCTYPE html>
 {% load static %}
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERP Logística</title>
+    <title>EventSync</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
@@ -12,18 +12,55 @@
     <!-- Encabezado -->
     <header class="bg-dark text-white py-3 shadow">
         <div class="container d-flex justify-content-between align-items-center">
-            <h1 class="h3 mb-0">EventSync</h1>
+            <a href="{% url 'index' %}" class="navbar-brand">
+                <h2 class="h3 mb-0">EventSync</h2>
+            </a>
             <nav class="d-flex align-items-center">
                 <a href="{% url 'index' %}" class="text-white mx-2">Inicio</a>
                 <a href="#modulos" class="text-white mx-2">Módulos</a>
                 <a href="#mision-vision" class="text-white mx-2">Misión y Visión</a>
-                <a href="#contacto" class="text-white mx-2">Contactanós</a>
-                <a href="#" id="buy-erp-btn" class="btn btn-success mx-2" style="display: none;">Comprar ERP</a>
+                <a href="#contacto" class="text-white mx-2">Contacto</a>
+                <a href="#" id="buy-erp-btn" class="btn btn-success mx-2" style="display: none;">Comprar EventSync</a>
+                <a href="#" id="register-btn" class="btn btn-warning mx-2">Registrarse</a>
                 <a href="#" id="login-btn" class="btn btn-primary mx-2">Iniciar Sesión</a>
                 <a href="{% url 'logout' %}" id="logout-btn" class="btn btn-secondary mx-2" style="display: none;">Cerrar Sesión</a>
             </nav>
         </div>
     </header>
+    <!-- Modal de Registro -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerModalLabel">Registrarse</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="register-form">
+                    {% csrf_token %}
+                    <div id="register-error" class="alert alert-danger d-none" role="alert"></div>
+                    <div class="mb-3">
+                        <label for="register-name" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="register-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register-email" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="register-email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register-username" class="form-label">Nombre de Usuario</label>
+                        <input type="text" class="form-control" id="register-username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register-password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="register-password" required>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="registrarUsuario()">Registrarse</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>    
 
     <!-- Hero Section -->
     <section class="bg-primary text-white text-center py-5">
@@ -103,7 +140,7 @@
                 <div class="col-md-6 mb-4">
                     <h3 class="h4 font-weight-bold mb-3">Nuestra Misión</h3>
                     <p>
-                        "Optimizar la gestión logística de empresas mediante un sistema ERP innovador, eficiente 
+                        "Optimizar la gestión logística de empresas mediante EventSync, un sistema innovador, eficiente 
                         y confiable, que integra tecnología avanzada con soluciones prácticas. Nuestro compromiso 
                         es empoderar a nuestros clientes para que maximicen su productividad, reduzcan costos operativos
                         y mejoren su competitividad en el mercado, garantizando siempre un servicio personalizado, 
@@ -113,7 +150,7 @@
                 <div class="col-md-6 mb-4">
                     <h3 class="h4 font-weight-bold mb-3">Nuestra Visión</h3>
                     <p>
-                        "Ser líderes globales en el desarrollo de soluciones ERP logísticas, reconocidos por nuestra excelencia 
+                        "Ser líderes globales con EventSync, reconocidos por nuestra excelencia 
                         tecnológica, capacidad de innovación y enfoque centrado en el cliente. Aspiramos a transformar la industria
                         logística mediante herramientas inteligentes que impulsen la eficiencia, la sostenibilidad y el crecimiento
                         empresarial en un mundo cada vez más conectado."
@@ -172,10 +209,11 @@
 
     <!-- Footer -->
     <footer class="bg-dark text-white text-center py-3 border-top">
-        <p>© 2025 ERP Logística. Todos los derechos reservados.</p>
+        <p>© 2025 EventSync. Todos los derechos reservados.</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/app.js' %}"></script>
 </body>
 </html>
+

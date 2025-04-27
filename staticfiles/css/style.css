@@ -1,3 +1,35 @@
+/* Sobrescribir el color primario de Bootstrap */
+.bg-primary {
+    background-color: #28a745 !important; /* Verde esmeralda */
+}
+
+.text-primary {
+    color: #28a745 !important; /* Verde esmeralda para texto */
+}
+
+.btn-primary {
+    background-color: #28a745 !important; /* Verde esmeralda para botones */
+    border-color: #28a745 !important;
+}
+
+.btn-primary:hover {
+    background-color: #218838 !important; /* Un tono más oscuro para el hover */
+    border-color: #1e7e34 !important;
+}
+
+.table-primary,
+.table-primary > th,
+.table-primary > td {
+    background-color: #28a745 !important; /* Verde esmeralda para cabeceras de tablas */
+    color: white !important;
+}
+
+/* Asegurar que los enlaces en el encabezado tengan el color correcto */
+.nav-link:hover,
+.nav-link:focus {
+    color: #28a745 !important;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f8f9fa;
@@ -76,4 +108,60 @@ tr:hover {
 
 .card:hover {
     transform: scale(1.05);
+}
+
+/* Estilos adicionales para la página principal */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+section#modulos .card {
+    border: none;
+}
+
+section#mision-vision p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+section#contacto .form-label {
+    font-weight: 600;
+}
+
+footer {
+    border-top: 1px solid #dee2e6;
+}
+
+/* Sobrescribir el color primario de Bootstrap */
+.bg-primary {
+    background-color: #28a745 !important; /* Verde esmeralda */
+}
+
+.text-primary {
+    color: #28a745 !important; /* Verde esmeralda para texto */
+}
+
+.btn-primary {
+    background-color: #28a745 !important; /* Verde esmeralda para botones */
+    border-color: #28a745 !important;
+}
+
+.btn-primary:hover {
+    background-color: #218838 !important; /* Un tono más oscuro para el hover */
+    border-color: #1e7e34 !important;
+}
+
+.table-primary,
+.table-primary > th,
+.table-primary > td {
+    background-color: #28a745 !important; /* Verde esmeralda para cabeceras de tablas */
+    color: white !important;
+}
+
+/* Asegurar que los enlaces en el encabezado tengan el color correcto */
+.nav-link:hover,
+.nav-link:focus {
+    color: #28a745 !important;
 }
