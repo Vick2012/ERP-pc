@@ -1,14 +1,25 @@
 from django.urls import path
-from . import views
-from .views import index
+from .views import (
+    index, inicio, logout_user, list_contacts, auth_status, register,
+    login_user, save_contact, ContactListCreateView, ProveedoresListCreateView,
+    ClientesListCreateView, ProveedorDetailView, ClienteDetailView
+)
 
 urlpatterns = [
-    path('', index, name='index'),
-    path('', views.index, name='index'),
-    path('modulos/', views.inicio, name='modulos'),
-    path('logout/', views.logout_user, name='logout'),
-    path('status/', views.auth_status, name='auth_status'),
-    path('save-contact/', views.save_contact, name='save_contact'),
-    path('login/', views.login_user, name='login_user'),
-    path('register/', views.register_user, name='register_user'),
+    # Rutas para renderizar páginas
+    path('', index, name='index'),  # Página principal
+    path('modulos/', inicio, name='modulos'),  # Página de módulos
+    path('logout/', logout_user, name='logout'),  # Cerrar sesión
+
+    # Rutas de API
+    path('api/contacts/list/', list_contacts, name='list_contacts'),
+    path('api/auth/status/', auth_status, name='auth_status'),
+    path('api/auth/register/', register, name='register'),
+    path('api/auth/login/', login_user, name='login'),
+    path('api/auth/save-contact/', save_contact, name='save_contact'),
+    path('api/Contacts/', ContactListCreateView.as_view(), name='contact_list_create'),
+    path('api/proveedores/', ProveedoresListCreateView.as_view(), name='proveedores_list_create'),
+    path('api/clientes/', ClientesListCreateView.as_view(), name='clientes_list_create'),
+    path('api/proveedores/<int:pk>/', ProveedorDetailView.as_view(), name='proveedor_detail'),
+    path('api/clientes/<int:pk>/', ClienteDetailView.as_view(), name='cliente_detail'),
 ]

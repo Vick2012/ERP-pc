@@ -63,7 +63,6 @@ INSTALLED_APPS = [
     'proveedores',       # Módulo Proveedores
     'clientes',          # Módulo Clientes
 ]
-
 # Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -148,8 +147,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # Permitir acceso sin autenticación para pruebas
+        'rest_framework.permissions.AllowAny',
     ],
+    'DEFAULT_CSRF_COOKIE_SECURE': False,
 }
 
 # Internacionalización

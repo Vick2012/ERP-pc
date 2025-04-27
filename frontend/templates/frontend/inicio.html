@@ -18,6 +18,9 @@
     <link rel="icon" href="{% static 'img/logo.png' %}" type="image/png">
 </head>
 <body>
+    <!-- Token CSRF -->
+    {% csrf_token %}
+
     <!-- Encabezado -->
     <header class="header">
         <div class="header-top bg-primary text-white py-2">
@@ -61,7 +64,6 @@
             <div class="row align-items-center">
                 <div class="col-lg-6">
                     <img src="{% static 'img/logo.png' %}" alt="Logo ERP" style="height: 250px;">
-                    
                 </div>
                 <div class="col-lg-6 text-center">
                     <img src="{% static 'img/imagen1.png' %}" alt="Equipo trabajando en logística" class="img-fluid rounded shadow">
@@ -98,10 +100,10 @@
                     </tbody>
                 </table>
             </div>
-            <button class="btn btn-success mt-3" onclick="mostrarFormularioProveedor()">Agregar Proveedor</button>
-            <form id="formulario-proveedor" class="hidden mt-4 p-4 bg-white rounded shadow">
-                {% csrf_token %}
+            <button class="btn btn-success mt-3" onclick="mostrarFormulario('proveedores')">Agregar Proveedor</button>
+            <div id="formulario-proveedor" class="hidden mt-4 p-4 bg-white rounded shadow">
                 <h3 class="text-primary mb-3">Agregar/Editar Proveedor</h3>
+                <input type="hidden" id="proveedores-id">
                 <div class="mb-3">
                     <input type="text" id="nombre-proveedor" class="form-control" placeholder="Empresa" required>
                 </div>
@@ -109,19 +111,20 @@
                     <input type="text" id="contacto-proveedor" class="form-control" placeholder="Contacto" required>
                 </div>
                 <div class="mb-3">
-                    <input type="text" id="direccion-proveedor" class="form-control" placeholder="Dirección" required>
+                    <input type="text" id="direccion-proveedor" class="form-control" placeholder="Dirección">
                 </div>
                 <div class="mb-3">
-                    <input type="text" id="telefono-proveedor" class="form-control" placeholder="Teléfono" required>
+                    <input type="text" id="telefono-proveedor" class="form-control" placeholder="Teléfono">
                 </div>
                 <div class="mb-3">
-                    <input type="email" id="email-proveedor" class="form-control" placeholder="E-mail" required>
+                    <input type="email" id="email-proveedor" class="form-control" placeholder="E-mail">
                 </div>
                 <div class="mb-3">
-                    <input type="text" id="tipo_proveedor" class="form-control" placeholder="Tipo de proveedor" required>
+                    <input type="text" id="tipo_proveedor" class="form-control" placeholder="Tipo de proveedor">
                 </div>
-                <button type="button" class="btn btn-primary" onclick="guardarProveedor()">Guardar</button>
-            </form>
+                <button type="button" class="btn btn-primary" onclick="guardarEntidad('proveedores')">Guardar</button>
+                <button type="button" class="btn btn-secondary" onclick="limpiarFormulario('proveedores')">Cancelar</button>
+            </div>
         </div>
     </section>
 
@@ -150,9 +153,10 @@
                     </tbody>
                 </table>
             </div>
-            <button class="btn btn-success mt-3" onclick="mostrarFormularioCliente()">Agregar Cliente</button>
-            <form id="formulario-cliente" class="hidden mt-4 p-4 bg-white rounded shadow">
+            <button class="btn btn-success mt-3" onclick="mostrarFormulario('clientes')">Agregar Cliente</button>
+            <div id="formulario-cliente" class="hidden mt-4 p-4 bg-white rounded shadow">
                 <h3 class="text-primary mb-3">Agregar/Editar Cliente</h3>
+                <input type="hidden" id="clientes-id">
                 <div class="mb-3">
                     <input type="text" id="nombre-cliente" class="form-control" placeholder="Nombre" required>
                 </div>
@@ -160,10 +164,11 @@
                     <input type="text" id="contacto-cliente" class="form-control" placeholder="Contacto" required>
                 </div>
                 <div class="mb-3">
-                    <input type="text" id="preferencias-cliente" class="form-control" placeholder="Preferencias" required>
+                    <input type="text" id="preferencias-cliente" class="form-control" placeholder="Preferencias">
                 </div>
-                <button type="button" class="btn btn-primary" onclick="guardarCliente()">Guardar</button>
-            </form>
+                <button type="button" class="btn btn-primary" onclick="guardarEntidad('clientes')">Guardar</button>
+                <button type="button" class="btn btn-secondary" onclick="limpiarFormulario('clientes')">Cancelar</button>
+            </div>
         </div>
     </section>
 
