@@ -13,17 +13,23 @@ DEBUG = True
 # Hosts permitidos (ajústalos en producción)
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+# Aplicaciones instaladas
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',  # Necesario para manejar archivos estáticos
-    'rest_framework',
-    'proveedores',
-    'clientes',
-    'frontend',
+    'django.contrib.staticfiles',
+    'rest_framework',    # Para APIs
+    'corsheaders',      # Para manejar CORS
+    'frontend',         # Para conectar con frontend externo
+    'proveedores',       # Módulo Proveedores
+    'clientes',          # Módulo Clientes
+    'recursos_humanos',  # Módulo Recursos Humanos
+    # 'inventario',        # Módulo Inventario
+    # 'contabilidad',     # Módulo Contabilidad
+    # 'servicios',        # Módulo Servicios
 ]
 
 TEMPLATES = [
@@ -49,20 +55,7 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Aplicaciones instaladas
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',    # Para APIs
-    'corsheaders',      # Para manejar CORS
-    'frontend',         # Para conectar con frontend externo
-    'proveedores',       # Módulo Proveedores
-    'clientes',          # Módulo Clientes
-]
+
 # Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
