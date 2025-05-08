@@ -1,16 +1,17 @@
 from django.urls import path
-from frontend.views import ClientesListCreateView, ClienteDetailView  # Importamos desde frontend.views
+from . import views
+from .views import ClienteListCreate, ClienteRetrieveUpdateDestroy
 
 app_name = 'clientes'
 
-# Rutas del frontend (usadas por vistas basadas en funciones, si las necesitas)
-frontend_urlpatterns = [
-    # No definimos rutas de frontend porque no tenemos vistas como registrar, editar, eliminar
-    # Si las necesitas, crea las vistas correspondientes en frontend/views.py
-]
+urlpatterns = [
+    # Rutas web
+    path('', views.index, name='index'),
+    path('registrar/', views.registrar, name='registrar'),
+    path('editar/<int:cliente_id>/', views.editar, name='editar'),
+    path('eliminar/<int:cliente_id>/', views.eliminar, name='eliminar'),
 
-# Rutas de la API (usadas por app.js)
-api_urlpatterns = [
-    path('', ClientesListCreateView.as_view(), name='cliente-list-create'),
-    path('<int:pk>/', ClienteDetailView.as_view(), name='cliente-detail'),
+    # Rutas API
+    path('api/', ClienteListCreate.as_view(), name='cliente-list-create'),
+    path('api/<int:pk>/', ClienteRetrieveUpdateDestroy.as_view(), name='cliente-detail'),
 ]

@@ -5,8 +5,16 @@ from rest_framework.decorators import api_view
 from rest_framework import generics
 from django.contrib.auth.hashers import make_password, check_password
 from django.db import transaction, IntegrityError
-from .models import Contact, Proveedor, Cliente
-from .serializers import ContactSerializer, ProveedorSerializer, ClienteSerializer
+from .models import Contact, Proveedor
+from .serializers import ContactSerializer, ProveedorSerializer
+from rest_framework import generics
+from clientes.models import Cliente
+from clientes.serializers import ClienteSerializer
+
+class ClientesListCreateView(generics.ListCreateAPIView):
+    queryset = Cliente.objects.all()
+    serializer_class = ClienteSerializer
+
 
 class ContactListCreateView(generics.ListCreateAPIView):
     queryset = Contact.objects.all()
@@ -173,19 +181,11 @@ class ProveedoresListCreateView(generics.ListCreateAPIView):
     serializer_class = ProveedorSerializer
 
 # Vista para la API /api/clientes/
-class ClientesListCreateView(generics.ListCreateAPIView):
-    queryset = Cliente.objects.all()
-    serializer_class = ClienteSerializer
 
 # Vista para actualizar o eliminar un proveedor
 class ProveedorDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Proveedor.objects.all()
     serializer_class = ProveedorSerializer
-
-# Vista para actualizar o eliminar un cliente
-class ClienteDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Cliente.objects.all()
-    serializer_class = ClienteSerializer
 
 class ContactListCreateView(generics.ListCreateAPIView):
     queryset = Contact.objects.all()

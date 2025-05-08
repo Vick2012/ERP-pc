@@ -8,7 +8,10 @@ class Proveedor(models.Model):
     telefono = models.CharField(max_length=15, blank=True)
     email = models.EmailField(blank=True)
     tipo_proveedor = models.CharField(max_length=100, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)  # Agrega este campo o ajusta el existente
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'proveedores' 
 
     def __str__(self):
         return self.nombre

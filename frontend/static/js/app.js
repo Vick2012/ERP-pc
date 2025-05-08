@@ -1,4 +1,5 @@
 const CONFIG = {
+
     proveedores: {
         apiUrl: "/api/proveedores/",
         tableId: "tabla-proveedores",
@@ -42,7 +43,7 @@ const CONFIG = {
         searchFields: ["nombre", "contacto", "preferencias"],
     },
     recursos_humanos: {
-        apiUrl: "/api/recursos_humanos/",
+        apiUrl: "/api/rrhh/empleados/",
         tableId: "tabla-recursos_humanos",
         formId: "formulario-recursos_humanos",
         fields: [
@@ -100,6 +101,7 @@ const Utils = {
         alert(message);
     },
 };
+
 
 // Gestión de Entidades
 const EntityManager = {
