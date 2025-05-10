@@ -29,10 +29,11 @@ urlpatterns = [
     # ✅ Rutas web por módulo (HTML render)
     path('clientes/', include('clientes.urls', namespace='clientes')),
     path('rrhh/', include('recursos_humanos.urls', namespace='rrhh')),
-    path('api/rrhh/', include('recursos_humanos.api_urls', namespace='rrhh-api')),
 
     # Admin
     path('admin/', admin.site.urls),
+
+    
     # API REST
 
 ]

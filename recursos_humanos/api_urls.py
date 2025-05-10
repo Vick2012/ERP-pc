@@ -1,5 +1,7 @@
 from django.urls import path
+from .views import RecursosHumanosRootView
 from .views import (
+    RecursosHumanosRootView,
     EmpleadoListCreateView, EmpleadoDetailView,
     NominaListCreateView, NominaDetailView,
     AusentismoListCreateView, AusentismoDetailView,
@@ -10,6 +12,8 @@ from .views import (
 app_name = 'rrhh-api'
 
 urlpatterns = [
+    path('', RecursosHumanosRootView.as_view(), name='rrhh_root'),
+
     path('empleados/', EmpleadoListCreateView.as_view(), name='empleado_list_create'),
     path('empleados/<int:pk>/', EmpleadoDetailView.as_view(), name='empleado_detail'),
     

@@ -1,0 +1,176 @@
+/* Sobrescribir el color primario de Bootstrap */
+.bg-primary {
+    background-color: #28a745 !important; /* Verde esmeralda */
+}
+
+.text-primary {
+    color: #28a745 !important; /* Verde esmeralda para texto */
+}
+
+.btn-primary {
+    background-color: #28a745 !important; /* Verde esmeralda para botones */
+    border-color: #28a745 !important;
+}
+
+.btn-primary:hover {
+    background-color: #218838 !important; /* Un tono más oscuro para el hover */
+    border-color: #1e7e34 !important;
+}
+
+.table-primary,
+.table-primary > th,
+.table-primary > td {
+    background-color: #28a745 !important; /* Verde esmeralda para cabeceras de tablas */
+    color: white !important;
+}
+
+/* Asegurar que los enlaces en el encabezado tengan el color correcto */
+.nav-link:hover,
+.nav-link:focus {
+    color: #28a745 !important;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.hidden {
+    display: none;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+th {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #e9ecef;
+}
+
+.btn {
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+/* Estilos adicionales para la página principal */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+section#modulos .card {
+    border: none;
+}
+
+section#mision-vision p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+section#contacto .form-label {
+    font-weight: 600;
+}
+
+footer {
+    border-top: 1px solid #dee2e6;
+}
+
+/* Sobrescribir el color primario de Bootstrap */
+.bg-primary {
+    background-color: #28a745 !important; /* Verde esmeralda */
+}
+
+.text-primary {
+    color: #28a745 !important; /* Verde esmeralda para texto */
+}
+
+.btn-primary {
+    background-color: #28a745 !important; /* Verde esmeralda para botones */
+    border-color: #28a745 !important;
+}
+
+.btn-primary:hover {
+    background-color: #218838 !important; /* Un tono más oscuro para el hover */
+    border-color: #1e7e34 !important;
+}
+
+.table-primary,
+.table-primary > th,
+.table-primary > td {
+    background-color: #28a745 !important; /* Verde esmeralda para cabeceras de tablas */
+    color: white !important;
+}
+
+/* Asegurar que los enlaces en el encabezado tengan el color correcto */
+.nav-link:hover,
+.nav-link:focus {
+    color: #28a745 !important;
+}
+#tabla-recursos_humanos th,
+#tabla-recursos_humanos td {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}

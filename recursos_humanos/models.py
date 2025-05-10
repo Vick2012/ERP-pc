@@ -8,7 +8,7 @@ class Empleado(models.Model):
         ('ti', 'Tarjeta de Identidad'),
         ('pasaporte', 'Pasaporte'),
     ])
-    documento = models.CharField(max_length=20, unique=True)
+    documento = models.CharField(max_length=20)
     fecha_ingreso = models.DateField()
     cargo = models.CharField(max_length=50, choices=[
         ('operario', 'Operario'),
@@ -22,14 +22,14 @@ class Empleado(models.Model):
         ('oficina', 'Oficina'),
         ('despachos', 'Despachos'),
     ])
-    telefono = models.CharField(max_length=20, blank=True)
+    telefono = models.CharField(max_length=20)
     correo = models.EmailField(unique=True)
     contrato = models.CharField(max_length=50, choices=[
         ('fijo', 'Término Fijo'),
         ('indefinido', 'Indefinido'),
         ('temporal', 'Temporal'),
     ])
-    contacto = models.CharField(max_length=100, blank=True)
+    contacto = models.CharField(max_length=100)
 
     class Meta:
         db_table = 'rrhh_empleado'
@@ -59,7 +59,7 @@ class Ausentismo(models.Model):
     empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, related_name='ausentismos')
     fecha = models.DateField()
     duracion_horas = models.DecimalField(max_digits=5, decimal_places=2)
-    motivo = models.TextField(blank=True)
+    motivo = models.TextField()
 
     class Meta:
         db_table = 'rrhh_ausentismo'

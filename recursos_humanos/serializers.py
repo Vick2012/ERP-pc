@@ -2,6 +2,12 @@ from rest_framework import serializers
 from .models import Empleado, Nomina, Ausentismo, HoraExtra, Contact
 
 
+def create(self, validated_data):
+    print("Validated:", validated_data)
+    return super().create(validated_data)
+
+
+
 class EmpleadoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Empleado

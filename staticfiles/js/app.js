@@ -1,5 +1,5 @@
-// Configuración centralizada para proveedores y clientes
 const CONFIG = {
+
     proveedores: {
         apiUrl: "/api/proveedores/",
         tableId: "tabla-proveedores",
@@ -42,998 +42,294 @@ const CONFIG = {
         ],
         searchFields: ["nombre", "contacto", "preferencias"],
     },
+    recursos_humanos: {
+        apiUrl: "/api/rrhh/empleados/",
+        tableId: "tabla-recursos_humanos",
+        formId: "formulario-recursos_humanos",
+        fields: [
+            { id: "nombre-recursos_humanos", key: "nombre", required: true },
+            { id: "cargo-recursos_humanos", key: "cargo", required: true },
+            { id: "salario-recursos_humanos", key: "salario", required: true },
+            { id: "area-recursos_humanos", key: "area", required: true },
+            { id: "telefono-recursos_humanos", key: "telefono", required: false },
+            { id: "correo-recursos_humanos", key: "correo", required: true },
+            { id: "contrato-recursos_humanos", key: "contrato", required: true },
+        ],
+        tableHeaders: ["", "ID", "Nombre", "Cargo", "Salario", "Área", "Teléfono", "Correo", "Contrato", "Acciones"],
+        getRowData: (item) => [
+            "",
+            item.id,
+            item.nombre,
+            item.cargo || "Sin cargo",
+            item.salario || "Sin salario",
+            item.area || "Sin área",
+            item.telefono || "Sin teléfono",
+            item.correo || "Sin correo",
+            item.contrato || "Sin contrato",
+        ],
+        searchFields: ["nombre", "cargo", "salario", "area", "telefono", "correo", "contrato"],
+    },
 };
 
-// Mostrar u ocultar el formulario
-function mostrarFormulario(tipo) {
-    const config = CONFIG[tipo];
-    const formulario = document.getElementById(config.formId);
-    formulario.classList.toggle("hidden");
-}
+// Utilidades
+const Utils = {
+    getCsrfToken() {
+        const token = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        if (token) return token;
 
-// Limpiar los campos del formulario
-function limpiarFormulario(tipo) {
-    const config = CONFIG[tipo];
-    config.fields.forEach(field => {
-        document.getElementById(field.id).value = "";
-    });
-    // Limpiar el campo oculto del ID, si existe
-    const idField = document.getElementById(`${tipo}-id`);
-    if (idField) idField.value = "";
-    mostrarFormulario(tipo); // Ocultar el formulario
-}
+        const name = 'csrftoken';
+        const cookie = document.cookie.split(';').find(c => c.trim().startsWith(name + '='));
+        return cookie ? decodeURIComponent(cookie.split('=')[1]) : (() => { throw new Error("Token CSRF no encontrado."); })();
+    },
 
-// Obtener el token CSRF
-function obtenerTokenCSRF() {
-    const token = document.querySelector('[name=csrfmiddlewaretoken]');
-    if (!token) {
-        console.error("Token CSRF no encontrado.");
-        alert("Error: Token CSRF no encontrado.");
-        throw new Error("Token CSRF no encontrado.");
-    }
-    return token.value;
-}
+    async makeRequest(url, method = 'GET', data = null) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (['POST', 'PUT', 'DELETE'].includes(method)) headers['X-CSRFToken'] = this.getCsrfToken();
 
-// Cargar datos desde la API
-function cargarDatos(tipo) {
-    const config = CONFIG[tipo];
-    fetch(config.apiUrl, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-    })
-    .then(response => response.json())
-    .then(data => {
-        const tabla = document.getElementById(config.tableId);
-        tabla.innerHTML = ""; // Limpiar la tabla
+        const options = { method, headers };
+        if (data) options.body = JSON.stringify(data);
 
-        // Crear encabezados
-        const encabezado = document.createElement("tr");
-        config.tableHeaders.forEach(header => {
-            const th = document.createElement("th");
-            th.textContent = header;
-            encabezado.appendChild(th);
-        });
-        tabla.appendChild(encabezado);
+        const response = await fetch(url, options);
+        const result = await response.json().catch(() => { throw new Error(`Error al parsear: ${response.statusText}`); });
 
-        // Crear filas
+        if (!response.ok) throw new Error(result.error || `Error: ${response.statusText}`);
+        return result;
+    },
+
+    showMessage(message, type = 'error') {
+        console.log(`Mensaje: ${message}, Tipo: ${type}`);
+        alert(message);
+    },
+};
+
+
+// Gestión de Entidades
+const EntityManager = {
+    async loadData(tipo) {
+        try {
+            const data = await Utils.makeRequest(CONFIG[tipo].apiUrl);
+            this.renderTable(tipo, data);
+        } catch (error) {
+            console.error(`Error al cargar ${tipo}:`, error);
+            Utils.showMessage(`Error al cargar ${tipo}.`);
+        }
+    },
+
+    renderTable(tipo, data) {
+        const { tableId, tableHeaders, getRowData } = CONFIG[tipo];
+        const table = document.getElementById(tableId);
+        table.innerHTML = `<tr>${tableHeaders.map(header => `<th>${header}</th>`).join('')}</tr>`;
+
         data.forEach(item => {
-            const fila = document.createElement("tr");
-            const rowData = config.getRowData(item);
-            rowData.forEach(cellData => {
-                const td = document.createElement("td");
-                td.textContent = cellData;
-                fila.appendChild(td);
+            const row = document.createElement('tr');
+            row.innerHTML = getRowData(item).map(cell => `<td>${cell}</td>`).join('') +
+                `<td><button class="btn btn-warning btn-sm" onclick="EntityManager.editEntity('${tipo}', ${item.id})">Editar</button>` +
+                `<button class="btn btn-danger btn-sm" onclick="EntityManager.deleteEntity('${tipo}', ${item.id})">Eliminar</button></td>`;
+            table.appendChild(row);
+        });
+    },
+
+    searchData(tipo) {
+        const { apiUrl, searchFields } = CONFIG[tipo];
+        const searchTerm = document.getElementById(`search-${tipo}`).value.toLowerCase();
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const filtered = data.filter(item =>
+                    searchFields.some(field => item[field]?.toLowerCase().includes(searchTerm))
+                );
+                this.renderTable(tipo, filtered);
+            })
+            .catch(error => {
+                console.error(`Error al buscar ${tipo}:`, error);
+                Utils.showMessage(`Error al buscar ${tipo}.`);
             });
-            const actionsTd = document.createElement("td");
-            actionsTd.innerHTML = `
-                <button class="btn btn-warning btn-sm" onclick="editarEntidad('${tipo}', ${item.id})">Editar</button>
-                <button class="btn btn-danger btn-sm" onclick="eliminarEntidad('${tipo}', ${item.id})">Eliminar</button>
-            `;
-            fila.appendChild(actionsTd);
-            tabla.appendChild(fila);
-        });
-    })
-    .catch(error => {
-        console.error(`Error al cargar ${tipo}:`, error);
-        alert(`Error al cargar ${tipo}. Revisa la consola para más detalles.`);
-    });
-}
+    },
 
-// Buscar datos (filtro)
-function buscarDatos(tipo) {
-    const config = CONFIG[tipo];
-    const searchTerm = document.getElementById(`search-${tipo}`).value.toLowerCase();
-    fetch(config.apiUrl)
-    .then(response => response.json())
-    .then(data => {
-        const filteredData = data.filter(item =>
-            config.searchFields.some(field =>
-                item[field] && item[field].toLowerCase().includes(searchTerm)
-            )
-        );
-        const tabla = document.getElementById(config.tableId);
-        tabla.innerHTML = "";
-        const encabezado = document.createElement("tr");
-        config.tableHeaders.forEach(header => {
-            const th = document.createElement("th");
-            th.textContent = header;
-            encabezado.appendChild(th);
-        });
-        tabla.appendChild(encabezado);
-        filteredData.forEach(item => {
-            const fila = document.createElement("tr");
-            const rowData = config.getRowData(item);
-            rowData.forEach(cellData => {
-                const td = document.createElement("td");
-                td.textContent = cellData;
-                fila.appendChild(td);
+    async editEntity(tipo, id) {
+        try {
+            const { apiUrl, fields, formId } = CONFIG[tipo];
+            const item = await Utils.makeRequest(`${apiUrl}${id}/`);
+            fields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (element.tagName === 'SELECT') {
+                    element.value = item[field.key] || '';
+                } else {
+                    element.value = item[field.key] || '';
+                }
             });
-            const actionsTd = document.createElement("td");
-            actionsTd.innerHTML = `
-                <button class="btn btn-warning btn-sm" onclick="editarEntidad('${tipo}', ${item.id})">Editar</button>
-                <button class="btn btn-danger btn-sm" onclick="eliminarEntidad('${tipo}', ${item.id})">Eliminar</button>
-            `;
-            fila.appendChild(actionsTd);
-            tabla.appendChild(fila);
-        });
-    })
-    .catch(error => {
-        console.error(`Error al buscar ${tipo}:`, error);
-        alert(`Error al buscar ${tipo}. Revisa la consola para más detalles.`);
-    });
-}
-
-// Editar una entidad
-function editarEntidad(tipo, id) {
-    const config = CONFIG[tipo];
-    fetch(`${config.apiUrl}${id}/`)
-    .then(response => response.json())
-    .then(item => {
-        config.fields.forEach(field => {
-            document.getElementById(field.id).value = item[field.key] || "";
-        });
-        // Guardar el ID en un campo oculto
-        const idField = document.getElementById(`${tipo}-id`);
-        if (idField) idField.value = id;
-        if (document.getElementById(config.formId).classList.contains("hidden")) {
-            mostrarFormulario(tipo);
+            document.getElementById(`${tipo}-id`).value = id;
+            if (document.getElementById(formId).classList.contains('hidden')) this.toggleForm(tipo);
+        } catch (error) {
+            console.error(`Error al editar ${tipo}:`, error);
+            Utils.showMessage(`Error al cargar ${tipo} para editar.`);
         }
-    })
-    .catch(error => {
-        console.error(`Error al cargar ${tipo} para editar:`, error);
-        alert(`Error al cargar ${tipo} para editar.`);
-    });
-}
+    },
 
-// Eliminar una entidad
-function eliminarEntidad(tipo, id) {
-    if (!confirm(`¿Estás seguro de que deseas eliminar este ${tipo.slice(0, -1)}?`)) return;
-
-    const config = CONFIG[tipo];
-    fetch(`${config.apiUrl}${id}/`, {
-        method: "DELETE",
-        headers: { "X-CSRFToken": obtenerTokenCSRF() },
-    })
-    .then(response => {
-        if (!response.ok) throw new Error(`Error al eliminar ${tipo}`);
-        alert(`${tipo.slice(0, -1)} eliminado exitosamente!`);
-        cargarDatos(tipo);
-    })
-    .catch(error => {
-        console.error(`Error al eliminar ${tipo}:`, error);
-        alert(`Error al eliminar ${tipo}.`);
-    });
-}
-
-// Guardar una entidad (nuevo o editado)
-function guardarEntidad(tipo) {
-    const config = CONFIG[tipo];
-    const data = {};
-    config.fields.forEach(field => {
-        const value = document.getElementById(field.id).value;
-        data[field.key] = value || undefined;
-    });
-
-    // Validaciones básicas
-    const requiredFields = config.fields.filter(field => field.required);
-    for (const field of requiredFields) {
-        if (!data[field.key]) {
-            alert(`Los campos ${field.key} son obligatorios.`);
-            return;
+    async deleteEntity(tipo, id) {
+        if (!confirm(`¿Eliminar ${tipo.slice(0, -1)} con ID ${id}?`)) return;
+        try {
+            const { apiUrl } = CONFIG[tipo];
+            await Utils.makeRequest(`${apiUrl}${id}/`, 'DELETE');
+            Utils.showMessage(`${tipo.slice(0, -1)} eliminado`, 'success');
+            this.loadData(tipo);
+        } catch (error) {
+            console.error(`Error al eliminar ${tipo}:`, error);
+            Utils.showMessage(`Error al eliminar ${tipo}.`);
         }
-    }
+    },
 
-    console.log(`Datos enviados al backend (${tipo}):`, data);
-    const id = document.getElementById(`${tipo}-id`)?.value;
-    const method = id ? "PUT" : "POST";
-    const url = id ? `${config.apiUrl}${id}/` : config.apiUrl;
+    async saveEntity(tipo) {
+        try {
+            const { apiUrl, fields } = CONFIG[tipo];
+            const data = Object.fromEntries(fields.map(field => [field.key, document.getElementById(field.id).value || '']));
 
-    fetch(url, {
-        method: method,
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": obtenerTokenCSRF(),
-        },
-        body: JSON.stringify(data),
-    })
-    .then(response => {
-        console.log(`Estado de la respuesta (${method} ${tipo}):`, response.status);
-        if (!response.ok) {
-            return response.json().then(err => {
-                throw new Error(`Error al guardar ${tipo}: ${response.status} - ${JSON.stringify(err)}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log(`Respuesta del backend (${tipo}):`, data);
-        alert(`${tipo.slice(0, -1)} guardado exitosamente!`);
-        cargarDatos(tipo);
-        limpiarFormulario(tipo);
-    })
-    .catch(error => {
-        console.error(`Error al guardar ${tipo}:`, error);
-        alert(`Error al guardar ${tipo}. Revisa la consola para más detalles.`);
-    });
-}
-
-// Cargar datos al iniciar la página
-document.addEventListener("DOMContentLoaded", function() {
-    cargarDatos("proveedores");
-    cargarDatos("clientes");
-});
-// Verificar el estado de autenticación al cargar la página
-document.addEventListener("DOMContentLoaded", function() {
-    // Solo cargar datos si estamos en la página de módulos
-    if (document.getElementById("proveedores-section") || document.getElementById("clientes-section")) {
-        cargarDatos("proveedores");
-        cargarDatos("clientes");
-    }
-    verificarAutenticacion();
-});
-
-// Verificar si el usuario está autenticado
-function verificarAutenticacion() {
-    fetch("/api/auth/status/")
-        .then(response => response.json())
-        .then(data => {
-            const buyBtn = document.getElementById("buy-erp-btn");
-            const loginBtn = document.getElementById("login-btn");
-            const logoutBtn = document.getElementById("logout-btn");
-            if (data.authenticated) {
-                buyBtn.style.display = "inline-block";
-                loginBtn.style.display = "none";
-                logoutBtn.style.display = "inline-block";
-            } else {
-                buyBtn.style.display = "none";
-                loginBtn.style.display = "inline-block";
-                logoutBtn.style.display = "none";
+            const requiredFields = fields.filter(f => f.required);
+            if (requiredFields.some(f => !data[f.key])) {
+                Utils.showMessage('Completa todos los campos obligatorios.');
+                return;
             }
-        })
-        .catch(error => console.error("Error al verificar autenticación:", error));
-}
 
-// Mostrar el modal de login
-document.getElementById("login-btn").addEventListener("click", function() {
-    const modal = new bootstrap.Modal(document.getElementById("loginModal"));
-    modal.show();
-});
+            const id = document.getElementById(`${tipo}-id`)?.value;
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${apiUrl}${id}/` : apiUrl;
 
-// Iniciar sesión
-function iniciarSesion() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+            console.log(`Enviando solicitud ${method} a ${url} con datos:`, data);
+            const response = await Utils.makeRequest(url, method, data);
+            console.log('Respuesta de la API:', response);
 
-    fetch('/api/auth/login/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ username: username, password: password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('login-btn').style.display = 'none';
-            document.getElementById('logout-btn').style.display = 'inline-block';
-            document.getElementById('buy-erp-btn').style.display = 'inline-block';
-            var loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-            loginModal.hide();
-        } else {
-            alert('Error al iniciar sesión: ' + (data.error || 'Credenciales inválidas'));
+            Utils.showMessage(`${tipo.slice(0, -1)} guardado`, 'success');
+            this.loadData(tipo);
+            this.clearForm(tipo);
+        } catch (error) {
+            console.error(`Error al guardar ${tipo}:`, error);
+            Utils.showMessage(`Error al guardar ${tipo}: ${error.message}`);
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al iniciar sesión');
-    });
-}
+    },
 
-// Enviar formulario de contacto
-function enviarContacto() {
-    const name = document.getElementById("contact-name").value;
-    const email = document.getElementById("contact-email").value;
-    const message = document.getElementById("contact-message").value;
-    const token = obtenerTokenCSRF();
+    toggleForm(tipo) {
+        document.getElementById(CONFIG[tipo].formId).classList.toggle('hidden');
+    },
 
-    if (!name || !email || !message) {
-        alert("Por favor, completa todos los campos.");
-        return;
-    }
+    clearForm(tipo) {
+        const { fields } = CONFIG[tipo];
+        fields.forEach(field => document.getElementById(field.id).value = '');
+        const idField = document.getElementById(`${tipo}-id`);
+        if (idField) idField.value = '';
+        this.toggleForm(tipo);
+    },
+};
 
-    // Esto es un ejemplo; necesitarías un endpoint real para manejar el formulario
-    console.log("Formulario de contacto enviado:", { name, email, message });
-    alert("Mensaje enviado exitosamente! Nos pondremos en contacto pronto.");
-    document.getElementById("contact-form").reset();
-}
-// Mostrar el modal de login al hacer clic en "Iniciar Sesión"
-document.getElementById('login-btn').addEventListener('click', function() {
-    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-    loginModal.show();
-});
-
-// Función para iniciar sesión
-function iniciarSesion() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    fetch('/api/auth/login/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ username: username, password: password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('login-btn').style.display = 'none';
-            document.getElementById('logout-btn').style.display = 'inline-block';
-            document.getElementById('buy-erp-btn').style.display = 'inline-block';
-            var loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-            loginModal.hide();
-        } else {
-            alert('Error al iniciar sesión: ' + (data.error || 'Credenciales inválidas'));
+// Autenticación y Eventos
+const AuthManager = {
+    async checkAuth(url) {
+        const response = await fetch('/api/auth/status/', { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+        const data = await response.json();
+        if (data.authenticated) window.location.href = url;
+        else {
+            Utils.showMessage('Inicia sesión para acceder.');
+            new bootstrap.Modal(document.getElementById('loginModal')).show();
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al iniciar sesión');
-    });
-}
+    },
 
-// Función para obtener el token CSRF
-function getCsrfToken() {
-    return document.querySelector('[name=csrfmiddlewaretoken]').value;
-}
+    async verifyAuth() {
+        const response = await fetch('/api/auth/status/').catch(console.error);
+        if (response?.ok) {
+            const data = await response.json();
+            ['buy-erp-btn', 'login-btn', 'register-btn', 'logout-btn'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = data.authenticated ? (id === 'buy-erp-btn' || id === 'logout-btn' ? 'inline-block' : 'none') : (id === 'login-btn' || id === 'register-btn' ? 'inline-block' : 'none');
+            });
+        }
+    },
 
-// Función para enviar el formulario de contacto
-function enviarContacto() {
-    const name = document.getElementById('contact-name').value;
-    const email = document.getElementById('contact-email').value;
-    const message = document.getElementById('contact-message').value;
+    showModal(modalId) {
+        new bootstrap.Modal(document.getElementById(modalId)).show();
+    },
 
-    if (!name || !email || !message) {
-        alert('Por favor, completa todos los campos.');
-        return;
-    }
+    async login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        if (!username || !password) return Utils.showMessage('Completa todos los campos.');
 
-    fetch('/api/auth/save-contact/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ name: name, email: email, message: message })
-    })
-    .then(response => response.json())
-    .then(data => {
+        const response = await fetch('/api/auth/login/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': Utils.getCsrfToken() },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
         if (data.success) {
-            alert('¡Gracias por contactarnos! Te responderemos pronto.');
+            ['login-btn', 'register-btn', 'logout-btn', 'buy-erp-btn'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = id === 'logout-btn' || id === 'buy-erp-btn' ? 'inline-block' : 'none';
+            });
+            bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+            this.verifyAuth();
+        } else Utils.showMessage('Error al iniciar sesión: ' + (data.error || 'Credenciales inválidas'));
+    },
+
+    async register() {
+        const [name, email, username, password] = ['register-name', 'register-email', 'register-username', 'register-password']
+            .map(id => document.getElementById(id).value.trim());
+        const errorDiv = document.getElementById('register-error');
+
+        if (!name || !email || !username || !password) return Utils.showMessage('Completa todos los campos.');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return Utils.showMessage('Correo inválido.');
+        if (password.length < 8) return Utils.showMessage('Contraseña debe tener 8+ caracteres.');
+        if (username.length < 3) return Utils.showMessage('Usuario debe tener 3+ caracteres.');
+
+        const response = await fetch('/api/auth/register/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': Utils.getCsrfToken() },
+            body: JSON.stringify({ name, email, username, password })
+        });
+        const data = await response.json();
+        if (data.success) {
+            Utils.showMessage('Usuario registrado. Inicia sesión.', 'success');
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+                document.getElementById('register-form').reset();
+            }, 2000);
+        } else Utils.showMessage('Error al registrar: ' + (data.error || 'Error desconocido'));
+    },
+
+    async sendContact() {
+        const [name, email, message] = ['contact-name', 'contact-email', 'contact-message']
+            .map(id => document.getElementById(id).value);
+        if (!name || !email || !message) return Utils.showMessage('Completa todos los campos.');
+
+        const response = await fetch('/api/auth/save-contact/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': Utils.getCsrfToken() },
+            body: JSON.stringify({ name, email, message })
+        });
+        const data = await response.json();
+        if (data.success) {
+            Utils.showMessage('Mensaje enviado. Te contactaremos pronto.', 'success');
             document.getElementById('contact-form').reset();
-        } else {
-            alert('Error al enviar el formulario: ' + (data.error || 'Error desconocido'));
+        } else Utils.showMessage('Error al enviar: ' + (data.error || 'Error desconocido'));
+    },
+};
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Página cargada, inicializando...');
+    ['proveedores', 'clientes', 'recursos_humanos'].forEach(tipo => {
+        if (document.getElementById(CONFIG[tipo].tableId)) {
+            EntityManager.loadData(tipo);
+            const form = document.getElementById(CONFIG[tipo].formId);
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    EntityManager.saveEntity(tipo);
+                });
+            }
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al enviar el formulario');
     });
-}
 
-// Funciones para Proveedores y Clientes (inicio.html)
-function buscarProveedor() {
-    const searchTerm = document.getElementById('search-proveedores').value;
-    console.log('Buscando proveedor:', searchTerm);
-    // Aquí implementarías la lógica para buscar proveedores
-}
+    AuthManager.verifyAuth();
 
-function mostrarFormularioProveedor() {
-    const form = document.getElementById('formulario-proveedor');
-    form.classList.toggle('hidden');
-}
-
-function guardarProveedor() {
-    const nombre = document.getElementById('nombre-proveedor').value;
-    const contacto = document.getElementById('contacto-proveedor').value;
-    const direccion = document.getElementById('direccion-proveedor').value;
-    const telefono = document.getElementById('telefono-proveedor').value;
-    const email = document.getElementById('email-proveedor').value;
-    const tipo = document.getElementById('tipo_proveedor').value;
-
-    console.log('Guardando proveedor:', { nombre, contacto, direccion, telefono, email, tipo });
-    // Aquí implementarías la lógica para guardar el proveedor
-}
-
-function buscarCliente() {
-    const searchTerm = document.getElementById('search-clientes').value;
-    console.log('Buscando cliente:', searchTerm);
-    // Aquí implementarías la lógica para buscar clientes
-}
-
-function mostrarFormularioCliente() {
-    const form = document.getElementById('formulario-cliente');
-    form.classList.toggle('hidden');
-}
-
-function guardarCliente() {
-    const nombre = document.getElementById('nombre-cliente').value;
-    const contacto = document.getElementById('contacto-cliente').value;
-    const preferencias = document.getElementById('preferencias-cliente').value;
-
-    console.log('Guardando cliente:', { nombre, contacto, preferencias });
-    // Aquí implementarías la lógica para guardar el cliente
-}
-function iniciarSesion() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    fetch('/api/auth/login/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ username: username, password: password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('login-btn').style.display = 'none';
-            document.getElementById('logout-btn').style.display = 'inline-block';
-            document.getElementById('buy-erp-btn').style.display = 'inline-block';
-            var loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-            loginModal.hide();
-        } else {
-            alert('Error al iniciar sesión: ' + (data.error || 'Credenciales inválidas'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al iniciar sesión');
+    document.querySelectorAll('#login-btn, #register-btn').forEach(btn => {
+        btn.addEventListener('click', () => AuthManager.showModal(btn.id === 'login-btn' ? 'loginModal' : 'registerModal'));
     });
-}
-// Mostrar el modal de registro al hacer clic en "Registrarse"
-document.getElementById('register-btn').addEventListener('click', function() {
-    var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
-    registerModal.show();
 });
-
-// Mostrar el modal de login al hacer clic en "Iniciar Sesión"
-document.getElementById('login-btn').addEventListener('click', function() {
-    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-    loginModal.show();
-});
-
-// Función para registrar un usuario
-function registrarUsuario() {
-    const name = document.getElementById('register-name').value;
-    const email = document.getElementById('register-email').value;
-    const username = document.getElementById('register-username').value;
-    const password = document.getElementById('register-password').value;
-
-    if (!name || !email || !username || !password) {
-        alert('Por favor, completa todos los campos.');
-        return;
-    }
-
-    fetch('/api/auth/register/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ name, email, username, password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('¡Usuario registrado correctamente! Ahora puedes iniciar sesión.');
-            var registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
-            registerModal.hide();
-            document.getElementById('register-form').reset();
-        } else {
-            alert('Error al registrar el usuario: ' + (data.error || 'Error desconocido'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al registrar el usuario');
-    });
-}
-
-// Función para iniciar sesión
-function iniciarSesion() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    fetch('/api/auth/login/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ username: username, password: password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('login-btn').style.display = 'none';
-            document.getElementById('register-btn').style.display = 'none';
-            document.getElementById('logout-btn').style.display = 'inline-block';
-            document.getElementById('buy-erp-btn').style.display = 'inline-block';
-            var loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-            loginModal.hide();
-        } else {
-            alert('Error al iniciar sesión: ' + (data.error || 'Credenciales inválidas'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al iniciar sesión');
-    });
-}
-
-// Función para obtener el token CSRF
-function getCsrfToken() {
-    return document.querySelector('[name=csrfmiddlewaretoken]').value;
-}
-
-// Función para enviar el formulario de contacto
-function enviarContacto() {
-    const name = document.getElementById('contact-name').value;
-    const email = document.getElementById('contact-email').value;
-    const message = document.getElementById('contact-message').value;
-
-    if (!name || !email || !message) {
-        alert('Por favor, completa todos los campos.');
-        return;
-    }
-
-    fetch('/api/auth/save-contact/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ name: name, email: email, message: message })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('¡Gracias por contactarnos! Te responderemos pronto.');
-            document.getElementById('contact-form').reset();
-        } else {
-            alert('Error al enviar el formulario: ' + (data.error || 'Error desconocido'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al enviar el formulario');
-    });
-}
-
-// Funciones para Proveedores y Clientes (inicio.html)
-function buscarProveedor() {
-    const searchTerm = document.getElementById('search-proveedores').value;
-    console.log('Buscando proveedor:', searchTerm);
-    // Aquí implementarías la lógica para buscar proveedores
-}
-
-function mostrarFormularioProveedor() {
-    const form = document.getElementById('formulario-proveedor');
-    form.classList.toggle('hidden');
-}
-
-function guardarProveedor() {
-    const nombre = document.getElementById('nombre-proveedor').value;
-    const contacto = document.getElementById('contacto-proveedor').value;
-    const direccion = document.getElementById('direccion-proveedor').value;
-    const telefono = document.getElementById('telefono-proveedor').value;
-    const email = document.getElementById('email-proveedor').value;
-    const tipo = document.getElementById('tipo_proveedor').value;
-
-    console.log('Guardando proveedor:', { nombre, contacto, direccion, telefono, email, tipo });
-    // Aquí implementarías la lógica para guardar el proveedor
-}
-
-function buscarCliente() {
-    const searchTerm = document.getElementById('search-clientes').value;
-    console.log('Buscando cliente:', searchTerm);
-    // Aquí implementarías la lógica para buscar clientes
-}
-
-function mostrarFormularioCliente() {
-    const form = document.getElementById('formulario-cliente');
-    form.classList.toggle('hidden');
-}
-
-function guardarCliente() {
-    const nombre = document.getElementById('nombre-cliente').value;
-    const contacto = document.getElementById('contacto-cliente').value;
-    const preferencias = document.getElementById('preferencias-cliente').value;
-
-    console.log('Guardando cliente:', { nombre, contacto, preferencias });
-    // Aquí implementarías la lógica para guardar el cliente
-}
-// Mostrar el modal de registro al hacer clic en "Registrarse"
-document.getElementById('register-btn').addEventListener('click', function() {
-    var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
-    registerModal.show();
-});
-
-// Mostrar el modal de login al hacer clic en "Iniciar Sesión"
-document.getElementById('login-btn').addEventListener('click', function() {
-    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-    loginModal.show();
-});
-
-// Verificar autenticación antes de redirigir a un módulo
-function checkAuthBeforeRedirect(url) {
-    fetch('/api/auth/status/', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.authenticated) {
-            window.location.href = url; // Redirigir si está autenticado
-        } else {
-            alert('Por favor, inicia sesión o regístrate para acceder a este módulo.');
-            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-            loginModal.show();
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al verificar autenticación');
-    });
-}
-
-// Función para registrar un usuario
-function registrarUsuario() {
-    const name = document.getElementById('register-name').value;
-    const email = document.getElementById('register-email').value;
-    const username = document.getElementById('register-username').value;
-    const password = document.getElementById('register-password').value;
-
-    if (!name || !email || !username || !password) {
-        alert('Por favor, completa todos los campos.');
-        return;
-    }
-
-    fetch('/api/auth/register/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ name, email, username, password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('¡Usuario registrado correctamente! Ahora puedes iniciar sesión.');
-            var registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
-            registerModal.hide();
-            document.getElementById('register-form').reset();
-        } else {
-            alert('Error al registrar el usuario: ' + (data.error || 'Error desconocido'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al registrar el usuario');
-    });
-}
-
-// Función para iniciar sesión
-function iniciarSesion() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    fetch('/api/auth/login/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ username: username, password: password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('login-btn').style.display = 'none';
-            document.getElementById('register-btn').style.display = 'none';
-            document.getElementById('logout-btn').style.display = 'inline-block';
-            document.getElementById('buy-erp-btn').style.display = 'inline-block';
-            var loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-            loginModal.hide();
-        } else {
-            alert('Error al iniciar sesión: ' + (data.error || 'Credenciales inválidas'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al iniciar sesión');
-    });
-}
-
-// Función para obtener el token CSRF
-function getCsrfToken() {
-    return document.querySelector('[name=csrfmiddlewaretoken]').value;
-}
-
-// Función para enviar el formulario de contacto
-function enviarContacto() {
-    const name = document.getElementById('contact-name').value;
-    const email = document.getElementById('contact-email').value;
-    const message = document.getElementById('contact-message').value;
-
-    if (!name || !email || !message) {
-        alert('Por favor, completa todos los campos.');
-        return;
-    }
-
-    fetch('/api/auth/save-contact/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ name: name, email: email, message: message })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('¡Gracias por contactarnos! Te responderemos pronto.');
-            document.getElementById('contact-form').reset();
-        } else {
-            alert('Error al enviar el formulario: ' + (data.error || 'Error desconocido'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al enviar el formulario');
-    });
-}
-
-// Funciones para Proveedores y Clientes (inicio.html)
-function buscarProveedor() {
-    const searchTerm = document.getElementById('search-proveedores').value;
-    console.log('Buscando proveedor:', searchTerm);
-    // Aquí implementarías la lógica para buscar proveedores
-}
-
-function mostrarFormularioProveedor() {
-    const form = document.getElementById('formulario-proveedor');
-    form.classList.toggle('hidden');
-}
-
-function guardarProveedor() {
-    const nombre = document.getElementById('nombre-proveedor').value;
-    const contacto = document.getElementById('contacto-proveedor').value;
-    const direccion = document.getElementById('direccion-proveedor').value;
-    const telefono = document.getElementById('telefono-proveedor').value;
-    const email = document.getElementById('email-proveedor').value;
-    const tipo = document.getElementById('tipo_proveedor').value;
-
-    console.log('Guardando proveedor:', { nombre, contacto, direccion, telefono, email, tipo });
-    // Aquí implementarías la lógica para guardar el proveedor
-}
-
-function buscarCliente() {
-    const searchTerm = document.getElementById('search-clientes').value;
-    console.log('Buscando cliente:', searchTerm);
-    // Aquí implementarías la lógica para buscar clientes
-}
-
-function mostrarFormularioCliente() {
-    const form = document.getElementById('formulario-cliente');
-    form.classList.toggle('hidden');
-}
-
-function guardarCliente() {
-    const nombre = document.getElementById('nombre-cliente').value;
-    const contacto = document.getElementById('contacto-cliente').value;
-    const preferencias = document.getElementById('preferencias-cliente').value;
-
-    console.log('Guardando cliente:', { nombre, contacto, preferencias });
-    // Aquí implementarías la lógica para guardar el cliente
-}
-// Mostrar el modal de registro al hacer clic en "Registrarse"
-document.getElementById('register-btn').addEventListener('click', function() {
-    var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
-    registerModal.show();
-});
-
-// Mostrar el modal de login al hacer clic en "Iniciar Sesión"
-document.getElementById('login-btn').addEventListener('click', function() {
-    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-    loginModal.show();
-});
-
-// Verificar autenticación antes de redirigir a un módulo
-function checkAuthBeforeRedirect(url) {
-    fetch('/api/auth/status/', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.authenticated) {
-            window.location.href = url; // Redirigir si está autenticado
-        } else {
-            alert('Por favor, inicia sesión o regístrate para acceder a este módulo.');
-            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-            loginModal.show();
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al verificar autenticación');
-    });
-}
-
-// Función para registrar un usuario
-function registrarUsuario() {
-    const name = document.getElementById('register-name').value;
-    const email = document.getElementById('register-email').value;
-    const username = document.getElementById('register-username').value;
-    const password = document.getElementById('register-password').value;
-
-    if (!name || !email || !username || !password) {
-        alert('Por favor, completa todos los campos.');
-        return;
-    }
-
-    fetch('/api/auth/register/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ name, email, username, password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('¡Usuario registrado correctamente! Ahora puedes iniciar sesión.');
-            var registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
-            registerModal.hide();
-            document.getElementById('register-form').reset();
-        } else {
-            alert('Error al registrar el usuario: ' + (data.error || 'Error desconocido'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al registrar el usuario');
-    });
-}
-
-// Función para iniciar sesión
-function iniciarSesion() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    if (!username || !password) {
-        alert('Por favor, completa todos los campos.');
-        return;
-    }
-
-    fetch('/api/auth/login/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ username, password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('login-btn').style.display = 'none';
-            document.getElementById('register-btn').style.display = 'none';
-            document.getElementById('logout-btn').style.display = 'inline-block';
-            document.getElementById('buy-erp-btn').style.display = 'inline-block';
-            var loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-            loginModal.hide();
-        } else {
-            alert('Error al iniciar sesión: ' + (data.error || 'Credenciales inválidas'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al iniciar sesión');
-    });
-}
-
-// Función para obtener el token CSRF
-function getCsrfToken() {
-    return document.querySelector('[name=csrfmiddlewaretoken]').value;
-}
-
-// Función para enviar el formulario de contacto
-function enviarContacto() {
-    const name = document.getElementById('contact-name').value;
-    const email = document.getElementById('contact-email').value;
-    const message = document.getElementById('contact-message').value;
-
-    if (!name || !email || !message) {
-        alert('Por favor, completa todos los campos.');
-        return;
-    }
-
-    fetch('/api/auth/save-contact/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ name: name, email: email, message: message })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('¡Gracias por contactarnos! Te responderemos pronto.');
-            document.getElementById('contact-form').reset();
-        } else {
-            alert('Error al enviar el formulario: ' + (data.error || 'Error desconocido'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al enviar el formulario');
-    });
-}
-
-// Funciones para Proveedores y Clientes (inicio.html)
-function buscarProveedor() {
-    const searchTerm = document.getElementById('search-proveedores').value;
-    console.log('Buscando proveedor:', searchTerm);
-    // Aquí implementarías la lógica para buscar proveedores
-}
-
-function mostrarFormularioProveedor() {
-    const form = document.getElementById('formulario-proveedor');
-    form.classList.toggle('hidden');
-}
-
-function guardarProveedor() {
-    const nombre = document.getElementById('nombre-proveedor').value;
-    const contacto = document.getElementById('contacto-proveedor').value;
-    const direccion = document.getElementById('direccion-proveedor').value;
-    const telefono = document.getElementById('telefono-proveedor').value;
-    const email = document.getElementById('email-proveedor').value;
-    const tipo = document.getElementById('tipo_proveedor').value;
-
-    console.log('Guardando proveedor:', { nombre, contacto, direccion, telefono, email, tipo });
-    // Aquí implementarías la lógica para guardar el proveedor
-}
-
-function buscarCliente() {
-    const searchTerm = document.getElementById('search-clientes').value;
-    console.log('Buscando cliente:', searchTerm);
-    // Aquí implementarías la lógica para buscar clientes
-}
-
-function mostrarFormularioCliente() {
-    const form = document.getElementById('formulario-cliente');
-    form.classList.toggle('hidden');
-}
-
-function guardarCliente() {
-    const nombre = document.getElementById('nombre-cliente').value;
-    const contacto = document.getElementById('contacto-cliente').value;
-    const preferencias = document.getElementById('preferencias-cliente').value;
-
-    console.log('Guardando cliente:', { nombre, contacto, preferencias });
-    // Aquí implementarías la lógica para guardar el cliente
-}
