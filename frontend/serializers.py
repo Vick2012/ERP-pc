@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Contact, Proveedor
+from recursos_humanos.models import Empleado
+
 
 
 class ContactSerializer(serializers.ModelSerializer):

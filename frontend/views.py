@@ -10,6 +10,8 @@ from .serializers import ContactSerializer, ProveedorSerializer
 from rest_framework import generics
 from clientes.models import Cliente
 from clientes.serializers import ClienteSerializer
+from recursos_humanos.models import Empleado
+
 
 class ClientesListCreateView(generics.ListCreateAPIView):
     queryset = Cliente.objects.all()

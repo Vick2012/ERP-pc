@@ -6,6 +6,8 @@ from .views import (
     ClientesListCreateView, ProveedorDetailView, ClienteDetailView,
 )
 from recursos_humanos.views import RecursosHumanosListCreateView, EmpleadoDetailView as RecursosHumanosDetailView
+from recursos_humanos.models import Empleado
+
 
 app_name = 'frontend'
 
