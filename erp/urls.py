@@ -24,11 +24,13 @@ urlpatterns = [
     # ✅ Rutas API completas por módulo
     path('api/proveedores/', include('proveedores.urls', namespace='proveedores-api')),  # Ya estaba bien
     path('api/clientes/', include('clientes.api_urls', namespace='clientes-api')),        # Asegúrate que existe
-    path('api/rrhh/', include('recursos_humanos.api_urls', namespace='rrhh-api')),        # Asegúrate que existe
+    path('api/recursos_humanos/', include('recursos_humanos.api_urls', namespace='recursos_humanos-api')),
+    path('api/rrhh/', include('recursos_humanos.api_urls', namespace='rrhh-api')),
+        # Asegúrate que existe
 
     # ✅ Rutas web por módulo (HTML render)
     path('clientes/', include('clientes.urls', namespace='clientes')),
-    path('rrhh/', include('recursos_humanos.urls', namespace='rrhh')),
+    path('recursos_humanos/', include('recursos_humanos.urls', namespace='recursos_humanos')),
 
     # Admin
     path('admin/', admin.site.urls),

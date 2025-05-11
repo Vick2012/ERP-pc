@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'rest_framework',    # Para APIs
     'corsheaders',      # Para manejar CORS
     'frontend',         # Para conectar con frontend externo

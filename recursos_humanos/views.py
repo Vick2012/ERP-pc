@@ -5,6 +5,29 @@ from .serializers import EmpleadoSerializer, NominaSerializer, AusentismoSeriali
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.template.loader import get_template
+from django.http import HttpResponse
+from xhtml2pdf import pisa
+from .models import Nomina
+from rest_framework import viewsets
+from .models import Liquidacion
+from .serializers import LiquidacionSerializer
+
+# Vista para manejar liquidaciones (usada en /api/rrhh/liquidaciones/)
+class LiquidacionViewSet(viewsets.ModelViewSet):
+    queryset = Liquidacion.objects.all()
+    serializer_class = LiquidacionSerializer
+
+
+def generar_pdf_nomina(request, nomina_id):
+    nomina = Nomina.objects.select_related('empleado').get(id=nomina_id)
+    template = get_template('recibos/nomina_pdf.html')  # ubicación plantilla
+    html = template.render({'nomina': nomina})
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=nomina_{nomina.empleado.nombre}.pdf'
+    pisa.CreatePDF(html, dest=response)
+    return response
 
 # Vista de renderizado (opcional si usas template HTML)
 def index(request):
@@ -23,6 +46,13 @@ class RecursosHumanosRootView(APIView):
                 "/api/rrhh/contacts/"
             ]
         })
+
+
+
+# Vista para manejar empleados (usada en /api/rrhh/empleados/)
+class EmpleadoViewSet(viewsets.ModelViewSet):
+    queryset = Empleado.objects.all()
+    serializer_class = EmpleadoSerializer
 
 
 # Empleado

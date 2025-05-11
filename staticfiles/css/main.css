@@ -1,33 +1,37 @@
 /* Sobrescribir el color primario de Bootstrap */
 .bg-primary {
-    background-color: #28a745 !important; /* Verde esmeralda */
+    background-color: #1a57dc !important; /* Verde esmeralda */
+}
+.bg-soft-blue {
+    background-color: #e9f2fa !important;
 }
 
+
 .text-primary {
-    color: #28a745 !important; /* Verde esmeralda para texto */
+    color: #1a57dc !important; /* Verde esmeralda para texto */
 }
 
 .btn-primary {
-    background-color: #28a745 !important; /* Verde esmeralda para botones */
-    border-color: #28a745 !important;
+    background-color: #1a57dc !important; /* Verde esmeralda para botones */
+    border-color: #1a57dc !important;
 }
 
 .btn-primary:hover {
-    background-color: #218838 !important; /* Un tono más oscuro para el hover */
-    border-color: #1e7e34 !important;
+    background-color: #1a57dc !important; /* Un tono más oscuro para el hover */
+    border-color: #1a57dc !important;
 }
 
 .table-primary,
 .table-primary > th,
 .table-primary > td {
-    background-color: #28a745 !important; /* Verde esmeralda para cabeceras de tablas */
+    background-color: #1a57dc !important; /* Verde esmeralda para cabeceras de tablas */
     color: white !important;
 }
 
 /* Asegurar que los enlaces en el encabezado tengan el color correcto */
 .nav-link:hover,
 .nav-link:focus {
-    color: #28a745 !important;
+    color: #1a57dc !important;
 }
 
 body {
@@ -136,16 +140,16 @@ footer {
 
 /* Sobrescribir el color primario de Bootstrap */
 .bg-primary {
-    background-color: #28a745 !important; /* Verde esmeralda */
+    background-color: #1a57dc !important; /* Verde esmeralda */
 }
 
 .text-primary {
-    color: #28a745 !important; /* Verde esmeralda para texto */
+    color: #1a57dc !important; /* Verde esmeralda para texto */
 }
 
 .btn-primary {
-    background-color: #28a745 !important; /* Verde esmeralda para botones */
-    border-color: #28a745 !important;
+    background-color: #1a57dc !important; /* Verde esmeralda para botones */
+    border-color: #1a57dc !important;
 }
 
 .btn-primary:hover {
@@ -156,12 +160,39 @@ footer {
 .table-primary,
 .table-primary > th,
 .table-primary > td {
-    background-color: #28a745 !important; /* Verde esmeralda para cabeceras de tablas */
+    background-color: #1a57dc !important; /* Verde esmeralda para cabeceras de tablas */
     color: white !important;
 }
 
 /* Asegurar que los enlaces en el encabezado tengan el color correcto */
 .nav-link:hover,
 .nav-link:focus {
-    color: #28a745 !important;
+    color: #1a57dc !important;
 }
+/* Aplica un azul tenue al encabezado de la tabla de recursos humanos */
+#tabla-recursos_humanos thead th {
+    background-color: #e6f0fa !important;
+    color: #003366 !important;
+    font-weight: bold;
+}
+/* Aplica un azul tenue a las celdas de la tabla de recursos humanos */
+#tabla-recursos_humanos thead {
+    background-color: #e6f2ff !important; /* Azul tenue */
+    color: #003366 !important;            /* Azul oscuro para texto */
+    font-weight: bold;
+    border-bottom: 2px solid #b3d1ff;
+}
+/* Estilo para las celdas de la tabla de recursos humanos */
+#tabla-recursos_humanos th,
+#tabla-recursos_humanos td {
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0.5rem;
+    font-size: 14px;
+}
+
+#tabla-recursos_humanos th {
+    background-color: #e9f2fa;
+    font-weight: 600;
+}
+

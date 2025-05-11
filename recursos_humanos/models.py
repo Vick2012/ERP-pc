@@ -1,5 +1,16 @@
 from django.db import models
 
+class Liquidacion(models.Model):
+    empleado_nombre = models.CharField(max_length=100)
+    contrato = models.CharField(max_length=50)
+    fondo_pensiones = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    cesantias = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    eps = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    caja_compensacion = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __str__(self):
+        return f"Liquidación para {self.empleado_nombre}"
+
 class Empleado(models.Model):
     nombre = models.CharField(max_length=100)
     tipo_documento = models.CharField(max_length=20, choices=[

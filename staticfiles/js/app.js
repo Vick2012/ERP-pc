@@ -48,27 +48,35 @@ const CONFIG = {
         formId: "formulario-recursos_humanos",
         fields: [
             { id: "nombre-recursos_humanos", key: "nombre", required: true },
+            { id: "tipo_documento-recursos_humanos", key: "tipo_documento", required: true },
+            { id: "documento-recursos_humanos", key: "documento", required: true },
+            { id: "fecha_ingreso-recursos_humanos", key: "fecha_ingreso", required: true },
             { id: "cargo-recursos_humanos", key: "cargo", required: true },
             { id: "salario-recursos_humanos", key: "salario", required: true },
             { id: "area-recursos_humanos", key: "area", required: true },
-            { id: "telefono-recursos_humanos", key: "telefono", required: false },
+            { id: "telefono-recursos_humanos", key: "telefono", required: true },
             { id: "correo-recursos_humanos", key: "correo", required: true },
             { id: "contrato-recursos_humanos", key: "contrato", required: true },
+            { id: "contacto-recursos_humanos", key: "contacto", required: true }
         ],
-        tableHeaders: ["", "ID", "Nombre", "Cargo", "Salario", "Área", "Teléfono", "Correo", "Contrato", "Acciones"],
+        tableHeaders: ["ID", "Nombre", "Tipo de Documento", "Documento", "Fecha de Ingreso", "Cargo", "Salario", "Área", "Teléfono", "Correo", "Contrato", "Contacto", "Acciones"],
         getRowData: (item) => [
-            "",
             item.id,
             item.nombre,
-            item.cargo || "Sin cargo",
-            item.salario || "Sin salario",
-            item.area || "Sin área",
-            item.telefono || "Sin teléfono",
-            item.correo || "Sin correo",
-            item.contrato || "Sin contrato",
+            item.tipo_documento,
+            item.documento,
+            item.fecha_ingreso,
+            item.cargo,
+            item.salario,
+            item.area,
+            item.telefono,
+            item.correo,
+            item.contrato,
+            item.contacto,
+            item.acciones,
         ],
-        searchFields: ["nombre", "cargo", "salario", "area", "telefono", "correo", "contrato"],
-    },
+        searchFields: ["nombre", "tipo_documento", "documento", "fecha_ingreso", "cargo", "salario", "area", "telefono", "correo", "contrato", "contacto"]
+    }
 };
 
 // Utilidades
