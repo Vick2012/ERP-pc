@@ -3,29 +3,29 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <style>
-        body { font-family: sans-serif; font-size: 14px; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .table { width: 100%; border-collapse: collapse; }
-        .table td, .table th { border: 1px solid #000; padding: 5px; }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/nomina_pdf.css' %}">
 </head>
 <body>
     <div class="header">
-        <h2>EventSync</h2>
-        <p>Desprendible de Nómina</p>
+        <img src="{% static 'img/logo.png' %}" class="logo">
+        <h1>EventSync</h1>
+        <p><strong>Desprendible de Nómina</strong></p>
     </div>
 
-    <table class="table">
+    <table>
         <tr><th>Empleado</th><td>{{ nomina.empleado.nombre }}</td></tr>
         <tr><th>Documento</th><td>{{ nomina.empleado.documento }}</td></tr>
         <tr><th>Período</th><td>{{ nomina.periodo_inicio }} al {{ nomina.periodo_fin }}</td></tr>
-        <tr><th>Salario Base</th><td>${{ nomina.salario_base }}</td></tr>
-        <tr><th>Bonificaciones</th><td>${{ nomina.bonificaciones }}</td></tr>
-        <tr><th>Deducciones</th><td>${{ nomina.deducciones }}</td></tr>
-        <tr><th>Salario Neto</th><td>${{ nomina.salario_neto }}</td></tr>
     </table>
 
-    <p style="margin-top: 30px; text-align: right;">Generado automáticamente por EventSync</p>
+    <table>
+        <tr><th>Concepto</th><th>Valor</th></tr>
+        <tr><td>Salario Base</td><td>${{ nomina.salario_base }}</td></tr>
+        <tr><td>Bonificaciones</td><td>${{ nomina.bonificaciones }}</td></tr>
+        <tr><td>Deducciones</td><td>-${{ nomina.deducciones }}</td></tr>
+        <tr class="total"><td>Salario Neto</td><td>${{ nomina.salario_neto }}</td></tr>
+    </table>
+
+    <p style="margin-top: 40px; text-align: right;">_____________________<br>Firma del responsable</p>
 </body>
 </html>

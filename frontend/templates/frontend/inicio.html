@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <!-- Metadatos básicos -->
     <meta charset="UTF-8" />
@@ -8,9 +9,12 @@
     <meta name="description" content="Plataforma EventSync para gestionar Recursos Humanos, Proveedores y Clientes" />
     <title>EventSync - Módulos</title>
     <!-- Bootstrap CSS desde CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous" />
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,6 +23,7 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}" />
     <link rel="icon" href="{% static 'img/logo.png' %}" type="image/png" />
 </head>
+
 <body>
     <!-- Token CSRF para seguridad en formularios -->
     {% csrf_token %}
@@ -56,7 +61,8 @@
                         <li class="nav-item"><a class="nav-link" href="#recursos_humanos">RRHH</a></li>
                         <li class="nav-item"><a class="nav-link" href="#proveedores">Proveedores</a></li>
                         <li class="nav-item"><a class="nav-link" href="#clientes">Clientes</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'index' %}#mision-vision">Misión y Visión</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'index' %}#mision-vision">Misión y
+                                Visión</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'index' %}#contacto">Contacto</a></li>
                     </ul>
                 </div>
@@ -74,7 +80,8 @@
                         <img src="{% static 'img/logo.png' %}" alt="Logo ERP" class="img-fluid" style="height: 250px;">
                     </div>
                     <div class="col-lg-6 text-center">
-                        <img src="{% static 'img/imagen1.png' %}" alt="Equipo trabajando en logística" class="img-fluid rounded shadow">
+                        <img src="{% static 'img/imagen1.png' %}" alt="Equipo trabajando en logística"
+                            class="img-fluid rounded shadow">
                     </div>
                 </div>
             </div>
@@ -84,7 +91,8 @@
         <section id="recursos_humanos" class="module py-5" aria-label="Módulo de Recursos Humanos">
             <div class="container mt-5">
                 <h2 class="text-primary text-center mb-3">Módulo de Recursos Humanos</h2>
-                <p class="text-muted text-center">Gestiona tus empleados, nómina y registros de ausentismos/horas extras.</p>
+                <p class="text-muted text-center">Gestiona tus empleados, nómina y registros de ausentismos/horas
+                    extras.</p>
                 <!-- Navegación de pestañas -->
                 <ul class="nav nav-tabs" id="moduloTabs" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -97,7 +105,8 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <a class="nav-link" id="ausentismos-tab" data-bs-toggle="tab" href="#ausentismos-panel"
-                            role="tab" aria-controls="ausentismos-panel" aria-selected="false">Ausentismos y Horas Extras</a>
+                            role="tab" aria-controls="ausentismos-panel" aria-selected="false">Ausentismos y Horas
+                            Extras</a>
                     </li>
                     <li class="nav-item" role="presentation">
                         <a class="nav-link" id="liquidacion-tab" data-bs-toggle="tab" href="#liquidacion-panel"
@@ -152,7 +161,8 @@
                                         placeholder="Nombre" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="tipo_documento-recursos_humanos" class="form-label">Tipo de Documento:</label>
+                                    <label for="tipo_documento-recursos_humanos" class="form-label">Tipo de
+                                        Documento:</label>
                                     <select id="tipo_documento-recursos_humanos" class="form-select" required>
                                         <option value="cc">Cédula de Ciudadanía</option>
                                         <option value="ce">Cédula de Extranjería</option>
@@ -166,8 +176,10 @@
                                         placeholder="Número de documento" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="fecha_ingreso-recursos_humanos" class="form-label">Fecha de Ingreso:</label>
-                                    <input type="date" id="fecha_ingreso-recursos_humanos" class="form-control" required>
+                                    <label for="fecha_ingreso-recursos_humanos" class="form-label">Fecha de
+                                        Ingreso:</label>
+                                    <input type="date" id="fecha_ingreso-recursos_humanos" class="form-control"
+                                        required>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="cargo-recursos_humanos" class="form-label">Cargo:</label>
@@ -217,7 +229,8 @@
                             </div>
                             <div class="d-flex gap-2 mt-3">
                                 <button type="submit" class="btn btn-primary">Guardar</button>
-                                <button type="button" class="btn btn-secondary" id="cancel-recursos_humanos">Cancelar</button>
+                                <button type="button" class="btn btn-secondary"
+                                    id="cancel-recursos_humanos">Cancelar</button>
                             </div>
                         </form>
                     </div>
@@ -253,36 +266,51 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="nomina-horas-extra-diurnas" class="form-label">Horas Extra Diurnas:</label>
-                                    <input type="number" id="nomina-horas-extra-diurnas" class="form-control" min="0" step="1">
+                                    <label for="nomina-horas-extra-diurnas" class="form-label">Horas Extra
+                                        Diurnas:</label>
+                                    <input type="number" id="nomina-horas-extra-diurnas" class="form-control" min="0"
+                                        step="1">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="nomina-horas-extra-nocturnas" class="form-label">Horas Extra Nocturnas:</label>
-                                    <input type="number" id="nomina-horas-extra-nocturnas" class="form-control" min="0" step="1">
+                                    <label for="nomina-horas-extra-nocturnas" class="form-label">Horas Extra
+                                        Nocturnas:</label>
+                                    <input type="number" id="nomina-horas-extra-nocturnas" class="form-control" min="0"
+                                        step="1">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="nomina-recargos-nocturnos" class="form-label">Recargos Nocturnos:</label>
-                                    <input type="number" id="nomina-recargos-nocturnos" class="form-control" min="0" step="1">
+                                    <label for="nomina-recargos-nocturnos" class="form-label">Recargos
+                                        Nocturnos:</label>
+                                    <input type="number" id="nomina-recargos-nocturnos" class="form-control" min="0"
+                                        step="1">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="nomina-horas-diurnas-festivas" class="form-label">Horas Diurnas Festivas:</label>
-                                    <input type="number" id="nomina-horas-diurnas-festivas" class="form-control" min="0" step="1">
+                                    <label for="nomina-horas-diurnas-festivas" class="form-label">Horas Diurnas
+                                        Festivas:</label>
+                                    <input type="number" id="nomina-horas-diurnas-festivas" class="form-control" min="0"
+                                        step="1">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="nomina-horas-nocturnas-festivas" class="form-label">Horas Nocturnas Festivas:</label>
-                                    <input type="number" id="nomina-horas-nocturnas-festivas" class="form-control" min="0" step="1">
+                                    <label for="nomina-horas-nocturnas-festivas" class="form-label">Horas Nocturnas
+                                        Festivas:</label>
+                                    <input type="number" id="nomina-horas-nocturnas-festivas" class="form-control"
+                                        min="0" step="1">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="nomina-horas-extras-diurnas-festivas" class="form-label">Horas Extras Diurnas Festivas:</label>
-                                    <input type="number" id="nomina-horas-extras-diurnas-festivas" class="form-control" min="0" step="1">
+                                    <label for="nomina-horas-extras-diurnas-festivas" class="form-label">Horas Extras
+                                        Diurnas Festivas:</label>
+                                    <input type="number" id="nomina-horas-extras-diurnas-festivas" class="form-control"
+                                        min="0" step="1">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="nomina-horas-extras-nocturnas-festivas" class="form-label">Horas Extras Nocturnas Festivas:</label>
-                                    <input type="number" id="nomina-horas-extras-nocturnas-festivas" class="form-control" min="0" step="1">
+                                    <label for="nomina-horas-extras-nocturnas-festivas" class="form-label">Horas Extras
+                                        Nocturnas Festivas:</label>
+                                    <input type="number" id="nomina-horas-extras-nocturnas-festivas"
+                                        class="form-control" min="0" step="1">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="nomina-horas-ausente" class="form-label">Horas de Ausencia:</label>
-                                    <input type="number" id="nomina-horas-ausente" class="form-control" min="0" step="1">
+                                    <input type="number" id="nomina-horas-ausente" class="form-control" min="0"
+                                        step="1">
                                 </div>
                             </div>
                             <div class="d-flex gap-3 mt-3">
@@ -295,13 +323,13 @@
                             <h4>Resumen de Nómina</h4>
                             <p><strong>Empleado:</strong> <span id="nomina-empleado"></span></p>
                             <p><strong>Salario Base:</strong> <span id="nomina-salario-base-resumen"></span></p>
-                            <p><strong>Bonificaciones (Horas Extras):</strong> <span id="nomina-bonificaciones"></span></p>
+                            <p><strong>Bonificaciones (Horas Extras):</strong> <span id="nomina-bonificaciones"></span>
+                            </p>
                             <p><strong>Deducciones:</strong> <span id="nomina-deducciones"></span></p>
                             <p><strong>Salario Neto:</strong> <span id="nomina-salario-neto"></span></p>
                             <button class="btn btn-success" id="guardar-nomina">Guardar Nómina</button>
-                            <a href="/recursos_humanos/nomina/pdf/{{ nomina_id }}" target="_blank" class="btn btn-secondary">
-                                Descargar PDF
-                            </a>
+                            <button id="generar-pdf" class="btn btn-secondary mt-2" style="display: none;">GenerarPDF</button>
+                            <div id="boton-pdf-container" class="mt-3"></div>
                         </div>
                     </div>
 
@@ -331,11 +359,13 @@
                         </div>
                         <div class="mb-3 hidden" id="ausentismos-motivo-container">
                             <label for="ausentismos-motivo" class="form-label">Motivo:</label>
-                            <textarea id="ausentismos-motivo" class="form-control" placeholder="Motivo del ausentismo"></textarea>
+                            <textarea id="ausentismos-motivo" class="form-control"
+                                placeholder="Motivo del ausentismo"></textarea>
                         </div>
                         <button class="btn btn-primary mb-3" id="guardar-ausentismo">Registrar</button>
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover text-center align-middle" id="tabla-ausentismos">
+                            <table class="table table-bordered table-hover text-center align-middle"
+                                id="tabla-ausentismos">
                                 <thead class="table-primary">
                                     <tr>
                                         <th>Empleado</th>
@@ -377,9 +407,11 @@
         <section id="proveedores" class="module py-5 bg-light" aria-label="Módulo de Proveedores">
             <div class="container">
                 <h2 class="text-primary mb-4">Módulo de Proveedores</h2>
-                <p class="mb-4">Gestiona tus proveedores de manera eficiente con herramientas de seguimiento de cotizaciones, pagos y entregas.</p>
+                <p class="mb-4">Gestiona tus proveedores de manera eficiente con herramientas de seguimiento de
+                    cotizaciones, pagos y entregas.</p>
                 <div class="search-bar mb-4 d-flex gap-3">
-                    <input type="text" id="search-proveedores" class="form-control" placeholder="Buscar proveedor..." aria-label="Buscar proveedor">
+                    <input type="text" id="search-proveedores" class="form-control" placeholder="Buscar proveedor..."
+                        aria-label="Buscar proveedor">
                     <button class="btn btn-primary" onclick="EntityManager.searchData('proveedores')">Buscar</button>
                 </div>
                 <div class="table-responsive">
@@ -399,7 +431,8 @@
                         <tbody></tbody>
                     </table>
                 </div>
-                <button class="btn btn-success mt-3" onclick="EntityManager.toggleForm('proveedores')">Agregar Proveedor</button>
+                <button class="btn btn-success mt-3" onclick="EntityManager.toggleForm('proveedores')">Agregar
+                    Proveedor</button>
                 <form id="formulario-proveedor" class="hidden mt-4 p-4 bg-white rounded shadow">
                     <h3 class="text-primary mb-3">Agregar/Editar Proveedor</h3>
                     <input type="hidden" id="proveedores-id">
@@ -439,9 +472,11 @@
         <section id="clientes" class="module py-5" aria-label="Módulo de Clientes">
             <div class="container">
                 <h2 class="text-primary mb-4">Módulo de Clientes</h2>
-                <p class="mb-4">Gestiona tus clientes con herramientas de registro, seguimiento y análisis para mejorar su experiencia.</p>
+                <p class="mb-4">Gestiona tus clientes con herramientas de registro, seguimiento y análisis para mejorar
+                    su experiencia.</p>
                 <div class="search-bar mb-4 d-flex gap-3">
-                    <input type="text" id="search-clientes" class="form-control" placeholder="Buscar cliente..." aria-label="Buscar cliente">
+                    <input type="text" id="search-clientes" class="form-control" placeholder="Buscar cliente..."
+                        aria-label="Buscar cliente">
                     <button class="btn btn-primary" onclick="EntityManager.searchData('clientes')">Buscar</button>
                 </div>
                 <div class="table-responsive">
@@ -458,7 +493,8 @@
                         <tbody></tbody>
                     </table>
                 </div>
-                <button class="btn btn-success mt-3" onclick="EntityManager.toggleForm('clientes')">Agregar Cliente</button>
+                <button class="btn btn-success mt-3" onclick="EntityManager.toggleForm('clientes')">Agregar
+                    Cliente</button>
                 <form id="formulario-cliente" class="hidden mt-4 p-4 bg-white rounded shadow">
                     <h3 class="text-primary mb-3">Agregar/Editar Cliente</h3>
                     <input type="hidden" id="clientes-id">
@@ -494,10 +530,14 @@
                 </div>
                 <div class="col-md-4 mb-4">
                     <h3 class="text-white">Redes Sociales</h3>
-                    <a href="#" class="d-block text-white mb-2" aria-label="Facebook"><i class="fab fa-facebook me-2"></i> Facebook</a>
-                    <a href="#" class="d-block text-white mb-2" aria-label="Twitter"><i class="fab fa-twitter me-2"></i> Twitter</a>
-                    <a href="#" class="d-block text-white mb-2" aria-label="LinkedIn"><i class="fab fa-linkedin me-2"></i> LinkedIn</a>
-                    <a href="#" class="d-block text-white mb-2" aria-label="Instagram"><i class="fab fa-instagram me-2"></i> Instagram</a>
+                    <a href="#" class="d-block text-white mb-2" aria-label="Facebook"><i
+                            class="fab fa-facebook me-2"></i> Facebook</a>
+                    <a href="#" class="d-block text-white mb-2" aria-label="Twitter"><i class="fab fa-twitter me-2"></i>
+                        Twitter</a>
+                    <a href="#" class="d-block text-white mb-2" aria-label="LinkedIn"><i
+                            class="fab fa-linkedin me-2"></i> LinkedIn</a>
+                    <a href="#" class="d-block text-white mb-2" aria-label="Instagram"><i
+                            class="fab fa-instagram me-2"></i> Instagram</a>
                 </div>
                 <div class="col-md-4 mb-4">
                     <h3 class="text-white">Enlaces Rápidos</h3>
@@ -516,8 +556,10 @@
     </footer>
 
     <!-- Bootstrap Bundle JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
     <!-- Tu script de lógica -->
     <script src="{% static 'js/app.js' %}"></script>
 </body>
+
 </html>

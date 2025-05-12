@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
+from recursos_humanos.views import generar_pdf_nomina
+
 
 # Vistas frontend globales
 from frontend.views import (
@@ -35,7 +37,9 @@ urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
 
-    
-    # API REST
+    # Creacion PDF Nomina
+    path('nomina/pdf/<int:nomina_id>/', generar_pdf_nomina, name='nomina_pdf'),
+    path('recursos_humanos/nomina/pdf/<int:nomina_id>/', generar_pdf_nomina, name='nomina_pdf'),
+
 
 ]

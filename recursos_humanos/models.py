@@ -48,7 +48,6 @@ class Empleado(models.Model):
     def __str__(self):
         return self.nombre
 
-
 class Nomina(models.Model):
     empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, related_name='nominas')
     periodo_inicio = models.DateField()
@@ -58,12 +57,21 @@ class Nomina(models.Model):
     bonificaciones = models.DecimalField(max_digits=10, decimal_places=2)
     salario_neto = models.DecimalField(max_digits=10, decimal_places=2)
     fecha_calculo = models.DateTimeField(auto_now_add=True)
+    horas_extra_diurnas = models.FloatField(default=0)
+    horas_extra_nocturnas = models.FloatField(default=0)
+    recargos_nocturnos = models.FloatField(default=0)
+    horas_diurnas_festivas = models.FloatField(default=0)
+    horas_nocturnas_festivas = models.FloatField(default=0)
+    horas_extras_diurnas_festivas = models.FloatField(default=0)
+    horas_extras_nocturnas_festivas = models.FloatField(default=0)
+    horas_ausente = models.FloatField(default=0)
 
     class Meta:
         db_table = 'rrhh_nomina'
 
     def __str__(self):
         return f"Nómina de {self.empleado.nombre} ({self.periodo_inicio} - {self.periodo_fin})"
+
 
 
 class Ausentismo(models.Model):

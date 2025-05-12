@@ -217,15 +217,15 @@ const EntityManager = {
         }
     },
 
-   async loadLiquidacion() {
-    try {
-        const data = await Utils.makeRequest('/api/rrhh/liquidaciones/');
-        const table = document.getElementById('tabla-liquidacion');
-        const tbody = table.querySelector('tbody');
-        tbody.innerHTML = '';
-        data.forEach(item => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
+    async loadLiquidacion() {
+        try {
+            const data = await Utils.makeRequest('/api/rrhh/liquidaciones/');
+            const table = document.getElementById('tabla-liquidacion');
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
                 <td>${item.id}</td>
                 <td>${item.empleado_nombre || 'Sin nombre'}</td>
                 <td>${item.contrato || 'Sin contrato'}</td>
@@ -238,12 +238,12 @@ const EntityManager = {
                     <button class="btn btn-danger btn-sm" onclick="EntityManager.deleteEntity('liquidacion', ${item.id})">Eliminar</button>
                 </td>
             `;
-            tbody.appendChild(row);
-        });
-    } catch (error) {
-        Utils.showMessage(`Error al cargar liquidaciones: ${error.message}`);
-    }
-},
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            Utils.showMessage(`Error al cargar liquidaciones: ${error.message}`);
+        }
+    },
 
     async loadAusentismos() {
         try {
@@ -565,8 +565,8 @@ async function calcularNomina(id) {
 
         // Calcular totales
         const bonificacionesTotales = bonificacionExtraDiurna + bonificacionExtraNocturna + bonificacionRecargoNocturno +
-                                     bonificacionDiurnaFestiva + bonificacionNocturnaFestiva + bonificacionExtraDiurnaFestiva +
-                                     bonificacionExtraNocturnaFestiva;
+            bonificacionDiurnaFestiva + bonificacionNocturnaFestiva + bonificacionExtraDiurnaFestiva +
+            bonificacionExtraNocturnaFestiva;
         const deduccionesTotales = descuentosAusencias + deduccionesLegales;
         const salarioNeto = salarioBaseQuincenal + bonificacionesTotales - deduccionesTotales;
 
@@ -645,13 +645,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const horasExtraFestN = getVal("nomina-horas-extras-nocturnas-festivas");
             const horasAusente = getVal("nomina-horas-ausente");
 
-            const bonif = horasExtraD * valorHora * 1.25 +
-                          horasExtraN * valorHora * 1.75 +
-                          recargosNoc * valorHora * 1.35 +
-                          horasFestD * valorHora * 1.75 +
-                          horasFestN * valorHora * 2.0 +
-                          horasExtraFestD * valorHora * 2.0 +
-                          horasExtraFestN * valorHora * 2.5;
+            const bonif =
+                horasExtraD * valorHora * 1.25 +
+                horasExtraN * valorHora * 1.75 +
+                recargosNoc * valorHora * 1.35 +
+                horasFestD * valorHora * 1.75 +
+                horasFestN * valorHora * 2.0 +
+                horasExtraFestD * valorHora * 2.0 +
+                horasExtraFestN * valorHora * 2.5;
             const deducciones = salarioQuincenal * 0.08 + horasAusente * valorHora;
             const salarioNeto = salarioQuincenal + bonif - deducciones;
 
@@ -677,12 +678,81 @@ document.addEventListener("DOMContentLoaded", () => {
             Utils.showMessage("❌ Error al calcular nómina: " + err.message);
         }
     });
+});
 
-    // GUARDAR NÓMINA 
+// GUARDAR NÓMINA  
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("Página cargada, inicializando...");
+
+    const form = document.getElementById("formulario-nomina");
+    const resumen = document.getElementById("nomina-resumen");
+    const generarPdfBtn = document.getElementById("generar-pdf");
+
+    if (!form) return;
+
+    // Calcular Nómina
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const id = this.dataset.empleadoId;
+        if (!id) return Utils.showMessage("⚠️ Primero ingresa un documento válido.");
+
+        try {
+            const empleado = await Utils.makeRequest(`/api/rrhh/empleados/${id}/`);
+            const salarioMensual = parseFloat(empleado.salario);
+            const salarioQuincenal = salarioMensual / 2;
+            const valorHora = salarioQuincenal / 15 / 8;
+
+            const getVal = id => parseFloat(document.getElementById(id).value) || 0;
+            const horasExtraD = getVal("nomina-horas-extra-diurnas");
+            const horasExtraN = getVal("nomina-horas-extra-nocturnas");
+            const recargosNoc = getVal("nomina-recargos-nocturnos");
+            const horasFestD = getVal("nomina-horas-diurnas-festivas");
+            const horasFestN = getVal("nomina-horas-nocturnas-festivas");
+            const horasExtraFestD = getVal("nomina-horas-extras-diurnas-festivas");
+            const horasExtraFestN = getVal("nomina-horas-extras-nocturnas-festivas");
+            const horasAusente = getVal("nomina-horas-ausente");
+
+            const bonif =
+                horasExtraD * valorHora * 1.25 +
+                horasExtraN * valorHora * 1.75 +
+                recargosNoc * valorHora * 1.35 +
+                horasFestD * valorHora * 1.75 +
+                horasFestN * valorHora * 2.0 +
+                horasExtraFestD * valorHora * 2.0 +
+                horasExtraFestN * valorHora * 2.5;
+
+            const deducciones = salarioQuincenal * 0.08 + horasAusente * valorHora;
+            const salarioNeto = salarioQuincenal + bonif - deducciones;
+
+            document.getElementById("nomina-empleado").innerText = empleado.nombre;
+            document.getElementById("nomina-salario-base-resumen").innerText = `$${salarioQuincenal.toFixed(2)}`;
+            document.getElementById("nomina-bonificaciones").innerText = `$${bonif.toFixed(2)}`;
+            document.getElementById("nomina-deducciones").innerText = `$${deducciones.toFixed(2)}`;
+            document.getElementById("nomina-salario-neto").innerText = `$${salarioNeto.toFixed(2)}`;
+
+            resumen.classList.remove("hidden");
+            if (generarPdfBtn) generarPdfBtn.style.display = "inline-block"; // Only set if not null
+            Object.assign(form.dataset, {
+                horasExtraDiurnas: horasExtraD,
+                horasExtraNocturnas: horasExtraN,
+                recargosNocturnos: recargosNoc,
+                horasDiurnasFestivas: horasFestD,
+                horasNocturnasFestivas: horasFestN,
+                horasExtrasDiurnasFestivas: horasExtraFestD,
+                horasExtrasNocturnasFestivas: horasExtraFestN,
+                horasAusente: horasAusente
+            });
+        } catch (err) {
+            Utils.showMessage("❌ Error al calcular nómina: " + err.message);
+        }
+    });
+
+    // Guardar Nómina
     document.getElementById("guardar-nomina").addEventListener("click", async function () {
         const id = form.dataset.empleadoId;
         const inicio = document.getElementById("nomina-periodo-inicio").value;
         const fin = document.getElementById("nomina-periodo-fin").value;
+
         if (!id || !inicio || !fin) return Utils.showMessage("⚠️ Campos incompletos.");
 
         try {
@@ -694,8 +764,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 periodo_inicio: inicio,
                 periodo_fin: fin,
                 salario_base: salarioBase,
-                deducciones_totales: parseFloat(document.getElementById("nomina-deducciones").innerText.replace(/[$,]/g, "")),
-                bonificaciones_totales: parseFloat(document.getElementById("nomina-bonificaciones").innerText.replace(/[$,]/g, "")),
+                deducciones: parseFloat(document.getElementById("nomina-deducciones").innerText.replace(/[$,]/g, "")),
+                bonificaciones: parseFloat(document.getElementById("nomina-bonificaciones").innerText.replace(/[$,]/g, "")),
                 salario_neto: parseFloat(document.getElementById("nomina-salario-neto").innerText.replace(/[$,]/g, "")),
                 horas_extra_diurnas: parseFloat(form.dataset.horasExtraDiurnas) || 0,
                 horas_extra_nocturnas: parseFloat(form.dataset.horasExtraNocturnas) || 0,
@@ -716,15 +786,61 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify(payload)
             });
 
-            if (!res.ok) throw new Error((await res.json()).detail || "Error al guardar nómina.");
+            const responseData = await res.json();
+            if (!res.ok) throw new Error(responseData.detail || "Error al guardar nómina.");
 
+            const nominaId = responseData.id;
             Utils.showMessage("✅ Nómina guardada exitosamente", "success");
+
+            const pdfContainer = document.getElementById("boton-pdf-container");
+            pdfContainer.innerHTML = '';
+            const pdfButton = document.createElement('a');
+            pdfButton.href = `/recursos_humanos/nomina/pdf/${nominaId}/`;
+            pdfButton.classList.add('btn', 'btn-secondary', 'mt-2');
+            pdfButton.target = '_blank';
+            pdfButton.textContent = 'Descargar PDF';
+            pdfContainer.appendChild(pdfButton);
+
             form.reset();
             resumen.classList.add("hidden");
             form.dataset = {};
-
+            // Removed: generarPdfBtn.style.display = "none"; to keep it available
         } catch (err) {
             Utils.showMessage("❌ Error al guardar nómina: " + err.message);
         }
     });
+
+    // Generar PDF del resumen de nómina
+    if (generarPdfBtn) {
+        generarPdfBtn.addEventListener('click', () => {
+            const empleado = document.getElementById('nomina-empleado').innerText;
+            const salarioBase = document.getElementById('nomina-salario-base-resumen').innerText;
+            const bonificaciones = document.getElementById('nomina-bonificaciones').innerText;
+            const deducciones = document.getElementById('nomina-deducciones').innerText;
+            const salarioNeto = document.getElementById('nomina-salario-neto').innerText;
+            const periodoInicio = document.getElementById('nomina-periodo-inicio').value || 'No especificado';
+            const periodoFin = document.getElementById('nomina-periodo-fin').value || 'No especificado';
+
+            if (!empleado || !salarioBase || !bonificaciones || !deducciones || !salarioNeto) {
+                return Utils.showMessage("⚠️ No hay datos suficientes para generar el PDF.");
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.setFontSize(18);
+                doc.text('Resumen de Nómina', 10, 10);
+                doc.setFontSize(12);
+                doc.text(`Empleado: ${empleado}`, 10, 30);
+                doc.text(`Período: ${periodoInicio} al ${periodoFin}`, 10, 40);
+                doc.text(`Salario Base (Quincenal): ${salarioBase}`, 10, 50);
+                doc.text(`Bonificaciones: ${bonificaciones}`, 10, 60);
+                doc.text(`Deducciones: ${deducciones}`, 10, 70);
+                doc.text(`Salario Neto: ${salarioNeto}`, 10, 80);
+                doc.save(`nomina_${empleado}_${periodoInicio}_al_${periodoFin}.pdf`);
+            } catch (err) {
+                Utils.showMessage("❌ Error al generar el PDF: " + err.message);
+            }
+        });
+    }
 });
