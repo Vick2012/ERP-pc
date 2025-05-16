@@ -139,6 +139,13 @@ class AusentismoListCreateView(generics.ListCreateAPIView):
     queryset = Ausentismo.objects.all()
     serializer_class = AusentismoSerializer
 
+    def get_queryset(self):
+        queryset = Ausentismo.objects.all()
+        documento = self.request.query_params.get('documento', None)
+        if documento:
+            queryset = queryset.filter(documento=documento)
+        return queryset.select_related('empleado')
+
 class AusentismoDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ausentismo.objects.all()
     serializer_class = AusentismoSerializer

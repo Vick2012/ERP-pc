@@ -343,10 +343,10 @@ const EntityManager = {
                 const row = document.createElement('tr');
                 row.dataset.tipo = item.tipo;
                 row.innerHTML = `
-                    <td>${item.empleado_nombre || item.empleado}</td>
-                    <td><span class="badge ${item.tipo === 'ausentismo' ? 'bg-danger' : 'bg-success'}">${item.tipo === 'ausentismo' ? 'Ausentismo' : 'Horas Extras'}</span></td>
+                    <td>${item.empleado_documento || item.documento}</td>
+                    <td><span class="badge ${getBadgeClass(item.tipo)}">${getTipoTexto(item.tipo)}</span></td>
                     <td>${new Date(item.fecha).toLocaleDateString()}</td>
-                    <td>${item.duracion} horas</td>
+                    <td>${item.duracion_horas || item.duracion} horas</td>
                     <td>${item.motivo || 'N/A'}</td>
                     <td>
                         <button class="btn btn-sm btn-danger eliminar-registro" data-id="${item.id}">
@@ -356,24 +356,8 @@ const EntityManager = {
                 `;
                 tbody.appendChild(row);
             });
-
-            // Agregar event listeners a los botones de eliminar
-            tbody.querySelectorAll('.eliminar-registro').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    if (confirm('¿Está seguro de eliminar este registro?')) {
-                        const id = e.currentTarget.dataset.id;
-                        try {
-                            await Utils.makeRequest(`/api/rrhh/ausentismos/${id}/`, 'DELETE');
-                            Utils.showMessage('Registro eliminado con éxito', 'success');
-                            this.loadAusentismos();
-                        } catch (error) {
-                            Utils.showMessage(`Error al eliminar: ${error.message}`);
-                        }
-                    }
-                });
-            });
         } catch (error) {
-            Utils.showMessage(`Error al cargar registros: ${error.message}`);
+            Utils.showMessage(`Error al cargar ausentismos: ${error.message}`);
         }
     },
 
@@ -388,55 +372,122 @@ const EntityManager = {
             return;
         }
 
-        const empleadoId = document.getElementById('ausentismos-empleado').value;
+        const empleadoSelect = document.getElementById('ausentismos-empleado');
+        const empleadoOption = empleadoSelect.options[empleadoSelect.selectedIndex];
+        const documento = empleadoOption.getAttribute('data-documento');
         const fecha = document.getElementById('ausentismos-fecha').value;
         const tipo = document.getElementById('ausentismos-tipo').value;
-        const duracion = parseFloat(document.getElementById('ausentismos-duracion').value);
         const motivo = document.getElementById('ausentismos-motivo').value || '';
 
-        if (!empleadoId || !fecha || !tipo || !duracion) {
+        if (!documento || !fecha || !tipo) {
             Utils.showMessage('Complete todos los campos obligatorios.');
             return;
         }
 
-        // Validar la duración
-        if (duracion <= 0 || duracion > 24) {
-            Utils.showMessage('La duración debe estar entre 0 y 24 horas.');
-            return;
-        }
-
-        // Validar que la fecha no sea futura
-        const fechaSeleccionada = new Date(fecha);
-        const hoy = new Date();
-        if (fechaSeleccionada > hoy) {
-            Utils.showMessage('No se pueden registrar fechas futuras.');
-            return;
-        }
-
-        const payload = { 
-            empleado: empleadoId, 
-            fecha, 
-            tipo, 
-            duracion, 
-            motivo 
-        };
-
         try {
-            await Utils.makeRequest('/api/rrhh/ausentismos/', 'POST', payload);
+            let duracion;
+            if (tipo === 'ausentismo') {
+                duracion = parseFloat(document.getElementById('ausentismos-duracion').value);
+                if (isNaN(duracion) || duracion <= 0 || duracion > 24) {
+                    Utils.showMessage('La duración debe estar entre 0 y 24 horas.');
+                    return;
+                }
+            } else if (tipo === 'horas_extras') {
+                // Para horas extras, sumar todas las horas ingresadas
+                const horasDiurnas = parseFloat(document.getElementById('horas-extra-diurnas').value) || 0;
+                const horasNocturnas = parseFloat(document.getElementById('horas-extra-nocturnas').value) || 0;
+                const recargosNocturnos = parseFloat(document.getElementById('recargos-nocturnos').value) || 0;
+                const horasDominicales = parseFloat(document.getElementById('horas-extra-dominicales').value) || 0;
+                
+                duracion = horasDiurnas + horasNocturnas + recargosNocturnos + horasDominicales;
+                
+                if (duracion <= 0 || duracion > 24) {
+                    Utils.showMessage('El total de horas extras debe estar entre 0 y 24 horas.');
+                    return;
+                }
+            }
+
+            let payload;
+            let endpoint;
+
+            if (tipo === 'horas_extras') {
+                payload = {
+                    documento: documento,
+                    fecha,
+                    tipo: 'horas_extras',
+                    duracion_horas: duracion,
+                    motivo,
+                    horas_extra_diurnas: parseFloat(document.getElementById('horas-extra-diurnas').value) || 0,
+                    horas_extra_nocturnas: parseFloat(document.getElementById('horas-extra-nocturnas').value) || 0,
+                    recargos_nocturnos: parseFloat(document.getElementById('recargos-nocturnos').value) || 0,
+                    horas_extra_dominicales: parseFloat(document.getElementById('horas-extra-dominicales').value) || 0
+                };
+                endpoint = '/api/rrhh/horas_extras/';
+            } else {
+                payload = {
+                    documento: documento,
+                    fecha,
+                    tipo: 'ausentismo',
+                    duracion_horas: duracion,
+                    motivo
+                };
+                endpoint = '/api/rrhh/ausentismos/';
+            }
+
+            console.log('Enviando datos:', payload, 'a endpoint:', endpoint);
+            await Utils.makeRequest(endpoint, 'POST', payload);
             Utils.showMessage('Registro guardado exitosamente', 'success');
             form.reset();
             form.classList.remove('was-validated');
             this.loadAusentismos();
         } catch (error) {
+            console.error('Error detallado:', error);
             Utils.showMessage(`Error al guardar: ${error.message}`);
         }
     },
 
-    // Limpia el formulario de ausentismos
-    limpiarFormularioAusentismos() {
-        const form = document.getElementById('form-ausentismos');
-        form.reset();
-        form.classList.remove('was-validated');
+    // Inicializar eventos para el formulario de ausentismos y horas extras
+    initAusentismosForm() {
+        const tipoSelect = document.getElementById('ausentismos-tipo');
+        const horasExtrasDetalles = document.getElementById('horas-extras-detalles');
+        const ausentismoDuracion = document.getElementById('ausentismo-duracion');
+        
+        // Función para calcular el total de horas extras
+        const calcularTotalHorasExtras = () => {
+            const horasDiurnas = parseFloat(document.getElementById('horas-extra-diurnas').value) || 0;
+            const horasNocturnas = parseFloat(document.getElementById('horas-extra-nocturnas').value) || 0;
+            const recargosNocturnos = parseFloat(document.getElementById('recargos-nocturnos').value) || 0;
+            const horasDominicales = parseFloat(document.getElementById('horas-extra-dominicales').value) || 0;
+            
+            const total = horasDiurnas + horasNocturnas + recargosNocturnos + horasDominicales;
+            document.getElementById('total-horas-extras').textContent = total.toFixed(1);
+        };
+
+        // Manejar cambios en el tipo de registro
+        if (tipoSelect) {
+            tipoSelect.addEventListener('change', () => {
+                const tipo = tipoSelect.value;
+                
+                if (tipo === 'horas_extras') {
+                    horasExtrasDetalles.classList.remove('d-none');
+                    ausentismoDuracion.classList.add('d-none');
+                } else if (tipo === 'ausentismo') {
+                    horasExtrasDetalles.classList.add('d-none');
+                    ausentismoDuracion.classList.remove('d-none');
+                } else {
+                    horasExtrasDetalles.classList.add('d-none');
+                    ausentismoDuracion.classList.add('d-none');
+                }
+            });
+        }
+
+        // Agregar listeners para calcular total de horas extras
+        ['horas-extra-diurnas', 'horas-extra-nocturnas', 'recargos-nocturnos', 'horas-extra-dominicales'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('input', calcularTotalHorasExtras);
+            }
+        });
     },
 
     // Muestra u oculta el formulario de un módulo
@@ -1329,6 +1380,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Cargar datos iniciales
             EntityManager.loadAusentismos();
 
+            // Inicializar el formulario y sus eventos
+            EntityManager.initAusentismosForm();
+
             // Manejar el formulario de ausentismos
             const formAusentismos = document.getElementById('form-ausentismos');
             if (formAusentismos) {
@@ -1338,24 +1392,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Manejar el botón de limpiar
             const btnLimpiar = document.getElementById('limpiar-ausentismos');
             if (btnLimpiar) {
-                btnLimpiar.addEventListener('click', () => EntityManager.limpiarFormularioAusentismos());
-            }
-
-            // Manejar el cambio de tipo para mostrar/ocultar el campo de motivo
-            const tipoSelect = document.getElementById('ausentismos-tipo');
-            if (tipoSelect) {
-                tipoSelect.addEventListener('change', () => {
-                    const motivoContainer = document.getElementById('ausentismos-motivo-container');
-                    const motivoTextarea = document.getElementById('ausentismos-motivo');
-                    
-                    if (tipoSelect.value === 'ausentismo') {
-                        motivoContainer.style.display = 'block';
-                        motivoTextarea.required = true;
-                    } else {
-                        motivoContainer.style.display = 'none';
-                        motivoTextarea.required = false;
-                        motivoTextarea.value = '';
-                    }
+                btnLimpiar.addEventListener('click', () => {
+                    const form = document.getElementById('form-ausentismos');
+                    form.reset();
+                    form.classList.remove('was-validated');
+                    // Ocultar ambos contenedores de detalles
+                    document.getElementById('horas-extras-detalles').classList.add('d-none');
+                    document.getElementById('ausentismo-duracion').classList.add('d-none');
                 });
             }
 
@@ -1369,6 +1412,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             const option = document.createElement('option');
                             option.value = emp.id;
                             option.textContent = emp.nombre;
+                            option.setAttribute('data-documento', emp.documento);
                             empleadoSelect.appendChild(option);
                         });
                     })
@@ -1376,44 +1420,34 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Manejar filtros de la tabla
-            const filtroTodos = document.getElementById('filtro-todos');
-            const filtroAusentismos = document.getElementById('filtro-ausentismos');
-            const filtroHorasExtras = document.getElementById('filtro-horas-extras');
+            const filtros = {
+                todos: document.getElementById('filtro-todos'),
+                ausentismos: document.getElementById('filtro-ausentismos'),
+                horasExtras: document.getElementById('filtro-horas-extras')
+            };
 
             function aplicarFiltro(tipo = null) {
                 const rows = document.querySelectorAll('#tabla-ausentismos tbody tr');
                 rows.forEach(row => {
-                    if (!tipo || row.dataset.tipo === tipo) {
+                    if (!tipo) {
                         row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
+                    } else if (tipo === 'ausentismo') {
+                        row.style.display = row.dataset.tipo === 'ausentismo' ? '' : 'none';
+                    } else if (tipo === 'horas_extras') {
+                        row.style.display = row.dataset.tipo.startsWith('hora_extra') ? '' : 'none';
                     }
                 });
             }
 
-            if (filtroTodos) {
-                filtroTodos.addEventListener('click', () => {
-                    aplicarFiltro();
-                    [filtroTodos, filtroAusentismos, filtroHorasExtras].forEach(btn => btn.classList.remove('active'));
-                    filtroTodos.classList.add('active');
-                });
-            }
-
-            if (filtroAusentismos) {
-                filtroAusentismos.addEventListener('click', () => {
-                    aplicarFiltro('ausentismo');
-                    [filtroTodos, filtroAusentismos, filtroHorasExtras].forEach(btn => btn.classList.remove('active'));
-                    filtroAusentismos.classList.add('active');
-                });
-            }
-
-            if (filtroHorasExtras) {
-                filtroHorasExtras.addEventListener('click', () => {
-                    aplicarFiltro('hora_extra');
-                    [filtroTodos, filtroAusentismos, filtroHorasExtras].forEach(btn => btn.classList.remove('active'));
-                    filtroHorasExtras.classList.add('active');
-                });
-            }
+            Object.entries(filtros).forEach(([key, btn]) => {
+                if (btn) {
+                    btn.addEventListener('click', () => {
+                        Object.values(filtros).forEach(b => b?.classList.remove('active'));
+                        btn.classList.add('active');
+                        aplicarFiltro(key === 'todos' ? null : key === 'ausentismos' ? 'ausentismo' : 'horas_extras');
+                    });
+                }
+            });
         }
 
         console.log('Inicialización completada con éxito');
@@ -1421,3 +1455,25 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Error durante la inicialización:', error);
     }
 });
+
+// Funciones auxiliares para el formato de la tabla
+function getBadgeClass(tipo) {
+    switch(tipo) {
+        case 'ausentismo': return 'bg-danger';
+        case 'hora_extra_diurna': return 'bg-success';
+        case 'hora_extra_nocturna': return 'bg-primary';
+        case 'hora_extra_dominical': return 'bg-warning';
+        default: return 'bg-secondary';
+    }
+}
+
+function getTipoTexto(tipo) {
+    switch(tipo) {
+        case 'ausentismo': return 'Ausentismo';
+        case 'hora_extra_diurna': return 'H.E. Diurna';
+        case 'hora_extra_nocturna': return 'H.E. Nocturna';
+        case 'hora_extra_dominical': return 'H.E. Dominical';
+        default: return tipo;
+    }
+}
+

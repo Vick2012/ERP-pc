@@ -337,46 +337,116 @@
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h3 class="text-primary mb-3">Registro de Ausentismos y Horas Extras</h3>
+                        <h3 class="text-primary mb-3">Registro de Ausentismos y Horas Extras</h3>
                                         <form id="form-ausentismos" class="needs-validation" novalidate>
-                                            <div class="mb-3">
-                                                <label for="ausentismos-empleado" class="form-label">Seleccionar Empleado:</label>
-                                                <select id="ausentismos-empleado" class="form-select" required>
-                                                    <option value="">Seleccione un empleado</option>
-                                                </select>
+                        <div class="mb-3">
+                            <label for="ausentismos-empleado" class="form-label">Seleccionar Empleado:</label>
+                            <select id="ausentismos-empleado" class="form-select" required>
+                                <option value="">Seleccione un empleado</option>
+                            </select>
                                                 <div class="invalid-feedback">
                                                     Por favor seleccione un empleado
                                                 </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="ausentismos-fecha" class="form-label">Fecha:</label>
-                                                <input type="date" id="ausentismos-fecha" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ausentismos-fecha" class="form-label">Fecha:</label>
+                            <input type="date" id="ausentismos-fecha" class="form-control" required>
                                                 <div class="invalid-feedback">
                                                     Por favor seleccione una fecha
                                                 </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="ausentismos-tipo" class="form-label">Tipo:</label>
-                                                <select id="ausentismos-tipo" class="form-select" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ausentismos-tipo" class="form-label">Tipo:</label>
+                            <select id="ausentismos-tipo" class="form-select" required>
                                                     <option value="">Seleccione un tipo</option>
-                                                    <option value="ausentismo">Ausentismo</option>
-                                                    <option value="hora_extra">Horas Extras</option>
-                                                </select>
-                                                <div class="invalid-feedback">
-                                                    Por favor seleccione un tipo
+                                <option value="ausentismo">Ausentismo</option>
+                                                    <option value="horas_extras">Horas Extras</option>
+                            </select>
+                        </div>
+
+                                            <!-- Contenedor para detalles de Horas Extras -->
+                                            <div id="horas-extras-detalles" class="mb-3 d-none">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <h6 class="card-subtitle mb-3 text-muted">Detalles de Horas Extras</h6>
+                                                        
+                                                        <!-- Horas Extras Diurnas -->
+                                                        <div class="mb-3">
+                                                            <label class="form-label d-flex justify-content-between">
+                                                                <span>Horas Extras Diurnas (6:00 AM - 9:00 PM)</span>
+                                                                <span class="badge bg-info">125%</span>
+                                                            </label>
+                                                            <div class="input-group">
+                                                                <input type="number" id="horas-extra-diurnas" class="form-control" min="0" max="24" step="0.5" value="0">
+                                                                <span class="input-group-text">horas</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Horas Extras Nocturnas -->
+                                                        <div class="mb-3">
+                                                            <label class="form-label d-flex justify-content-between">
+                                                                <span>Horas Extras Nocturnas (9:00 PM - 6:00 AM)</span>
+                                                                <span class="badge bg-primary">175%</span>
+                                                            </label>
+                                                            <div class="input-group">
+                                                                <input type="number" id="horas-extra-nocturnas" class="form-control" min="0" max="24" step="0.5" value="0">
+                                                                <span class="input-group-text">horas</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Recargos Nocturnos -->
+                                                        <div class="mb-3">
+                                                            <label class="form-label d-flex justify-content-between">
+                                                                <span>Recargos Nocturnos (9:00 PM - 6:00 AM)</span>
+                                                                <span class="badge bg-secondary">35%</span>
+                                                            </label>
+                                                            <div class="input-group">
+                                                                <input type="number" id="recargos-nocturnos" class="form-control" min="0" max="24" step="0.5" value="0">
+                                                                <span class="input-group-text">horas</span>
+                                                            </div>
+                                                            <small class="form-text text-muted">
+                                                                Trabajo nocturno regular (no horas extras)
+                                                            </small>
+                                                        </div>
+
+                                                        <!-- Horas Extras Dominicales/Festivos -->
+                        <div class="mb-3">
+                                                            <label class="form-label d-flex justify-content-between">
+                                                                <span>Horas Extras Dominicales/Festivos</span>
+                                                                <span class="badge bg-warning text-dark">200%</span>
+                                                            </label>
+                                                            <div class="input-group">
+                                                                <input type="number" id="horas-extra-dominicales" class="form-control" min="0" max="24" step="0.5" value="0">
+                                                                <span class="input-group-text">horas</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Total de Horas -->
+                                                        <div class="alert alert-info mt-3">
+                                                            <strong>Total Horas: </strong>
+                                                            <span id="total-horas-extras">0</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label for="ausentismos-duracion" class="form-label">Duración (horas):</label>
-                                                <input type="number" id="ausentismos-duracion" class="form-control" step="0.5" min="0" max="24" required>
-                                                <div class="invalid-feedback">
-                                                    Por favor ingrese una duración válida (entre 0 y 24 horas)
+
+                                            <!-- Campo de duración (solo visible para ausentismos) -->
+                                            <div id="ausentismo-duracion" class="mb-3 d-none">
+                                                <label for="ausentismos-duracion" class="form-label">Duración del Ausentismo:</label>
+                                                <div class="input-group">
+                                                    <input type="number" id="ausentismos-duracion" class="form-control" step="0.5" min="0.5" max="24" value="" required>
+                                                    <span class="input-group-text">horas</span>
+                                                    <div class="invalid-feedback">
+                                                        La duración debe estar entre 0.5 y 24 horas
+                                                    </div>
                                                 </div>
                                             </div>
+
                                             <div class="mb-3" id="ausentismos-motivo-container">
-                                                <label for="ausentismos-motivo" class="form-label">Motivo:</label>
+                                                <label for="ausentismos-motivo" class="form-label">Motivo/Descripción:</label>
                                                 <textarea id="ausentismos-motivo" class="form-control" rows="3"
-                                                    placeholder="Describa el motivo del ausentismo"></textarea>
+                                                    placeholder="Para ausentismos: Especifique el motivo
+Para horas extras: Detalle la labor realizada"></textarea>
                                                 <div class="invalid-feedback">
                                                     Por favor ingrese un motivo
                                                 </div>
@@ -402,23 +472,23 @@
                                                 <button class="btn btn-outline-primary" id="filtro-todos">Todos</button>
                                                 <button class="btn btn-outline-primary" id="filtro-ausentismos">Ausentismos</button>
                                                 <button class="btn btn-outline-primary" id="filtro-horas-extras">Horas Extras</button>
-                                            </div>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-hover text-center align-middle"
-                                                id="tabla-ausentismos">
-                                                <thead class="table-primary">
-                                                    <tr>
-                                                        <th>Empleado</th>
-                                                        <th>Tipo</th>
-                                                        <th>Fecha</th>
+                        </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover text-center align-middle"
+                                id="tabla-ausentismos">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Documento</th>
+                                        <th>Tipo</th>
+                                        <th>Fecha</th>
                                                         <th>Duración</th>
-                                                        <th>Motivo</th>
+                                        <th>Motivo</th>
                                                         <th>Acciones</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody></tbody>
-                                            </table>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                                         </div>
                                     </div>
                                 </div>

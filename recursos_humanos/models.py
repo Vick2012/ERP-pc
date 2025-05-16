@@ -75,10 +75,17 @@ class Nomina(models.Model):
 
 
 class Ausentismo(models.Model):
+    TIPO_CHOICES = [
+        ('ausentismo', 'Ausentismo'),
+        ('horas_extras', 'Horas Extras')
+    ]
+    
     empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, related_name='ausentismos')
     fecha = models.DateField()
     duracion_horas = models.DecimalField(max_digits=5, decimal_places=2)
     motivo = models.TextField()
+    documento = models.CharField(max_length=20, blank=True, null=True)
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='ausentismo')
 
     class Meta:
         db_table = 'rrhh_ausentismo'
@@ -86,17 +93,33 @@ class Ausentismo(models.Model):
     def __str__(self):
         return f"Ausentismo de {self.empleado.nombre} el {self.fecha}"
 
+    def save(self, *args, **kwargs):
+        if not self.documento and self.empleado:
+            self.documento = self.empleado.documento
+        super().save(*args, **kwargs)
+
 
 class HoraExtra(models.Model):
     empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, related_name='horas_extras')
     fecha = models.DateField()
-    horas = models.DecimalField(max_digits=5, decimal_places=2)
+    duracion_horas = models.DecimalField(max_digits=5, decimal_places=2)
+    motivo = models.TextField(blank=True, null=True)
+    documento = models.CharField(max_length=20, blank=True, null=True)
+    horas_extra_diurnas = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    horas_extra_nocturnas = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    recargos_nocturnos = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    horas_extra_dominicales = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     class Meta:
         db_table = 'rrhh_hora_extra'
 
     def __str__(self):
         return f"Horas Extras de {self.empleado.nombre} el {self.fecha}"
+
+    def save(self, *args, **kwargs):
+        if not self.documento and self.empleado:
+            self.documento = self.empleado.documento
+        super().save(*args, **kwargs)
 
 
 class Contact(models.Model):
