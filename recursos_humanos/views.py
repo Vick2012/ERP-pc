@@ -12,6 +12,14 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 import os
 from xhtml2pdf import pisa
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.utils.timezone import now
+from xhtml2pdf import pisa
+from frontend.models import Nomina
+import io
+from django.http import JsonResponse
+
 
 
 from .models import Empleado, Nomina, Ausentismo, HoraExtra, Contact, Liquidacion
@@ -23,6 +31,11 @@ from rest_framework import status
 from rest_framework import generics
 from .models import Nomina
 from .serializers import NominaSerializer
+from django.shortcuts import render
+
+def serve_nomina_pdf_template(request):
+    return render(request, 'recibos/nomina_pdf.html')
+
 
 class NominaListCreateView(generics.ListCreateAPIView):
     queryset = Nomina.objects.all()
@@ -80,24 +93,18 @@ def link_callback(uri, rel):
 
 # GENERADOR DE PDF
 def generar_pdf_nomina(request, nomina_id):
-    nomina = get_object_or_404(Nomina.objects.select_related('empleado'), id=nomina_id)
-    template = get_template('recibos/nomina_pdf.html')
-    html = template.render({'nomina': nomina})
-
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=nomina_{nomina.empleado.nombre}.pdf'
-
-    # Use pisa to create the PDF with the link_callback
-    pisa_status = pisa.CreatePDF(
-        html,
-        dest=response,
-        link_callback=link_callback
-    )
-
-    if pisa_status.err:
-        return HttpResponse('Error al generar el PDF', status=500)
-    return response
-
+    nomina = get_object_or_404(Nomina, id=nomina_id)
+    data = {
+        'empleado': str(nomina.empleado),
+        'documento': nomina.empleado.documento if hasattr(nomina.empleado, 'documento') else 'N/A',
+        'salario_base': str(nomina.salario_base),
+        'bonificaciones': str(nomina.bonificaciones),
+        'deducciones': str(nomina.deducciones),
+        'salario_neto': str(nomina.salario_neto),
+        'periodo_inicio': str(nomina.periodo_inicio),
+        'periodo_fin': str(nomina.periodo_fin),
+    }
+    return JsonResponse(data)
 # Empleados
 class EmpleadoViewSet(viewsets.ModelViewSet):
     queryset = Empleado.objects.all()

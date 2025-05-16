@@ -1,5 +1,5 @@
+// Configuración de módulos para Proveedores, Clientes y Recursos Humanos
 const CONFIG = {
-
     proveedores: {
         apiUrl: "/api/proveedores/",
         tableId: "tabla-proveedores",
@@ -57,7 +57,7 @@ const CONFIG = {
             { id: "telefono-recursos_humanos", key: "telefono", required: true },
             { id: "correo-recursos_humanos", key: "correo", required: true },
             { id: "contrato-recursos_humanos", key: "contrato", required: true },
-            { id: "contacto-recursos_humanos", key: "contacto", required: true }
+            { id: "contacto-recursos_humanos", key: "contacto", required: false },
         ],
         tableHeaders: ["ID", "Nombre", "Tipo de Documento", "Documento", "Fecha de Ingreso", "Cargo", "Salario", "Área", "Teléfono", "Correo", "Contrato", "Contacto", "Acciones"],
         getRowData: (item) => [
@@ -73,18 +73,16 @@ const CONFIG = {
             item.correo,
             item.contrato,
             item.contacto,
-            item.acciones,
         ],
-        searchFields: ["nombre", "tipo_documento", "documento", "fecha_ingreso", "cargo", "salario", "area", "telefono", "correo", "contrato", "contacto"]
-    }
+        searchFields: ["nombre", "tipo_documento", "documento", "fecha_ingreso", "cargo", "salario", "area", "telefono", "correo", "contrato", "contacto"],
+    },
 };
 
-// Utilidades
+// Utilidades para manejar solicitudes HTTP, tokens CSRF y mensajes al usuario
 const Utils = {
     getCsrfToken() {
         const token = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
         if (token) return token;
-
         const name = 'csrftoken';
         const cookie = document.cookie.split(';').find(c => c.trim().startsWith(name + '='));
         return cookie ? decodeURIComponent(cookie.split('=')[1]) : (() => { throw new Error("Token CSRF no encontrado."); })();
@@ -93,15 +91,18 @@ const Utils = {
     async makeRequest(url, method = 'GET', data = null) {
         const headers = { 'Content-Type': 'application/json' };
         if (['POST', 'PUT', 'DELETE'].includes(method)) headers['X-CSRFToken'] = this.getCsrfToken();
-
         const options = { method, headers };
         if (data) options.body = JSON.stringify(data);
-
-        const response = await fetch(url, options);
-        const result = await response.json().catch(() => { throw new Error(`Error al parsear: ${response.statusText}`); });
-
-        if (!response.ok) throw new Error(result.error || `Error: ${response.statusText}`);
-        return result;
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || errorData.detail || `Error ${response.status}: ${response.statusText}`);
+            }
+            return await response.json();
+        } catch (error) {
+            throw new Error(`Error en la solicitud a ${url}: ${error.message}`);
+        }
     },
 
     showMessage(message, type = 'error') {
@@ -110,8 +111,7 @@ const Utils = {
     },
 };
 
-
-// Gestión de Entidades
+// Gestión de entidades (empleados, proveedores, clientes, ausentismos, liquidaciones)
 const EntityManager = {
     async loadData(tipo) {
         try {
@@ -119,21 +119,27 @@ const EntityManager = {
             this.renderTable(tipo, data);
         } catch (error) {
             console.error(`Error al cargar ${tipo}:`, error);
-            Utils.showMessage(`Error al cargar ${tipo}.`);
+            Utils.showMessage(`Error al cargar ${tipo}: ${error.message}`);
         }
     },
 
     renderTable(tipo, data) {
-        const { tableId, tableHeaders, getRowData } = CONFIG[tipo];
+        const { tableId, getRowData } = CONFIG[tipo];
         const table = document.getElementById(tableId);
-        table.innerHTML = `<tr>${tableHeaders.map(header => `<th>${header}</th>`).join('')}</tr>`;
-
+        const tbody = table.querySelector("tbody");
+        tbody.innerHTML = "";
         data.forEach(item => {
             const row = document.createElement('tr');
-            row.innerHTML = getRowData(item).map(cell => `<td>${cell}</td>`).join('') +
-                `<td><button class="btn btn-warning btn-sm" onclick="EntityManager.editEntity('${tipo}', ${item.id})">Editar</button>` +
-                `<button class="btn btn-danger btn-sm" onclick="EntityManager.deleteEntity('${tipo}', ${item.id})">Eliminar</button></td>`;
-            table.appendChild(row);
+            const cells = getRowData(item).map(cell => `<td>${cell}</td>`).join('');
+            const actionCell = `
+            <td class="text-nowrap">
+                <button class="btn btn-warning btn-sm me-1"
+                    onclick="EntityManager.editEntity('${tipo}', ${item.id})">Editar</button>
+                <button class="btn btn-danger btn-sm"
+                    onclick="EntityManager.deleteEntity('${tipo}', ${item.id})">Eliminar</button>
+            </td>`;
+            row.innerHTML = cells + actionCell;
+            tbody.appendChild(row);
         });
     },
 
@@ -150,7 +156,7 @@ const EntityManager = {
             })
             .catch(error => {
                 console.error(`Error al buscar ${tipo}:`, error);
-                Utils.showMessage(`Error al buscar ${tipo}.`);
+                Utils.showMessage(`Error al buscar ${tipo}: ${error.message}`);
             });
     },
 
@@ -170,7 +176,7 @@ const EntityManager = {
             if (document.getElementById(formId).classList.contains('hidden')) this.toggleForm(tipo);
         } catch (error) {
             console.error(`Error al editar ${tipo}:`, error);
-            Utils.showMessage(`Error al cargar ${tipo} para editar.`);
+            Utils.showMessage(`Error al cargar ${tipo} para editar: ${error.message}`);
         }
     },
 
@@ -183,7 +189,7 @@ const EntityManager = {
             this.loadData(tipo);
         } catch (error) {
             console.error(`Error al eliminar ${tipo}:`, error);
-            Utils.showMessage(`Error al eliminar ${tipo}.`);
+            Utils.showMessage(`Error al eliminar ${tipo}: ${error.message}`);
         }
     },
 
@@ -191,27 +197,100 @@ const EntityManager = {
         try {
             const { apiUrl, fields } = CONFIG[tipo];
             const data = Object.fromEntries(fields.map(field => [field.key, document.getElementById(field.id).value || '']));
-
             const requiredFields = fields.filter(f => f.required);
             if (requiredFields.some(f => !data[f.key])) {
                 Utils.showMessage('Completa todos los campos obligatorios.');
                 return;
             }
-
             const id = document.getElementById(`${tipo}-id`)?.value;
             const method = id ? 'PUT' : 'POST';
             const url = id ? `${apiUrl}${id}/` : apiUrl;
-
             console.log(`Enviando solicitud ${method} a ${url} con datos:`, data);
             const response = await Utils.makeRequest(url, method, data);
             console.log('Respuesta de la API:', response);
-
             Utils.showMessage(`${tipo.slice(0, -1)} guardado`, 'success');
             this.loadData(tipo);
             this.clearForm(tipo);
         } catch (error) {
             console.error(`Error al guardar ${tipo}:`, error);
             Utils.showMessage(`Error al guardar ${tipo}: ${error.message}`);
+        }
+    },
+
+    async loadLiquidacion() {
+        try {
+            const data = await Utils.makeRequest('/api/rrhh/liquidaciones/');
+            const table = document.getElementById('tabla-liquidacion');
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td>${item.id}</td>
+                <td>${item.empleado_nombre || 'Sin nombre'}</td>
+                <td>${item.contrato || 'Sin contrato'}</td>
+                <td>${item.fondo_pensiones || '0'}</td>
+                <td>${item.cesantias || '0'}</td>
+                <td>${item.eps || '0'}</td>
+                <td>${item.caja_compensacion || '0'}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="EntityManager.editEntity('liquidacion', ${item.id})">Editar</button>
+                    <button class="btn btn-danger btn-sm" onclick="EntityManager.deleteEntity('liquidacion', ${item.id})">Eliminar</button>
+                </td>
+            `;
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            Utils.showMessage(`Error al cargar liquidaciones: ${error.message}`);
+        }
+    },
+
+    async loadAusentismos() {
+        try {
+            const data = await Utils.makeRequest('/api/rrhh/ausentismos/');
+            const table = document.getElementById('tabla-ausentismos');
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.empleado_nombre || item.empleado}</td>
+                    <td>${item.tipo}</td>
+                    <td>${item.fecha}</td>
+                    <td>${item.duracion}</td>
+                    <td>${item.motivo || 'N/A'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            Utils.showMessage(`Error al cargar ausentismos: ${error.message}`);
+        }
+    },
+
+    async saveAusentismo() {
+        const empleadoId = document.getElementById('ausentismos-empleado').value;
+        const fecha = document.getElementById('ausentismos-fecha').value;
+        const tipo = document.getElementById('ausentismos-tipo').value;
+        const duracion = parseFloat(document.getElementById('ausentismos-duracion').value);
+        const motivo = document.getElementById('ausentismos-motivo').value || '';
+
+        if (!empleadoId || !fecha || !tipo || !duracion) {
+            Utils.showMessage('Completa todos los campos obligatorios.');
+            return;
+        }
+
+        const payload = { empleado: empleadoId, fecha, tipo, duracion, motivo };
+        try {
+            const response = await Utils.makeRequest(tipo === 'ausentismo' ? '/api/rrhh/ausentismos/' : '/api/rrhh/horas_extras/', 'POST', payload);
+            Utils.showMessage('Registro guardado', 'success');
+            document.getElementById('ausentismos-empleado').value = '';
+            document.getElementById('ausentismos-fecha').value = '';
+            document.getElementById('ausentismos-tipo').value = '';
+            document.getElementById('ausentismos-duracion').value = '';
+            document.getElementById('ausentismos-motivo').value = '';
+            this.loadAusentismos();
+        } catch (error) {
+            Utils.showMessage(`Error al registrar: ${error.message}`);
         }
     },
 
@@ -228,7 +307,7 @@ const EntityManager = {
     },
 };
 
-// Autenticación y Eventos
+// Manejo de autenticación y eventos de login/registro/contacto
 const AuthManager = {
     async checkAuth(url) {
         const response = await fetch('/api/auth/status/', { method: 'GET', headers: { 'Content-Type': 'application/json' } });
@@ -259,7 +338,6 @@ const AuthManager = {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         if (!username || !password) return Utils.showMessage('Completa todos los campos.');
-
         const response = await fetch('/api/auth/login/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': Utils.getCsrfToken() },
@@ -280,12 +358,10 @@ const AuthManager = {
         const [name, email, username, password] = ['register-name', 'register-email', 'register-username', 'register-password']
             .map(id => document.getElementById(id).value.trim());
         const errorDiv = document.getElementById('register-error');
-
         if (!name || !email || !username || !password) return Utils.showMessage('Completa todos los campos.');
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return Utils.showMessage('Correo inválido.');
         if (password.length < 8) return Utils.showMessage('Contraseña debe tener 8+ caracteres.');
         if (username.length < 3) return Utils.showMessage('Usuario debe tener 3+ caracteres.');
-
         const response = await fetch('/api/auth/register/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': Utils.getCsrfToken() },
@@ -305,7 +381,6 @@ const AuthManager = {
         const [name, email, message] = ['contact-name', 'contact-email', 'contact-message']
             .map(id => document.getElementById(id).value);
         if (!name || !email || !message) return Utils.showMessage('Completa todos los campos.');
-
         const response = await fetch('/api/auth/save-contact/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': Utils.getCsrfToken() },
@@ -319,7 +394,7 @@ const AuthManager = {
     },
 };
 
-// Inicialización
+// Inicialización de la página y eventos al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Página cargada, inicializando...');
     ['proveedores', 'clientes', 'recursos_humanos'].forEach(tipo => {
@@ -340,4 +415,389 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('#login-btn, #register-btn').forEach(btn => {
         btn.addEventListener('click', () => AuthManager.showModal(btn.id === 'login-btn' ? 'loginModal' : 'registerModal'));
     });
+
+    if (document.getElementById("tabla-nomina")) {
+        cargarTablaNomina();
+    }
+
+    if (document.getElementById('tabla-liquidacion')) {
+        EntityManager.loadLiquidacion();
+    }
+
+    if (document.getElementById('tabla-ausentismos')) {
+        EntityManager.loadAusentismos();
+        const ausentismoTipo = document.getElementById('ausentismos-tipo');
+        ausentismoTipo.addEventListener('change', () => {
+            const motivoContainer = document.getElementById('ausentismos-motivo-container');
+            if (ausentismoTipo.value === 'ausentismo') {
+                motivoContainer.classList.remove('hidden');
+            } else {
+                motivoContainer.classList.add('hidden');
+            }
+        });
+        const empleadoSelect = document.getElementById('ausentismos-empleado');
+        Utils.makeRequest('/api/rrhh/empleados/')
+            .then(empleados => {
+                empleados.forEach(emp => {
+                    const option = document.createElement('option');
+                    option.value = emp.id;
+                    option.textContent = emp.nombre;
+                    empleadoSelect.appendChild(option);
+                });
+            })
+            .catch(err => Utils.showMessage(`Error al cargar empleados: ${err.message}`));
+    }
+
+    const addRecursosHumanosBtn = document.getElementById("add-recursos_humanos");
+    if (addRecursosHumanosBtn) {
+        addRecursosHumanosBtn.addEventListener("click", () => {
+            const formulario = document.getElementById("formulario-recursos_humanos");
+            const isHidden = formulario.classList.contains("hidden");
+            if (isHidden) {
+                formulario.classList.remove("hidden");
+                formulario.reset();
+                document.getElementById("recursos_humanos-id").value = "";
+            } else {
+                formulario.classList.add("hidden");
+            }
+        });
+    }
+
+    const cancelRecursosHumanosBtn = document.getElementById("cancel-recursos_humanos");
+    if (cancelRecursosHumanosBtn) {
+        cancelRecursosHumanosBtn.addEventListener("click", () => {
+            EntityManager.clearForm("recursos_humanos");
+        });
+    }
+
+    const inputDocumento = document.getElementById("documento-recursos_humanos");
+    if (inputDocumento) {
+        inputDocumento.addEventListener("blur", async function () {
+            const documento = this.value.trim();
+            if (documento) {
+                try {
+                    const empleados = await Utils.makeRequest('/api/rrhh/empleados/');
+                    const empleado = empleados.find(e => e.documento === documento);
+                    if (empleado) {
+                        CONFIG.recursos_humanos.fields.forEach(field => {
+                            const element = document.getElementById(field.id);
+                            if (element) element.value = empleado[field.key] || '';
+                        });
+                        document.getElementById('recursos_humanos-id').value = empleado.id;
+                    } else {
+                        Utils.showMessage('Empleado no encontrado.');
+                        CONFIG.recursos_humanos.fields.forEach(field => {
+                            if (field.id !== 'documento-recursos_humanos') {
+                                const element = document.getElementById(field.id);
+                                if (element) element.value = '';
+                            }
+                        });
+                        document.getElementById('recursos_humanos-id').value = '';
+                    }
+                } catch (error) {
+                    Utils.showMessage(`Error al buscar empleado: ${error.message}`);
+                }
+            }
+        });
+    }
+
+    const nominaDocumento = document.getElementById('nomina-documento');
+    if (nominaDocumento) {
+        nominaDocumento.addEventListener('blur', async function () {
+            const documento = this.value.trim();
+            if (documento) {
+                try {
+                    const empleados = await Utils.makeRequest('/api/rrhh/empleados/');
+                    const empleado = empleados.find(e => e.documento === documento);
+                    if (empleado) {
+                        document.getElementById('nomina-nombre').value = empleado.nombre;
+                        document.getElementById('nomina-salario-base').value = empleado.salario;
+                        document.getElementById('formulario-nomina').dataset.empleadoId = empleado.id;
+                    } else {
+                        Utils.showMessage('Empleado no encontrado.');
+                        document.getElementById('nomina-nombre').value = '';
+                        document.getElementById('nomina-salario-base').value = '';
+                        document.getElementById('formulario-nomina').dataset.empleadoId = '';
+                    }
+                } catch (error) {
+                    Utils.showMessage(`Error al buscar empleado: ${error.message}`);
+                }
+            }
+        });
+    }
+
+    const guardarAusentismoBtn = document.getElementById('guardar-ausentismo');
+    if (guardarAusentismoBtn) {
+        guardarAusentismoBtn.addEventListener('click', () => EntityManager.saveAusentismo());
+    }
 });
+
+// Cálculo de nómina según las leyes colombianas (corregido para quincena)
+async function calcularNomina(id) {
+    try {
+        // Obtener datos del empleado desde la API
+        const empleado = await Utils.makeRequest(`/api/rrhh/empleados/${id}/`);
+        const salarioBaseMensual = parseFloat(empleado.salario); // Salario base mensual
+        const salarioBaseQuincenal = salarioBaseMensual / 2; // Salario base para quincena
+        const salarioDiario = salarioBaseQuincenal / 15; // Salario diario (15 días por quincena)
+        const valorHora = salarioDiario / 8; // Valor de una hora normal (8 horas diarias)
+
+        // Obtener valores de los campos del formulario
+        const horasExtraDiurnas = parseFloat(document.getElementById("nomina-horas-extra-diurnas").value) || 0;
+        const horasExtraNocturnas = parseFloat(document.getElementById("nomina-horas-extra-nocturnas").value) || 0;
+        const recargosNocturnos = parseFloat(document.getElementById("nomina-recargos-nocturnos").value) || 0;
+        const horasDiurnasFestivas = parseFloat(document.getElementById("nomina-horas-diurnas-festivas").value) || 0;
+        const horasNocturnasFestivas = parseFloat(document.getElementById("nomina-horas-nocturnas-festivas").value) || 0;
+        const horasExtrasDiurnasFestivas = parseFloat(document.getElementById("nomina-horas-extras-diurnas-festivas").value) || 0;
+        const horasExtrasNocturnasFestivas = parseFloat(document.getElementById("nomina-horas-extras-nocturnas-festivas").value) || 0;
+        const horasAusente = parseFloat(document.getElementById("nomina-horas-ausente").value) || 0;
+
+        // Calcular bonificaciones según las leyes colombianas
+        const bonificacionExtraDiurna = horasExtraDiurnas * valorHora * 1.25; // 1.25x por horas extras diurnas
+        const bonificacionExtraNocturna = horasExtraNocturnas * valorHora * 1.75; // 1.75x por horas extras nocturnas
+        const bonificacionRecargoNocturno = recargosNocturnos * valorHora * 1.35; // 1.35x por recargos nocturnos
+        const bonificacionDiurnaFestiva = horasDiurnasFestivas * valorHora * 1.75; // 1.75x por horas diurnas festivas
+        const bonificacionNocturnaFestiva = horasNocturnasFestivas * valorHora * 2.0; // 2.0x por horas nocturnas festivas
+        const bonificacionExtraDiurnaFestiva = horasExtrasDiurnasFestivas * valorHora * 2.0; // 2.0x por horas extras diurnas festivas
+        const bonificacionExtraNocturnaFestiva = horasExtrasNocturnasFestivas * valorHora * 2.5; // 2.5x por horas extras nocturnas festivas
+        const descuentosAusencias = horasAusente * valorHora; // Descuento por ausencias (sin recargo)
+        const deduccionesLegales = salarioBaseQuincenal * 0.08; // 8% de deducciones legales sobre la quincena
+
+        // Calcular totales
+        const bonificacionesTotales = bonificacionExtraDiurna + bonificacionExtraNocturna + bonificacionRecargoNocturno +
+            bonificacionDiurnaFestiva + bonificacionNocturnaFestiva + bonificacionExtraDiurnaFestiva +
+            bonificacionExtraNocturnaFestiva;
+        const deduccionesTotales = descuentosAusencias + deduccionesLegales;
+        const salarioNeto = salarioBaseQuincenal + bonificacionesTotales - deduccionesTotales;
+
+        // Actualizar el resumen en la interfaz
+        document.getElementById("nomina-empleado").innerText = empleado.nombre;
+        document.getElementById("nomina-salario-base-resumen").innerText = `$${salarioBaseQuincenal.toFixed(2)}`;
+        document.getElementById("nomina-bonificaciones").innerText = `$${bonificacionesTotales.toFixed(2)}`;
+        document.getElementById("nomina-deducciones").innerText = `$${deduccionesTotales.toFixed(2)}`;
+        document.getElementById("nomina-salario-neto").innerText = `$${salarioNeto.toFixed(2)}`;
+        document.getElementById("nomina-resumen").classList.remove("hidden");
+
+        // Guardar los valores calculados en el formulario para usarlos al guardar
+        document.getElementById("formulario-nomina").dataset.horasExtraDiurnas = horasExtraDiurnas;
+        document.getElementById("formulario-nomina").dataset.horasExtraNocturnas = horasExtraNocturnas;
+        document.getElementById("formulario-nomina").dataset.recargosNocturnos = recargosNocturnos;
+        document.getElementById("formulario-nomina").dataset.horasDiurnasFestivas = horasDiurnasFestivas;
+        document.getElementById("formulario-nomina").dataset.horasNocturnasFestivas = horasNocturnasFestivas;
+        document.getElementById("formulario-nomina").dataset.horasExtrasDiurnasFestivas = horasExtrasDiurnasFestivas;
+        document.getElementById("formulario-nomina").dataset.horasExtrasNocturnasFestivas = horasExtrasNocturnasFestivas;
+        document.getElementById("formulario-nomina").dataset.horasAusente = horasAusente;
+    } catch (error) {
+        Utils.showMessage("Error al calcular nómina: " + error.message);
+    }
+}
+
+// Carga de tabla de nómina con datos de empleados
+function cargarTablaNomina() {
+    Utils.makeRequest("/api/rrhh/empleados/")
+        .then(empleados => {
+            const tbody = document.querySelector("#tabla-nomina tbody");
+            if (!tbody) return; // Evitar error si la tabla no existe
+            tbody.innerHTML = "";
+            empleados.forEach(emp => {
+                const fila = document.createElement("tr");
+                fila.innerHTML = `
+                    <td>${emp.id}</td>
+                    <td>${emp.nombre}</td>
+                    <td>$${parseFloat(emp.salario).toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="calcularNomina(${emp.id})">Calcular</button>
+                    </td>
+                `;
+                tbody.appendChild(fila);
+            });
+        })
+        .catch(err => Utils.showMessage("Error al cargar empleados: " + err.message));
+}
+
+// CALCULAR Y GUARDAR NÓMINA 
+
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("Página cargada, inicializando...");
+
+    const form = document.getElementById("formulario-nomina");
+    const resumen = document.getElementById("nomina-resumen");
+    const generarPdfBtn = document.getElementById("generar-pdf");
+
+    if (!form) {
+        console.error("Formulario de nómina no encontrado.");
+        return;
+    }
+
+    // Calcular Nómina
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = form.dataset.empleadoId;
+        if (!id) {
+            Utils.showMessage("⚠️ Ingresa un documento válido.");
+            return;
+        }
+
+        try {
+            const empleado = await Utils.makeRequest(`/api/rrhh/empleados/${id}/`);
+            const salarioMensual = parseFloat(empleado.salario);
+            const salarioQuincenal = salarioMensual / 2;
+            const valorHora = salarioQuincenal / (15 * 8);
+
+            const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
+            const horasExtraD = getVal("nomina-horas-extra-diurnas");
+            const horasExtraN = getVal("nomina-horas-extra-nocturnas");
+            const recargosNoc = getVal("nomina-recargos-nocturnos");
+            const horasFestD = getVal("nomina-horas-diurnas-festivas");
+            const horasFestN = getVal("nomina-horas-nocturnas-festivas");
+            const horasExtraFestD = getVal("nomina-horas-extras-diurnas-festivas");
+            const horasExtraFestN = getVal("nomina-horas-extras-nocturnas-festivas");
+            const horasAusente = getVal("nomina-horas-ausente");
+
+            const bonificaciones =
+                horasExtraD * valorHora * 1.25 +
+                horasExtraN * valorHora * 1.75 +
+                recargosNoc * valorHora * 1.35 +
+                horasFestD * valorHora * 1.75 +
+                horasFestN * valorHora * 2.0 +
+                horasExtraFestD * valorHora * 2.0 +
+                horasExtraFestN * valorHora * 2.5;
+
+            const deducciones = salarioQuincenal * 0.08 + horasAusente * valorHora;
+            const salarioNeto = salarioQuincenal + bonificaciones - deducciones;
+
+            document.getElementById("nomina-empleado").textContent = empleado.nombre;
+            document.getElementById("nomina-salario-base-resumen").textContent = `$${salarioQuincenal.toFixed(2)}`;
+            document.getElementById("nomina-bonificaciones").textContent = `$${bonificaciones.toFixed(2)}`;
+            document.getElementById("nomina-deducciones").textContent = `$${deducciones.toFixed(2)}`;
+            document.getElementById("nomina-salario-neto").textContent = `$${salarioNeto.toFixed(2)}`;
+
+            resumen.classList.remove("hidden");
+            if (generarPdfBtn) generarPdfBtn.style.display = "inline-block";
+
+            Object.assign(form.dataset, {
+                horasExtraDiurnas: horasExtraD,
+                horasExtraNocturnas: horasExtraN,
+                recargosNocturnos: recargosNoc,
+                horasDiurnasFestivas: horasFestD,
+                horasNocturnasFestivas: horasFestN,
+                horasExtrasDiurnasFestivas: horasExtraFestD,
+                horasExtrasNocturnasFestivas: horasExtraFestN,
+                horasAusente: horasAusente,
+            });
+        } catch (err) {
+            Utils.showMessage(`❌ Error al calcular nómina: ${err.message}`);
+        }
+    });
+
+    // Guardar Nómina
+    document.getElementById("guardar-nomina").addEventListener("click", async () => {
+        const id = form.dataset.empleadoId;
+        const inicio = document.getElementById("nomina-periodo-inicio").value;
+        const fin = document.getElementById("nomina-periodo-fin").value;
+
+        if (!id || !inicio || !fin) {
+            Utils.showMessage("⚠️ Completa todos los campos.");
+            return;
+        }
+
+        try {
+            const empleado = await Utils.makeRequest(`/api/rrhh/empleados/${id}/`);
+            const salarioBase = parseFloat(empleado.salario) / 2;
+
+            const payload = {
+                empleado: parseInt(id),
+                periodo_inicio: inicio,
+                periodo_fin: fin,
+                salario_base: salarioBase,
+                deducciones: parseFloat(document.getElementById("nomina-deducciones").textContent.replace(/[$,]/g, "")),
+                bonificaciones: parseFloat(document.getElementById("nomina-bonificaciones").textContent.replace(/[$,]/g, "")),
+                salario_neto: parseFloat(document.getElementById("nomina-salario-neto").textContent.replace(/[$,]/g, "")),
+                horas_extra_diurnas: parseFloat(form.dataset.horasExtraDiurnas) || 0,
+                horas_extra_nocturnas: parseFloat(form.dataset.horasExtraNocturnas) || 0,
+                recargos_nocturnos: parseFloat(form.dataset.recargosNocturnos) || 0,
+                horas_diurnas_festivas: parseFloat(form.dataset.horasDiurnasFestivas) || 0,
+                horas_nocturnas_festivas: parseFloat(form.dataset.horasNocturnasFestivas) || 0,
+                horas_extras_diurnas_festivas: parseFloat(form.dataset.horasExtrasDiurnasFestivas) || 0,
+                horas_extras_nocturnas_festivas: parseFloat(form.dataset.horasExtrasNocturnasFestivas) || 0,
+                horas_ausente: parseFloat(form.dataset.horasAusente) || 0,
+            };
+
+            const responseData = await Utils.makeRequest("/api/rrhh/nominas/", "POST", payload);
+            Utils.showMessage("✅ Nómina guardada exitosamente", "success");
+
+            const pdfContainer = document.getElementById("boton-pdf-container");
+            pdfContainer.innerHTML = "";
+            const pdfButton = document.createElement("a");
+            pdfButton.href = `/recursos_humanos/nomina/pdf/${responseData.id}/`;
+            pdfButton.classList.add("btn", "btn-secondary", "mt-2");
+            pdfButton.target = "_blank";
+            pdfButton.textContent = "Descargar PDF";
+            pdfContainer.appendChild(pdfButton);
+
+            form.reset();
+            resumen.classList.add("hidden");
+            form.dataset = {};
+        } catch (err) {
+            Utils.showMessage(`❌ Error al guardar nómina: ${err.message}`);
+        }
+    });
+
+    // Generar PDF del resumen de nómina
+    if (generarPdfBtn) {
+        generarPdfBtn.addEventListener("click", () => {
+            const empleado = document.getElementById("nomina-empleado").textContent || "No empleado";
+            const documento = document.getElementById("nomina-documento").value || "Sin documento";
+            const salarioBase = document.getElementById("nomina-salario-base-resumen").textContent || "$0.00";
+            const bonificaciones = document.getElementById("nomina-bonificaciones").textContent || "$0.00";
+            const deducciones = document.getElementById("nomina-deducciones").textContent || "$0.00";
+            const salarioNeto = document.getElementById("nomina-salario-neto").textContent || "$0.00";
+            const periodoInicio = document.getElementById("nomina-periodo-inicio").value || "No especificado";
+            const periodoFin = document.getElementById("nomina-periodo-fin").value || "No especificado";
+
+            console.log("Datos a insertar:", { empleado, documento, salarioBase, bonificaciones, deducciones, salarioNeto, periodoInicio, periodoFin });
+
+            if (!empleado || !salarioBase || !bonificaciones || !deducciones || !salarioNeto) {
+                Utils.showMessage("⚠️ No hay datos suficientes para generar el PDF.");
+                return;
+            }
+
+            // Use jsPDF directly with autotable
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: "portrait",
+                unit: "in",
+                format: "letter"
+            });
+
+            let y = 0.5; // Starting y position (inches)
+            doc.setFontSize(16);
+            doc.text("Recibo de Nómina", 4.25, y += 0.5, { align: "center" });
+            doc.setFontSize(12);
+            doc.text(`Período: ${periodoInicio} al ${periodoFin}`, 4.25, y += 0.5, { align: "center" });
+
+            doc.autoTable({
+                startY: y + 0.5,
+                head: [['Campo', 'Valor']],
+                body: [
+                    ['Empleado', empleado],
+                    ['Documento', documento],
+                    ['Salario Base', salarioBase],
+                    ['Bonificaciones', bonificaciones],
+                    ['Deducciones', deducciones],
+                    ['Salario Neto', salarioNeto]
+                ],
+                theme: 'grid',
+                styles: { halign: 'left', fontSize: 10 },
+                headStyles: { fillColor: [200, 200, 200] }
+            });
+
+            console.log("PDF created, saving...");
+            doc.save(`nomina_${documento}_${periodoInicio}_al_${periodoFin}.pdf`);
+        });
+    }
+});
+ 
+
+
+

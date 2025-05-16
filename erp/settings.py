@@ -76,15 +76,14 @@ ROOT_URLCONF = 'erp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # Puedes dejarlo vacío si las plantillas están dentro de las apps
-        'APP_DIRS': True,  # Esto permite que Django busque plantillas en las carpetas 'templates' de las apps
+        'DIRS': [os.path.join(BASE_DIR, 'recursos_humanos/templates')],
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.static',  # Necesario para usar {% static %}
             ],
         },
     },
@@ -130,6 +129,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = True  # Only for HTTPS
 
 # Configuración de CORS
 CORS_ALLOW_ALL_ORIGINS = True  # Para desarrollo; en producción, usa CORS_ALLOWED_ORIGINS

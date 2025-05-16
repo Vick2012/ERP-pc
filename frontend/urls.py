@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from .views import generar_pdf_nomina
 from .views import (
     index, inicio, logout_user, list_contacts, auth_status, register,
     login_user, save_contact, ContactListCreateView, ProveedoresListCreateView,
@@ -35,6 +36,7 @@ urlpatterns = [
 
     # Rutas internas de las apps con namespaces
     path('recursos_humanos/', include('recursos_humanos.urls', namespace='recursos_humanos')),
+    path('nomina/pdf/<int:nomina_id>/', generar_pdf_nomina, name='nomina_pdf'),
     #path('inventario/', include('inventario.urls', namespace='inventario')),
     #path('contabilidad/', include('contabilidad.urls', namespace='contabilidad')),
     #path('servicios/', include('servicios.urls', namespace='servicios')),
