@@ -798,6 +798,558 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
  
+async function buscarEmpleado(documento) {
+    try {
+        console.log('Buscando empleado con documento:', documento);
+        
+        // Limpiar el formulario antes de buscar
+        limpiarFormularioNomina();
+        
+        // Validar que el documento no esté vacío
+        if (!documento || documento.trim() === '') {
+            throw new Error('Por favor ingrese un número de documento válido');
+        }
+
+        // Construir URL con el documento como parámetro de búsqueda exacta
+        const url = `/api/rrhh/empleados-list/?documento=${documento.trim()}`;
+        console.log('URL de búsqueda:', url);
+
+        const response = await Utils.makeRequest(url);
+        console.log('Respuesta completa de la API:', response);
+
+        if (!response || !Array.isArray(response) || response.length === 0) {
+            throw new Error('No se encontró ningún empleado con ese documento');
+        }
+
+        const empleado = response[0];
+        console.log('Datos del empleado encontrado:', empleado);
+
+        // Verificar que los datos del empleado sean válidos
+        if (!empleado.nombre || !empleado.documento || !empleado.salario) {
+            console.error('Datos del empleado incompletos:', empleado);
+            throw new Error('Los datos del empleado están incompletos');
+        }
+
+        // Actualizar todos los elementos que muestran el nombre del empleado
+        const elementosNombre = [
+            { id: 'nomina-nombre', type: 'input' },
+            { id: 'nomina-empleado', type: 'text' },
+            { id: 'nombre-empleado', type: 'text' }
+        ];
+
+        elementosNombre.forEach(elemento => {
+            const el = document.getElementById(elemento.id);
+            if (el) {
+                if (elemento.type === 'input') {
+                    el.value = empleado.nombre;
+                } else {
+                    el.textContent = empleado.nombre;
+                }
+                console.log(`Nombre actualizado en ${elemento.id}:`, empleado.nombre);
+            }
+        });
+
+        // Actualizar elementos que muestran el salario
+        const salarioFormateado = formatCurrency(empleado.salario);
+        const elementosSalario = [
+            { id: 'nomina-salario-base', type: 'input' },
+            { id: 'salario-base', type: 'text' },
+            { id: 'nomina-salario-base-resumen', type: 'text' }
+        ];
+
+        elementosSalario.forEach(elemento => {
+            const el = document.getElementById(elemento.id);
+            if (el) {
+                if (elemento.type === 'input') {
+                    el.value = salarioFormateado;
+                } else {
+                    el.textContent = salarioFormateado;
+                }
+                console.log(`Salario actualizado en ${elemento.id}:`, salarioFormateado);
+            }
+        });
+
+        // Actualizar documento en todos los elementos relevantes
+        const elementosDocumento = [
+            { id: 'nomina-documento', type: 'input' },
+            { id: 'documento-empleado', type: 'text' }
+        ];
+
+        elementosDocumento.forEach(elemento => {
+            const el = document.getElementById(elemento.id);
+            if (el) {
+                if (elemento.type === 'input') {
+                    el.value = empleado.documento;
+                } else {
+                    el.textContent = empleado.documento;
+                }
+                console.log(`Documento actualizado en ${elemento.id}:`, empleado.documento);
+            }
+        });
+
+        // Guardar datos en el formulario
+        const formularioNomina = document.getElementById('formulario-nomina');
+        if (formularioNomina) {
+            formularioNomina.dataset.empleadoId = empleado.id;
+            formularioNomina.dataset.salarioBase = empleado.salario;
+            formularioNomina.dataset.nombreEmpleado = empleado.nombre;
+            console.log('Datos guardados en el formulario:', {
+                id: empleado.id,
+                salario: empleado.salario,
+                nombre: empleado.nombre
+            });
+        }
+
+        // Pre-cargar el periodo actual
+        const hoy = new Date();
+        const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+        
+        const periodoInicioElement = document.getElementById('nomina-periodo-inicio');
+        const periodoFinElement = document.getElementById('nomina-periodo-fin');
+        
+        if (periodoInicioElement) periodoInicioElement.value = primerDiaMes.toISOString().split('T')[0];
+        if (periodoFinElement) periodoFinElement.value = ultimoDiaMes.toISOString().split('T')[0];
+
+        // Habilitar campos de horas
+        const camposHoras = [
+            'nomina-horas-extra-diurnas',
+            'nomina-horas-extra-nocturnas',
+            'nomina-recargos-nocturnos',
+            'nomina-horas-diurnas-festivas',
+            'nomina-horas-nocturnas-festivas',
+            'nomina-horas-extras-diurnas-festivas',
+            'nomina-horas-extras-nocturnas-festivas',
+            'nomina-horas-ausente'
+        ];
+
+        camposHoras.forEach(id => {
+            const elemento = document.getElementById(id);
+            if (elemento) {
+                elemento.disabled = false;
+                console.log(`Campo ${id} habilitado`);
+            }
+        });
+
+    } catch (error) {
+        console.error('Error al buscar empleado:', error);
+        Utils.showMessage(error.message);
+        limpiarFormularioNomina();
+    }
+}
+
+// Configuración por defecto de la empresa
+const EMPRESA_CONFIG = {
+    nombre: "EventSync ERP Logística S.A.S",
+    nit: "900.123.456-7",
+    direccion: "Calle 123 # 45-67",
+    ciudad: "Bogotá D.C., Colombia",
+    telefono: "601 4563214",
+    email: "Erplogistica@gmail.com.co",
+    sitioWeb: "www.eventsync.com.co",
+    colorPrimario: [41, 128, 185], // Azul corporativo
+    colorSecundario: [52, 152, 219], // Azul claro
+    textoLegal: "Este documento es un certificado oficial de nómina generado por el sistema EventSync ERP. " +
+                "Los valores aquí presentados corresponden al periodo indicado y están sujetos a las normativas laborales vigentes."
+};
+
+// Función mejorada para cargar scripts externos de manera más robusta
+function loadScript(url, retries = 3) {
+    return new Promise((resolve, reject) => {
+        // Verificar si el script ya está cargado
+        if (document.querySelector(`script[src="${url}"]`)) {
+            console.log(`Script ${url} ya está cargado`);
+            resolve();
+            return;
+        }
+
+        let attempts = 0;
+        const tryLoadScript = () => {
+            attempts++;
+            console.log(`Intento ${attempts} de cargar ${url}`);
+
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = url;
+
+            // Manejar errores de carga
+            script.onerror = () => {
+                script.remove(); // Eliminar el script fallido
+                if (attempts < retries) {
+                    console.log(`Reintentando cargar ${url}...`);
+                    setTimeout(tryLoadScript, 1000 * attempts); // Espera exponencial
+                } else {
+                    console.error(`Error al cargar ${url} después de ${retries} intentos`);
+                    reject(new Error(`No se pudo cargar ${url} después de ${retries} intentos`));
+                }
+            };
+
+            // Manejar carga exitosa
+            script.onload = () => {
+                console.log(`Script ${url} cargado exitosamente`);
+                resolve();
+            };
+
+            document.head.appendChild(script);
+        };
+
+        tryLoadScript();
+    });
+}
+
+// Función para verificar si una librería está disponible
+function checkLibraryAvailable(libraryName, maxAttempts = 10, interval = 500) {
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        
+        const check = () => {
+            attempts++;
+            const isAvailable = window[libraryName] !== undefined;
+            
+            if (isAvailable) {
+                console.log(`${libraryName} está disponible`);
+                resolve(true);
+            } else if (attempts >= maxAttempts) {
+                console.error(`${libraryName} no está disponible después de ${maxAttempts} intentos`);
+                reject(new Error(`${libraryName} no está disponible`));
+            } else {
+                setTimeout(check, interval);
+            }
+        };
+        
+        check();
+    });
+}
+
+// Función para cargar todas las dependencias necesarias de manera más robusta
+async function loadDependencies() {
+    const dependencies = [
+        {
+            url: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+            name: 'jspdf'
+        },
+        {
+            url: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js',
+            check: () => typeof window.jspdf !== 'undefined' && typeof window.jspdf.jsPDF !== 'undefined'
+        },
+        {
+            url: 'https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js',
+            name: 'QRious'
+        }
+    ];
+
+    try {
+        for (const dep of dependencies) {
+            console.log(`Iniciando carga de ${dep.url}`);
+            await loadScript(dep.url);
+            
+            if (dep.name) {
+                await checkLibraryAvailable(dep.name);
+            } else if (dep.check) {
+                await new Promise((resolve, reject) => {
+                    let attempts = 0;
+                    const checkDependency = () => {
+                        if (dep.check()) {
+                            resolve();
+                        } else if (attempts++ < 10) {
+                            setTimeout(checkDependency, 500);
+                        } else {
+                            reject(new Error(`Dependencia ${dep.url} no está funcionando correctamente`));
+                        }
+                    };
+                    checkDependency();
+                });
+            }
+        }
+
+        console.log('Todas las dependencias cargadas y verificadas correctamente');
+        return true;
+    } catch (error) {
+        console.error('Error al cargar dependencias:', error);
+        Utils.showMessage(`Error al cargar las dependencias necesarias: ${error.message}`);
+        return false;
+    }
+}
+
+// Función para cargar la imagen del logo
+function cargarLogo() {
+    return new Promise((resolve, reject) => {
+        const logo = new Image();
+        logo.crossOrigin = "Anonymous";  // Permitir carga de imágenes cross-origin
+        logo.onload = () => {
+            console.log('Logo cargado exitosamente');
+            resolve(logo);
+        };
+        logo.onerror = (error) => {
+            console.error('Error al cargar el logo:', error);
+            reject(error);
+        };
+        logo.src = '/static/img/logo.png';
+    });
+}
+
+// Función para crear el documento PDF con el nuevo diseño
+async function crearDocumentoPDF(datosNomina) {
+    console.log('Iniciando creación del PDF con datos:', datosNomina);
+    
+    const { jsPDF } = window.jspdf;
+    if (!jsPDF) {
+        console.error('jsPDF no está disponible');
+        throw new Error('jsPDF no está disponible');
+    }
+    
+    // Crear documento con el tamaño especificado (210mm x 140mm)
+    const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: [140, 210]
+    });
+
+    console.log('Documento PDF creado con dimensiones:', {
+        width: doc.internal.pageSize.width,
+        height: doc.internal.pageSize.height
+    });
+
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    let y = 15; // Posición inicial Y
+
+    // Configuración de estilos
+    const estilos = {
+        titulo: { size: 16, style: 'bold', color: [13, 110, 253] }, // Color azul de Bootstrap
+        subtitulo: { size: 12, style: 'normal', color: [33, 37, 41] },
+        texto: { size: 10, style: 'normal', color: [33, 37, 41] },
+        textoSmall: { size: 8, style: 'normal', color: [108, 117, 125] }
+    };
+
+    // Función helper para aplicar estilos
+    const aplicarEstilo = (tipo) => {
+        doc.setFontSize(estilos[tipo].size);
+        doc.setFont('helvetica', estilos[tipo].style);
+        doc.setTextColor(...estilos[tipo].color);
+    };
+
+    // Agregar fondo claro
+    doc.setFillColor(248, 249, 250); // Color de fondo Bootstrap light
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+    // Agregar logo
+    try {
+        const logo = await cargarLogo();
+        doc.addImage(logo, 'PNG', 10, y - 10, 30, 30);
+        console.log('Logo agregado al PDF');
+    } catch (error) {
+        console.warn('No se pudo cargar el logo:', error);
+    }
+
+    // Encabezado con datos de la empresa
+    aplicarEstilo('titulo');
+    doc.text("Recibo de Nómina", pageWidth / 2, y, { align: "center" });
+    console.log('Título agregado');
+    
+    y += 8;
+    aplicarEstilo('subtitulo');
+    doc.text(EMPRESA_CONFIG.nombre, pageWidth / 2, y, { align: "center" });
+    
+    y += 6;
+    aplicarEstilo('texto');
+    doc.text(`NIT: ${EMPRESA_CONFIG.nit}`, pageWidth / 2, y, { align: "center" });
+    y += 5;
+    doc.text(EMPRESA_CONFIG.direccion, pageWidth / 2, y, { align: "center" });
+    y += 5;
+    doc.text(`${EMPRESA_CONFIG.ciudad} | Tel: ${EMPRESA_CONFIG.telefono}`, pageWidth / 2, y, { align: "center" });
+
+    // Agregar línea separadora
+    y += 8;
+    doc.setDrawColor(222, 226, 230); // Color Bootstrap border
+    doc.setLineWidth(0.5);
+    doc.line(10, y, pageWidth - 10, y);
+
+    // Información del empleado
+    y += 10;
+    aplicarEstilo('subtitulo');
+    doc.text("Información del Empleado", 10, y);
+    console.log('Agregando información del empleado');
+    
+    y += 5;
+    doc.autoTable({
+        startY: y,
+        head: [['Campo', 'Valor']],
+        body: [
+            ['Empleado', datosNomina.datos.empleado],
+            ['Documento', datosNomina.datos.documento || 'No especificado'],
+            ['Periodo', `${datosNomina.datos.periodoTipo} (${formatDate(datosNomina.datos.periodoInicio)} - ${formatDate(datosNomina.datos.periodoFin)})`],
+            ['Salario Base', datosNomina.datos.salarioBase]
+        ],
+        theme: 'grid',
+        styles: { 
+            fontSize: 9,
+            cellPadding: 2,
+            lineColor: [222, 226, 230],
+            lineWidth: 0.1
+        },
+        headStyles: {
+            fillColor: [13, 110, 253],
+            textColor: 255,
+            fontStyle: 'bold'
+        },
+        columnStyles: {
+            0: { fontStyle: 'bold', cellWidth: 40 },
+            1: { cellWidth: 'auto' }
+        },
+        margin: { left: 10, right: 10 }
+    });
+
+    // Detalles de la nómina
+    y = doc.lastAutoTable.finalY + 10;
+    aplicarEstilo('subtitulo');
+    doc.text("Detalles de Nómina", 10, y);
+    console.log('Agregando detalles de nómina');
+    
+    y += 5;
+    doc.autoTable({
+        startY: y,
+        head: [['Concepto', 'Valor']],
+        body: [
+            ['Bonificaciones', datosNomina.datos.bonificaciones],
+            ['Deducciones', datosNomina.datos.deducciones],
+            ['Salario Neto', datosNomina.datos.salarioNeto]
+        ],
+        theme: 'grid',
+        styles: { 
+            fontSize: 9,
+            cellPadding: 2,
+            lineColor: [222, 226, 230],
+            lineWidth: 0.1
+        },
+        headStyles: {
+            fillColor: [13, 110, 253],
+            textColor: 255,
+            fontStyle: 'bold'
+        },
+        columnStyles: {
+            0: { fontStyle: 'bold', cellWidth: 40 },
+            1: { cellWidth: 'auto' }
+        },
+        margin: { left: 10, right: 10 }
+    });
+
+    // Generar y agregar código QR
+    try {
+        console.log('Generando código QR');
+        const qrData = JSON.stringify({
+            empresa: EMPRESA_CONFIG.nombre,
+            empleado: datosNomina.datos.empleado,
+            documento: datosNomina.datos.documento,
+            periodo: `${datosNomina.datos.periodoTipo} ${formatDate(datosNomina.datos.periodoInicio)} - ${formatDate(datosNomina.datos.periodoFin)}`,
+            salarioNeto: datosNomina.datos.salarioNeto
+        });
+        
+        const qr = new QRious({
+            value: qrData,
+            size: 1000,
+            level: 'H'
+        });
+        
+        // Posicionar QR en la esquina inferior derecha
+        doc.addImage(qr.toDataURL(), 'PNG', pageWidth - 35, pageHeight - 35, 25, 25);
+        console.log('Código QR agregado');
+    } catch (error) {
+        console.warn('No se pudo generar el código QR:', error);
+    }
+
+    // Pie de página
+    aplicarEstilo('textoSmall');
+    const textoLegal = doc.splitTextToSize(EMPRESA_CONFIG.textoLegal, pageWidth - 20);
+    doc.text(textoLegal, pageWidth / 2, pageHeight - 15, { 
+        align: "center"
+    });
+    
+    doc.text(`Generado el ${new Date().toLocaleDateString()} | ${EMPRESA_CONFIG.sitioWeb}`, pageWidth / 2, pageHeight - 8, {
+        align: "center"
+    });
+
+    console.log('PDF generado completamente');
+    return doc;
+}
+
+// Función mejorada para generar el PDF de nómina
+async function generarPdfNomina() {
+    try {
+        console.log('Iniciando generación de PDF...');
+
+        // Cargar dependencias de manera segura
+        const dependenciesLoaded = await loadDependencies().catch(error => {
+            console.error('Error al cargar dependencias:', error);
+            throw new Error(`No se pudieron cargar las dependencias necesarias: ${error.message}`);
+        });
+
+        if (!dependenciesLoaded) {
+            throw new Error('No se pudieron cargar las dependencias necesarias');
+        }
+
+        // Verificar que jsPDF esté disponible
+        if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+            throw new Error('jsPDF no está disponible correctamente');
+        }
+
+        // Obtener y validar datos
+        const datosNomina = obtenerDatosNomina();
+        if (!datosNomina.valido) {
+            throw new Error(datosNomina.mensaje);
+        }
+
+        // Crear documento PDF
+        const doc = await crearDocumentoPDF(datosNomina);
+        
+        // Generar nombre de archivo
+        const nombreArchivo = generarNombreArchivo(datosNomina.datos);
+
+        // Guardar PDF
+        console.log('Guardando PDF como:', nombreArchivo);
+        doc.save(nombreArchivo);
+        
+        console.log('PDF generado exitosamente');
+        Utils.showMessage('PDF generado exitosamente', 'success');
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
+        Utils.showMessage(`Error al generar el PDF: ${error.message}`);
+    }
+}
+
+// Función para obtener y validar datos de nómina
+function obtenerDatosNomina() {
+    const formularioNomina = document.getElementById('formulario-nomina');
+    const datos = {
+        empleado: formularioNomina.dataset.nombreEmpleado || document.getElementById("nomina-empleado")?.textContent,
+        documento: document.getElementById("nomina-documento")?.value,
+        periodoInicio: document.getElementById("nomina-periodo-inicio")?.value,
+        periodoFin: document.getElementById("nomina-periodo-fin")?.value,
+        periodoTipo: document.getElementById("nomina-periodo-tipo")?.value,
+        salarioBase: document.getElementById("nomina-salario-base-resumen")?.textContent,
+        bonificaciones: document.getElementById("nomina-bonificaciones")?.textContent,
+        deducciones: document.getElementById("nomina-deducciones")?.textContent,
+        salarioNeto: document.getElementById("nomina-salario-neto")?.textContent
+    };
+
+    if (!datos.empleado || !datos.periodoInicio || !datos.periodoFin || !datos.periodoTipo) {
+        return {
+            valido: false,
+            mensaje: 'Faltan datos necesarios para generar el PDF'
+        };
+    }
+
+    return {
+        valido: true,
+        datos
+    };
+}
+
+function generarNombreArchivo(datos) {
+    const fechaArchivo = formatDate(datos.periodoFin).replace(/\//g, "-");
+    return `nomina_${datos.empleado.replace(/\s+/g, "_")}_${datos.periodoTipo}_${fechaArchivo}.pdf`;
+}
+ 
 
 
 

@@ -114,6 +114,13 @@ class EmpleadoListCreateView(generics.ListCreateAPIView):
     queryset = Empleado.objects.all()
     serializer_class = EmpleadoSerializer
 
+    def get_queryset(self):
+        queryset = Empleado.objects.all()
+        documento = self.request.query_params.get('documento', None)
+        if documento is not None:
+            queryset = queryset.filter(documento=documento)
+        return queryset
+
 class EmpleadoDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Empleado.objects.all()
     serializer_class = EmpleadoSerializer

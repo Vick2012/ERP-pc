@@ -92,12 +92,32 @@ const Utils = {
 
     // Realiza solicitudes HTTP a la API con manejo de errores
     async makeRequest(url, method = "GET", data = null) {
-        const headers = { "Content-Type": "application/json" };
-        if (["POST", "PUT", "DELETE"].includes(method)) headers["X-CSRFToken"] = this.getCsrfToken();
-        const options = { method, headers };
+        const headers = { 
+            "Content-Type": "application/json",
+            // Agregar headers para prevenir caché
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        };
+        
+        if (["POST", "PUT", "DELETE"].includes(method)) {
+            headers["X-CSRFToken"] = this.getCsrfToken();
+        }
+        
+        // Agregar timestamp para evitar caché
+        const urlWithTimestamp = url + (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
+        
+        const options = { 
+            method, 
+            headers,
+            // Asegurarse de que no se use caché
+            cache: 'no-store'
+        };
+        
         if (data) options.body = JSON.stringify(data);
+        
         try {
-            const response = await fetch(url, options);
+            const response = await fetch(urlWithTimestamp, options);
             if (!response.ok) {
                 const errorData = await response.text().then(text => {
                     try { return JSON.parse(text); } catch { return { detail: text || `Error ${response.status}: ${response.statusText}` }; }
@@ -315,52 +335,108 @@ const EntityManager = {
     // Carga los datos de ausentismos y los muestra en la tabla
     async loadAusentismos() {
         try {
-            const data = await Utils.makeRequest('/api/rrhh/ausentismos/'); // Obtiene los ausentismos desde la API
-            const table = document.getElementById('tabla-ausentismos'); // Busca la tabla de ausentismos en el DOM
-            const tbody = table.querySelector('tbody'); // Selecciona el cuerpo de la tabla
-            tbody.innerHTML = ''; // Limpia el contenido actual de la tabla
-            data.forEach(item => { // Itera sobre cada ausentismo
-                const row = document.createElement('tr'); // Crea una nueva fila
-                row.innerHTML = ` // Llena la fila con los datos del ausentismo
+            const data = await Utils.makeRequest('/api/rrhh/ausentismos/');
+            const table = document.getElementById('tabla-ausentismos');
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.dataset.tipo = item.tipo;
+                row.innerHTML = `
                     <td>${item.empleado_nombre || item.empleado}</td>
-                    <td>${item.tipo}</td>
-                    <td>${item.fecha}</td>
-                    <td>${item.duracion}</td>
+                    <td><span class="badge ${item.tipo === 'ausentismo' ? 'bg-danger' : 'bg-success'}">${item.tipo === 'ausentismo' ? 'Ausentismo' : 'Horas Extras'}</span></td>
+                    <td>${new Date(item.fecha).toLocaleDateString()}</td>
+                    <td>${item.duracion} horas</td>
                     <td>${item.motivo || 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger eliminar-registro" data-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
                 `;
-                tbody.appendChild(row); // Agrega la fila al cuerpo de la tabla
+                tbody.appendChild(row);
+            });
+
+            // Agregar event listeners a los botones de eliminar
+            tbody.querySelectorAll('.eliminar-registro').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    if (confirm('¿Está seguro de eliminar este registro?')) {
+                        const id = e.currentTarget.dataset.id;
+                        try {
+                            await Utils.makeRequest(`/api/rrhh/ausentismos/${id}/`, 'DELETE');
+                            Utils.showMessage('Registro eliminado con éxito', 'success');
+                            this.loadAusentismos();
+                        } catch (error) {
+                            Utils.showMessage(`Error al eliminar: ${error.message}`);
+                        }
+                    }
+                });
             });
         } catch (error) {
-            Utils.showMessage(`Error al cargar ausentismos: ${error.message}`); // Muestra un mensaje de error al usuario
+            Utils.showMessage(`Error al cargar registros: ${error.message}`);
         }
     },
 
     // Guarda un nuevo registro de ausentismo o horas extras
-    async saveAusentismo() {
-        const empleadoId = document.getElementById('ausentismos-empleado').value; // Obtiene el ID del empleado
-        const fecha = document.getElementById('ausentismos-fecha').value; // Obtiene la fecha del ausentismo
-        const tipo = document.getElementById('ausentismos-tipo').value; // Obtiene el tipo (ausentismo o horas extras)
-        const duracion = parseFloat(document.getElementById('ausentismos-duracion').value); // Obtiene la duración en horas
-        const motivo = document.getElementById('ausentismos-motivo').value || ''; // Obtiene el motivo (opcional)
-
-        if (!empleadoId || !fecha || !tipo || !duracion) { // Verifica que los campos obligatorios estén completos
-            Utils.showMessage('Completa todos los campos obligatorios.'); // Muestra un mensaje de error si faltan datos
+    async saveAusentismo(event) {
+        event.preventDefault();
+        const form = document.getElementById('form-ausentismos');
+        
+        if (!form.checkValidity()) {
+            event.stopPropagation();
+            form.classList.add('was-validated');
             return;
         }
 
-        const payload = { empleado: empleadoId, fecha, tipo, duracion, motivo }; // Crea el objeto con los datos a enviar
-        try {
-            const response = await Utils.makeRequest(tipo === 'ausentismo' ? '/api/rrhh/ausentismos/' : '/api/rrhh/horas_extras/', 'POST', payload); // Envía la solicitud a la API
-            Utils.showMessage('Registro guardado', 'success'); // Muestra un mensaje de éxito
-            document.getElementById('ausentismos-empleado').value = ''; // Limpia el campo de empleado
-            document.getElementById('ausentismos-fecha').value = ''; // Limpia el campo de fecha
-            document.getElementById('ausentismos-tipo').value = ''; // Limpia el campo de tipo
-            document.getElementById('ausentismos-duracion').value = ''; // Limpia el campo de duración
-            document.getElementById('ausentismos-motivo').value = ''; // Limpia el campo de motivo
-            this.loadAusentismos(); // Recarga la tabla de ausentismos
-        } catch (error) {
-            Utils.showMessage(`Error al registrar: ${error.message}`); // Muestra un mensaje de error al usuario
+        const empleadoId = document.getElementById('ausentismos-empleado').value;
+        const fecha = document.getElementById('ausentismos-fecha').value;
+        const tipo = document.getElementById('ausentismos-tipo').value;
+        const duracion = parseFloat(document.getElementById('ausentismos-duracion').value);
+        const motivo = document.getElementById('ausentismos-motivo').value || '';
+
+        if (!empleadoId || !fecha || !tipo || !duracion) {
+            Utils.showMessage('Complete todos los campos obligatorios.');
+            return;
         }
+
+        // Validar la duración
+        if (duracion <= 0 || duracion > 24) {
+            Utils.showMessage('La duración debe estar entre 0 y 24 horas.');
+            return;
+        }
+
+        // Validar que la fecha no sea futura
+        const fechaSeleccionada = new Date(fecha);
+        const hoy = new Date();
+        if (fechaSeleccionada > hoy) {
+            Utils.showMessage('No se pueden registrar fechas futuras.');
+            return;
+        }
+
+        const payload = { 
+            empleado: empleadoId, 
+            fecha, 
+            tipo, 
+            duracion, 
+            motivo 
+        };
+
+        try {
+            await Utils.makeRequest('/api/rrhh/ausentismos/', 'POST', payload);
+            Utils.showMessage('Registro guardado exitosamente', 'success');
+            form.reset();
+            form.classList.remove('was-validated');
+            this.loadAusentismos();
+        } catch (error) {
+            Utils.showMessage(`Error al guardar: ${error.message}`);
+        }
+    },
+
+    // Limpia el formulario de ausentismos
+    limpiarFormularioAusentismos() {
+        const form = document.getElementById('form-ausentismos');
+        form.reset();
+        form.classList.remove('was-validated');
     },
 
     // Muestra u oculta el formulario de un módulo
@@ -489,6 +565,7 @@ function formatCurrency(amount) {
 // Constantes para el cálculo de nómina
 const NOMINA_CONFIG = {
     HORAS_MES: 240,
+    HORAS_QUINCENA: 120,
     FACTORES: {
         EXTRA_DIURNA: 1.25,
         EXTRA_NOCTURNA: 1.75,
@@ -504,179 +581,631 @@ const NOMINA_CONFIG = {
     }
 };
 
-// Función para calcular la nómina
-function calcularNomina(event) {
-    event.preventDefault();
-    console.log('Iniciando cálculo de nómina...');
-    
+// Cargar todas las dependencias necesarias
+async function loadDependencies() {
     try {
-        // Obtener valores del formulario
-        const documento = document.getElementById('nomina-documento').value;
-        const periodoInicio = document.getElementById('nomina-periodo-inicio').value;
-        const periodoFin = document.getElementById('nomina-periodo-fin').value;
-        const periodoTipo = document.getElementById('nomina-periodo-tipo').value;
-        const salarioBase = parseFloat(document.getElementById('nomina-salario-base').value);
-        const nombre = document.getElementById('nomina-nombre').value;
-
-        console.log('Valores obtenidos:', { documento, periodoInicio, periodoFin, periodoTipo, salarioBase, nombre });
-
-        if (!documento || !periodoInicio || !periodoFin || !periodoTipo || isNaN(salarioBase) || !nombre) {
-            throw new Error('Por favor complete todos los campos requeridos');
+        console.log('Iniciando carga de dependencias...');
+        
+        // Cargar jsPDF si no está disponible
+        if (typeof window.jspdf === 'undefined') {
+            await new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                script.onload = resolve;
+                script.onerror = () => reject(new Error('Error al cargar jsPDF'));
+                document.head.appendChild(script);
+            });
+            console.log('jsPDF cargado');
         }
 
-        // Obtener horas trabajadas
-        const horasExtras = {
-            diurnas: parseFloat(document.getElementById('nomina-horas-extra-diurnas').value || 0),
-            nocturnas: parseFloat(document.getElementById('nomina-horas-extra-nocturnas').value || 0),
-            recargoNocturno: parseFloat(document.getElementById('nomina-recargos-nocturnos').value || 0),
-            festivasDiurnas: parseFloat(document.getElementById('nomina-horas-diurnas-festivas').value || 0),
-            festivasNocturnas: parseFloat(document.getElementById('nomina-horas-nocturnas-festivas').value || 0),
-            extrasFestivasDiurnas: parseFloat(document.getElementById('nomina-horas-extras-diurnas-festivas').value || 0),
-            extrasFestivasNocturnas: parseFloat(document.getElementById('nomina-horas-extras-nocturnas-festivas').value || 0),
-            ausencias: parseFloat(document.getElementById('nomina-horas-ausente').value || 0)
-        };
+        // Cargar autoTable si no está disponible
+        if (typeof window.jspdf.autoTable === 'undefined') {
+            await new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js';
+                script.onload = resolve;
+                script.onerror = () => reject(new Error('Error al cargar autoTable'));
+                document.head.appendChild(script);
+            });
+            console.log('autoTable cargado');
+        }
 
-        console.log('Horas extras:', horasExtras);
+        // Cargar QRious para códigos QR si no está disponible
+        if (typeof window.QRious === 'undefined') {
+            await new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js';
+                script.onload = resolve;
+                script.onerror = () => reject(new Error('Error al cargar QRious'));
+                document.head.appendChild(script);
+            });
+            console.log('QRious cargado');
+        }
 
-        // Calcular valor hora
-        const valorHora = salarioBase / NOMINA_CONFIG.HORAS_MES;
-        console.log('Valor hora:', valorHora);
-
-        // Calcular bonificaciones
-        const bonificaciones = {
-            extraDiurna: valorHora * NOMINA_CONFIG.FACTORES.EXTRA_DIURNA * horasExtras.diurnas,
-            extraNocturna: valorHora * NOMINA_CONFIG.FACTORES.EXTRA_NOCTURNA * horasExtras.nocturnas,
-            recargoNocturno: valorHora * NOMINA_CONFIG.FACTORES.RECARGO_NOCTURNO * horasExtras.recargoNocturno,
-            festivaDiurna: valorHora * NOMINA_CONFIG.FACTORES.FESTIVO_DIURNO * horasExtras.festivasDiurnas,
-            festivaNocturna: valorHora * NOMINA_CONFIG.FACTORES.FESTIVO_NOCTURNO * horasExtras.festivasNocturnas,
-            extraFestivaDiurna: valorHora * NOMINA_CONFIG.FACTORES.EXTRA_FESTIVO_DIURNO * horasExtras.extrasFestivasDiurnas,
-            extraFestivaNocturna: valorHora * NOMINA_CONFIG.FACTORES.EXTRA_FESTIVO_NOCTURNO * horasExtras.extrasFestivasNocturnas
-        };
-
-        console.log('Bonificaciones:', bonificaciones);
-
-        // Calcular deducciones
-        const deducciones = {
-            ausencias: valorHora * horasExtras.ausencias,
-            salud: salarioBase * NOMINA_CONFIG.DEDUCCIONES.SALUD,
-            pension: salarioBase * NOMINA_CONFIG.DEDUCCIONES.PENSION
-        };
-
-        console.log('Deducciones:', deducciones);
-
-        // Calcular totales
-        const totalBonificaciones = Object.values(bonificaciones).reduce((a, b) => a + b, 0);
-        const totalDeducciones = Object.values(deducciones).reduce((a, b) => a + b, 0);
-        const salarioNeto = salarioBase + totalBonificaciones - totalDeducciones;
-
-        console.log('Totales:', { totalBonificaciones, totalDeducciones, salarioNeto });
-
-        // Actualizar UI
-        const resumenNomina = document.getElementById('nomina-resumen');
-        resumenNomina.classList.remove('hidden');
-        
-        // Información del empleado
-        document.getElementById('nomina-empleado').textContent = nombre;
-        document.getElementById('nomina-periodo-inicio-resumen').textContent = formatDate(periodoInicio);
-        document.getElementById('nomina-periodo-fin-resumen').textContent = formatDate(periodoFin);
-        document.getElementById('nomina-periodo-tipo-resumen').textContent = periodoTipo;
-
-        // Información salarial
-        document.getElementById('nomina-salario-base-resumen').textContent = formatCurrency(salarioBase);
-        document.getElementById('nomina-bonificaciones').textContent = formatCurrency(totalBonificaciones);
-        document.getElementById('nomina-deducciones').textContent = formatCurrency(totalDeducciones);
-        document.getElementById('nomina-salario-neto').textContent = formatCurrency(salarioNeto);
-
-        console.log('UI actualizada correctamente');
-
-        // Mostrar botones
-        const botonPDF = document.getElementById('generar-pdf');
-        const botonGuardar = document.getElementById('guardar-nomina');
-        if (botonPDF) botonPDF.style.display = 'block';
-        if (botonGuardar) botonGuardar.style.display = 'block';
-
+        return true;
     } catch (error) {
-        console.error('Error en cálculo de nómina:', error);
-        Utils.showMessage(`Error al calcular nómina: ${error.message}`);
+        console.error('Error al cargar dependencias:', error);
+        throw error;
     }
 }
 
-// Función para generar PDF
-function generarPDFNomina() {
+// Función para cargar el logo de la empresa
+async function cargarLogo() {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('No se pudo cargar el logo'));
+        img.src = '/static/img/logo.png';
+    });
+}
+
+// Función para calcular la nómina
+async function calcularNomina(empleadoId) {
     try {
-        const { jsPDF } = window.jspdf;
-        if (!jsPDF) {
-            throw new Error('La librería jsPDF no está disponible');
+        // Verificar que tengamos todos los datos necesarios
+        const formularioNomina = document.getElementById('formulario-nomina');
+        const periodoTipo = document.getElementById("nomina-periodo-tipo").value;
+        const periodoInicio = document.getElementById("nomina-periodo-inicio").value;
+        const periodoFin = document.getElementById("nomina-periodo-fin").value;
+
+        if (!empleadoId || !periodoTipo || !periodoInicio || !periodoFin) {
+            throw new Error('Faltan datos necesarios para el cálculo. Por favor complete todos los campos.');
         }
 
-        const doc = new jsPDF();
+        // Obtener datos del empleado desde la API
+        const empleado = await Utils.makeRequest(`/api/rrhh/empleados-list/${empleadoId}/`);
+        if (!empleado) {
+            throw new Error('No se encontró el empleado');
+        }
+
+        const salarioBaseMensual = parseFloat(empleado.salario);
         
-        // Configuración inicial
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
-        
-        // Encabezado
-        doc.text('RECIBO DE NÓMINA', 105, 20, { align: 'center' });
-        
-        // Información de la empresa
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'normal');
-        doc.text('EventSync', 20, 35);
-        doc.text('NIT: 900.XXX.XXX-X', 20, 42);
-        
-        // Información del empleado
-        const empleado = document.getElementById('nomina-empleado').textContent;
-        const periodoInicio = document.getElementById('nomina-periodo-inicio-resumen').textContent;
-        const periodoFin = document.getElementById('nomina-periodo-fin-resumen').textContent;
-        const periodoTipo = document.getElementById('nomina-periodo-tipo-resumen').textContent;
-        
-        doc.text(`Empleado: ${empleado}`, 20, 55);
-        doc.text(`Periodo: ${periodoInicio} al ${periodoFin}`, 20, 65);
-        doc.text(`Tipo de Periodo: ${periodoTipo}`, 20, 75);
-        
-        // Información salarial
-        const salarioBase = document.getElementById('nomina-salario-base-resumen').textContent;
-        const bonificaciones = document.getElementById('nomina-bonificaciones').textContent;
-        const deducciones = document.getElementById('nomina-deducciones').textContent;
-        const salarioNeto = document.getElementById('nomina-salario-neto').textContent;
-        
-        doc.line(20, 85, 190, 85);
-        doc.text('CONCEPTO', 20, 95);
-        doc.text('VALOR', 150, 95);
-        doc.line(20, 98, 190, 98);
-        
-        let y = 105;
-        doc.text('Salario Base', 20, y);
-        doc.text(salarioBase, 150, y);
-        
-        y += 10;
-        doc.text('Bonificaciones', 20, y);
-        doc.text(bonificaciones, 150, y);
-        
-        y += 10;
-        doc.text('Deducciones', 20, y);
-        doc.text(deducciones, 150, y);
-        
-        doc.line(20, y + 5, 190, y + 5);
-        
-        y += 15;
-        doc.setFont('helvetica', 'bold');
-        doc.text('TOTAL A PAGAR', 20, y);
-        doc.text(salarioNeto, 150, y);
-        
-        // Pie de página
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8);
-        doc.text('Este documento es un comprobante de pago', 105, 280, { align: 'center' });
-        
-        // Guardar PDF
-        const nombreArchivo = `Nomina_${empleado}_${new Date().toISOString().split('T')[0]}.pdf`;
-        doc.save(nombreArchivo);
-        
+        // Ajustar el salario base según el periodo
+        const salarioBase = periodoTipo === "Quincenal" ? salarioBaseMensual / 2 : salarioBaseMensual;
+        const horasTotales = periodoTipo === "Quincenal" ? NOMINA_CONFIG.HORAS_QUINCENA : NOMINA_CONFIG.HORAS_MES;
+        const valorHora = salarioBase / horasTotales;
+
+        // Obtener valores de los campos del formulario
+        const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
+        const horasExtraD = getVal("nomina-horas-extra-diurnas");
+        const horasExtraN = getVal("nomina-horas-extra-nocturnas");
+        const recargosNoc = getVal("nomina-recargos-nocturnos");
+        const horasFestD = getVal("nomina-horas-diurnas-festivas");
+        const horasFestN = getVal("nomina-horas-nocturnas-festivas");
+        const horasExtraFestD = getVal("nomina-horas-extras-diurnas-festivas");
+        const horasExtraFestN = getVal("nomina-horas-extras-nocturnas-festivas");
+        const horasAusente = getVal("nomina-horas-ausente");
+
+        // Calcular bonificaciones
+        const bonificaciones = {
+            extraDiurna: horasExtraD * valorHora * NOMINA_CONFIG.FACTORES.EXTRA_DIURNA,
+            extraNocturna: horasExtraN * valorHora * NOMINA_CONFIG.FACTORES.EXTRA_NOCTURNA,
+            recargoNocturno: recargosNoc * valorHora * NOMINA_CONFIG.FACTORES.RECARGO_NOCTURNO,
+            festivaDiurna: horasFestD * valorHora * NOMINA_CONFIG.FACTORES.FESTIVO_DIURNO,
+            festivaNocturna: horasFestN * valorHora * NOMINA_CONFIG.FACTORES.FESTIVO_NOCTURNO,
+            extraFestivaDiurna: horasExtraFestD * valorHora * NOMINA_CONFIG.FACTORES.EXTRA_FESTIVO_DIURNO,
+            extraFestivaNocturna: horasExtraFestN * valorHora * NOMINA_CONFIG.FACTORES.EXTRA_FESTIVO_NOCTURNO
+        };
+
+        const totalBonificaciones = Object.values(bonificaciones).reduce((a, b) => a + b, 0);
+        const deducciones = {
+            ausencias: horasAusente * valorHora,
+            salud: salarioBase * NOMINA_CONFIG.DEDUCCIONES.SALUD,
+            pension: salarioBase * NOMINA_CONFIG.DEDUCCIONES.PENSION
+        };
+        const totalDeducciones = Object.values(deducciones).reduce((a, b) => a + b, 0);
+        const salarioNeto = salarioBase + totalBonificaciones - totalDeducciones;
+
+        // Actualizar el resumen en la interfaz
+        document.getElementById("nomina-empleado").textContent = empleado.nombre;
+        document.getElementById("nomina-periodo-tipo-resumen").textContent = periodoTipo;
+        document.getElementById("nomina-salario-base-resumen").textContent = formatCurrency(salarioBase);
+        document.getElementById("nomina-bonificaciones").textContent = formatCurrency(totalBonificaciones);
+        document.getElementById("nomina-deducciones").textContent = formatCurrency(totalDeducciones);
+        document.getElementById("nomina-salario-neto").textContent = formatCurrency(salarioNeto);
+
+        // Mostrar el resumen
+        const resumen = document.getElementById("nomina-resumen");
+        resumen.classList.remove("hidden");
+
+        return {
+            empleado,
+            salarioBase,
+            totalBonificaciones,
+            totalDeducciones,
+            salarioNeto
+        };
     } catch (error) {
-        console.error('Error generando PDF:', error);
-        Utils.showMessage('Error al generar el PDF: ' + error.message);
+        console.error('Error en cálculo de nómina:', error);
+        Utils.showMessage("Error al calcular nómina: " + error.message);
+        throw error;
     }
+}
+
+// Función para crear el desprendible de nómina en PDF
+async function generarDesprendibleNominaPDF(datosNomina) {
+    console.log('Iniciando generación del desprendible de nómina en PDF:', datosNomina);
+    
+    const { jsPDF } = window.jspdf;
+    if (!jsPDF) {
+        console.error('jsPDF no está disponible');
+        throw new Error('jsPDF no está disponible');
+    }
+    
+    // Crear documento en formato A4 horizontal
+    const desprendible = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4"
+    });
+
+    console.log('Desprendible PDF creado con dimensiones:', {
+        width: desprendible.internal.pageSize.width,
+        height: desprendible.internal.pageSize.height
+    });
+
+    const pageWidth = desprendible.internal.pageSize.width;
+    const pageHeight = desprendible.internal.pageSize.height;
+    const margin = 20;
+    let y = margin;
+
+    // Configuración de estilos del desprendible
+    const estilosDesprendible = {
+        titulo: { size: 16, style: 'bold', color: [13, 110, 253] },
+        subtitulo: { size: 12, style: 'normal', color: [33, 37, 41] },
+        texto: { size: 10, style: 'normal', color: [33, 37, 41] },
+        textoSmall: { size: 8, style: 'normal', color: [108, 117, 125] }
+    };
+
+    // Función helper para aplicar estilos del desprendible
+    const aplicarEstiloDesprendible = (tipo) => {
+        desprendible.setFontSize(estilosDesprendible[tipo].size);
+        desprendible.setFont('helvetica', estilosDesprendible[tipo].style);
+        desprendible.setTextColor(...estilosDesprendible[tipo].color);
+    };
+
+    // Agregar logo
+    try {
+        const logo = await cargarLogo();
+        desprendible.addImage(logo, 'PNG', margin, y, 25, 25);
+        console.log('Logo agregado al desprendible');
+    } catch (error) {
+        console.warn('No se pudo cargar el logo:', error);
+    }
+
+    // Encabezado con datos de la empresa
+    aplicarEstiloDesprendible('titulo');
+    desprendible.text("Desprendible de Nómina", pageWidth / 2, y + 10, { align: "center" });
+    
+    y += 20;
+    aplicarEstiloDesprendible('subtitulo');
+    desprendible.text(EMPRESA_CONFIG.nombre, pageWidth / 2, y, { align: "center" });
+    
+    y += 6;
+    aplicarEstiloDesprendible('texto');
+    desprendible.text(`NIT: ${EMPRESA_CONFIG.nit}`, pageWidth / 2, y, { align: "center" });
+    y += 5;
+    desprendible.text(EMPRESA_CONFIG.direccion, pageWidth / 2, y, { align: "center" });
+    y += 5;
+    desprendible.text(`${EMPRESA_CONFIG.ciudad} | Tel: ${EMPRESA_CONFIG.telefono}`, pageWidth / 2, y, { align: "center" });
+
+    // Agregar línea separadora
+    y += 8;
+    desprendible.setDrawColor(222, 226, 230);
+    desprendible.setLineWidth(0.5);
+    desprendible.line(margin, y, pageWidth - margin - 60, y);
+
+    // Calcular ancho disponible para las tablas (dejando espacio para el QR)
+    const anchoTablas = pageWidth - (margin * 2) - 60;
+
+    // Información del empleado
+    y += 10;
+    aplicarEstiloDesprendible('subtitulo');
+    desprendible.text("Información del Empleado", margin, y);
+    
+    y += 5;
+    desprendible.autoTable({
+        startY: y,
+        head: [['Campo', 'Valor']],
+        body: [
+            ['Empleado', datosNomina.datos.empleado],
+            ['Documento', datosNomina.datos.documento || 'No especificado'],
+            ['Periodo', `${datosNomina.datos.periodoTipo} (${formatDate(datosNomina.datos.periodoInicio)} - ${formatDate(datosNomina.datos.periodoFin)})`],
+            ['Salario Base', datosNomina.datos.salarioBase]
+        ],
+        theme: 'grid',
+        styles: { 
+            fontSize: 10,
+            cellPadding: 3,
+            lineColor: [222, 226, 230],
+            lineWidth: 0.1
+        },
+        headStyles: {
+            fillColor: [13, 110, 253],
+            textColor: 255,
+            fontStyle: 'bold'
+        },
+        margin: { left: margin, right: margin },
+        tableWidth: anchoTablas
+    });
+
+    // Detalles de la nómina
+    y = desprendible.lastAutoTable.finalY + 10;
+    aplicarEstiloDesprendible('subtitulo');
+    desprendible.text("Detalles de Nómina", margin, y);
+    
+    y += 5;
+    desprendible.autoTable({
+        startY: y,
+        head: [['Concepto', 'Valor']],
+        body: [
+            ['Bonificaciones', datosNomina.datos.bonificaciones],
+            ['Deducciones', datosNomina.datos.deducciones],
+            ['Salario Neto', datosNomina.datos.salarioNeto]
+        ],
+        theme: 'grid',
+        styles: { 
+            fontSize: 10,
+            cellPadding: 3,
+            lineColor: [222, 226, 230],
+            lineWidth: 0.1
+        },
+        headStyles: {
+            fillColor: [13, 110, 253],
+            textColor: 255,
+            fontStyle: 'bold'
+        },
+        margin: { left: margin, right: margin },
+        tableWidth: anchoTablas
+    });
+
+    // Generar y agregar código QR
+    try {
+        console.log('Generando código QR para el desprendible');
+        // Crear texto legible para el QR
+        const textoQR = [
+            'DESPRENDIBLE DE NÓMINA',
+            '---------------------',
+            `Empresa: ${EMPRESA_CONFIG.nombre}`,
+            `NIT: ${EMPRESA_CONFIG.nit}`,
+            `Empleado: ${datosNomina.datos.empleado}`,
+            `Documento: ${datosNomina.datos.documento}`,
+            `Periodo: ${datosNomina.datos.periodoTipo}`,
+            `Fecha: ${formatDate(datosNomina.datos.periodoInicio)} - ${formatDate(datosNomina.datos.periodoFin)}`,
+            `Salario Neto: ${datosNomina.datos.salarioNeto}`,
+            '---------------------',
+            `Generado: ${new Date().toLocaleDateString()}`
+        ].join('\n');
+        
+        const qr = new QRious({
+            value: textoQR,
+            size: 1000,
+            level: 'H'
+        });
+        
+        // Posicionar QR en la parte derecha
+        const tamanoQR = 50;
+        const posXQR = pageWidth - margin - tamanoQR;
+        const posYQR = margin;
+        desprendible.addImage(qr.toDataURL(), 'PNG', posXQR, posYQR, tamanoQR, tamanoQR);
+        
+        // Agregar leyenda debajo del QR
+        aplicarEstiloDesprendible('textoSmall');
+        desprendible.text('Escanee el código QR\npara verificar', posXQR + (tamanoQR/2), posYQR + tamanoQR + 5, {
+            align: 'center'
+        });
+        
+        console.log('Código QR agregado al desprendible');
+    } catch (error) {
+        console.warn('No se pudo generar el código QR:', error);
+    }
+
+    // Pie de página
+    aplicarEstiloDesprendible('textoSmall');
+    const textoLegal = desprendible.splitTextToSize(EMPRESA_CONFIG.textoLegal, anchoTablas);
+    desprendible.text(textoLegal, pageWidth / 2 - 30, pageHeight - margin - 15, { 
+        align: "center"
+    });
+    
+    desprendible.text(`Generado el ${new Date().toLocaleDateString()} | ${EMPRESA_CONFIG.sitioWeb}`, pageWidth / 2 - 30, pageHeight - margin - 8, {
+        align: "center"
+    });
+
+    console.log('Desprendible de nómina generado completamente');
+    return desprendible;
+}
+
+// En la función generarPdfNomina, actualizar la llamada
+async function generarPdfNomina() {
+    try {
+        console.log('Iniciando generación de desprendible de nómina...');
+
+        // Cargar dependencias de manera segura
+        const dependenciesLoaded = await loadDependencies().catch(error => {
+            console.error('Error al cargar dependencias:', error);
+            throw new Error(`No se pudieron cargar las dependencias necesarias: ${error.message}`);
+        });
+
+        if (!dependenciesLoaded) {
+            throw new Error('No se pudieron cargar las dependencias necesarias');
+        }
+
+        // Verificar que jsPDF esté disponible
+        if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+            throw new Error('jsPDF no está disponible correctamente');
+        }
+
+        // Obtener y validar datos
+        const datosNomina = obtenerDatosNomina();
+        if (!datosNomina.valido) {
+            throw new Error(datosNomina.mensaje);
+        }
+
+        // Crear desprendible PDF
+        const desprendible = await generarDesprendibleNominaPDF(datosNomina);
+        
+        // Generar nombre de archivo
+        const nombreArchivo = generarNombreArchivo(datosNomina.datos);
+
+        // Guardar PDF
+        console.log('Guardando desprendible como:', nombreArchivo);
+        desprendible.save(nombreArchivo);
+        
+        console.log('Desprendible generado exitosamente');
+        Utils.showMessage('Desprendible de nómina generado exitosamente', 'success');
+    } catch (error) {
+        console.error('Error al generar desprendible:', error);
+        Utils.showMessage(`Error al generar el desprendible de nómina: ${error.message}`);
+    }
+}
+
+// Función para obtener y validar datos de nómina
+function obtenerDatosNomina() {
+    const formularioNomina = document.getElementById('formulario-nomina');
+    const datos = {
+        empleado: formularioNomina.dataset.nombreEmpleado || document.getElementById("nomina-empleado")?.textContent,
+        documento: document.getElementById("nomina-documento")?.value,
+        periodoInicio: document.getElementById("nomina-periodo-inicio")?.value,
+        periodoFin: document.getElementById("nomina-periodo-fin")?.value,
+        periodoTipo: document.getElementById("nomina-periodo-tipo")?.value,
+        salarioBase: document.getElementById("nomina-salario-base-resumen")?.textContent,
+        bonificaciones: document.getElementById("nomina-bonificaciones")?.textContent,
+        deducciones: document.getElementById("nomina-deducciones")?.textContent,
+        salarioNeto: document.getElementById("nomina-salario-neto")?.textContent
+    };
+
+    if (!datos.empleado || !datos.periodoInicio || !datos.periodoFin || !datos.periodoTipo) {
+        return {
+            valido: false,
+            mensaje: 'Faltan datos necesarios para generar el PDF'
+        };
+    }
+
+    return {
+        valido: true,
+        datos
+    };
+}
+
+// Función para generar el nombre del archivo
+function generarNombreArchivo(datos) {
+    const fechaArchivo = formatDate(datos.periodoFin).replace(/\//g, "-");
+    return `nomina_${datos.empleado.replace(/\s+/g, "_")}_${datos.periodoTipo}_${fechaArchivo}.pdf`;
+}
+
+async function buscarEmpleado(documento) {
+    try {
+        console.log('Buscando empleado con documento:', documento);
+        
+        // Limpiar el formulario antes de buscar
+        limpiarFormularioNomina();
+        
+        // Validar que el documento no esté vacío
+        if (!documento || documento.trim() === '') {
+            throw new Error('Por favor ingrese un número de documento válido');
+        }
+
+        // Construir URL con el documento como parámetro de búsqueda exacta
+        const url = `/api/rrhh/empleados-list/?documento=${documento.trim()}`;
+        console.log('URL de búsqueda:', url);
+
+        const response = await Utils.makeRequest(url);
+        console.log('Respuesta completa de la API:', response);
+
+        if (!response || !Array.isArray(response) || response.length === 0) {
+            throw new Error('No se encontró ningún empleado con ese documento');
+        }
+
+        const empleado = response[0];
+        console.log('Datos del empleado encontrado:', empleado);
+
+        // Verificar que los datos del empleado sean válidos
+        if (!empleado.nombre || !empleado.documento || !empleado.salario) {
+            console.error('Datos del empleado incompletos:', empleado);
+            throw new Error('Los datos del empleado están incompletos');
+        }
+
+        // Actualizar TODOS los campos que muestran el nombre del empleado
+        const elementosNombre = [
+            { id: 'nomina-nombre', type: 'input' },
+            { id: 'nomina-empleado', type: 'text' },
+            { id: 'nombre-empleado', type: 'text' }
+        ];
+
+        elementosNombre.forEach(elemento => {
+            const el = document.getElementById(elemento.id);
+            if (el) {
+                if (elemento.type === 'input') {
+                    el.value = empleado.nombre;
+                } else {
+                    el.textContent = empleado.nombre;
+                }
+                console.log(`Nombre actualizado en ${elemento.id}:`, empleado.nombre);
+            }
+        });
+
+        // Actualizar elementos que muestran el salario
+        const salarioFormateado = formatCurrency(empleado.salario);
+        const elementosSalario = [
+            { id: 'nomina-salario-base', type: 'input' },
+            { id: 'salario-base', type: 'text' },
+            { id: 'nomina-salario-base-resumen', type: 'text' }
+        ];
+
+        elementosSalario.forEach(elemento => {
+            const el = document.getElementById(elemento.id);
+            if (el) {
+                if (elemento.type === 'input') {
+                    el.value = salarioFormateado;
+                } else {
+                    el.textContent = salarioFormateado;
+                }
+                console.log(`Salario actualizado en ${elemento.id}:`, salarioFormateado);
+            }
+        });
+
+        // Actualizar documento en todos los elementos relevantes
+        const elementosDocumento = [
+            { id: 'nomina-documento', type: 'input' },
+            { id: 'documento-empleado', type: 'text' }
+        ];
+
+        elementosDocumento.forEach(elemento => {
+            const el = document.getElementById(elemento.id);
+            if (el) {
+                if (elemento.type === 'input') {
+                    el.value = empleado.documento;
+                } else {
+                    el.textContent = empleado.documento;
+                }
+                console.log(`Documento actualizado en ${elemento.id}:`, empleado.documento);
+            }
+        });
+
+        // Guardar datos en el formulario
+        const formularioNomina = document.getElementById('formulario-nomina');
+        if (formularioNomina) {
+            formularioNomina.dataset.empleadoId = empleado.id;
+            formularioNomina.dataset.salarioBase = empleado.salario;
+            formularioNomina.dataset.nombreEmpleado = empleado.nombre;
+            console.log('Datos guardados en el formulario:', {
+                id: empleado.id,
+                salario: empleado.salario,
+                nombre: empleado.nombre
+            });
+        }
+
+        // Pre-cargar el periodo actual
+        const hoy = new Date();
+        const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+        
+        const periodoInicioElement = document.getElementById('nomina-periodo-inicio');
+        const periodoFinElement = document.getElementById('nomina-periodo-fin');
+        
+        if (periodoInicioElement) periodoInicioElement.value = primerDiaMes.toISOString().split('T')[0];
+        if (periodoFinElement) periodoFinElement.value = ultimoDiaMes.toISOString().split('T')[0];
+
+        // Habilitar campos de horas
+        const camposHoras = [
+            'nomina-horas-extra-diurnas',
+            'nomina-horas-extra-nocturnas',
+            'nomina-recargos-nocturnos',
+            'nomina-horas-diurnas-festivas',
+            'nomina-horas-nocturnas-festivas',
+            'nomina-horas-extras-diurnas-festivas',
+            'nomina-horas-extras-nocturnas-festivas',
+            'nomina-horas-ausente'
+        ];
+
+        camposHoras.forEach(id => {
+            const elemento = document.getElementById(id);
+            if (elemento) {
+                elemento.disabled = false;
+                console.log(`Campo ${id} habilitado`);
+            }
+        });
+
+    } catch (error) {
+        console.error('Error al buscar empleado:', error);
+        Utils.showMessage(error.message);
+        limpiarFormularioNomina();
+    }
+}
+
+// Función para limpiar el formulario de nómina
+function limpiarFormularioNomina() {
+    console.log('Iniciando limpieza del formulario de nómina...');
+    const formularioNomina = document.getElementById('formulario-nomina');
+    if (!formularioNomina) {
+        console.log('No se encontró el formulario de nómina');
+        return;
+    }
+
+    // Resetear el formulario
+    formularioNomina.reset();
+
+    // Limpiar el resumen
+    const resumen = document.getElementById('nomina-resumen');
+    if (resumen) {
+        resumen.classList.add('hidden');
+    }
+
+    // Limpiar campos específicos y asegurarse de que estén vacíos
+    const camposTexto = {
+        'nomina-empleado': '',
+        'nomina-documento': '',
+        'nomina-salario-base': '',
+        'nomina-bonificaciones': '',
+        'nomina-deducciones': '',
+        'nomina-salario-neto': '',
+        'nomina-periodo-inicio': '',
+        'nomina-periodo-fin': ''
+    };
+
+    for (const [id, valor] of Object.entries(camposTexto)) {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            if (elemento.tagName === 'INPUT') {
+                elemento.value = valor;
+            } else {
+                elemento.textContent = valor;
+            }
+            console.log(`Campo ${id} limpiado`);
+        } else {
+            console.log(`No se encontró el elemento ${id}`);
+        }
+    }
+
+    // Limpiar y deshabilitar campos de horas
+    const camposHoras = [
+        'nomina-horas-extra-diurnas',
+        'nomina-horas-extra-nocturnas',
+        'nomina-recargos-nocturnos',
+        'nomina-horas-diurnas-festivas',
+        'nomina-horas-nocturnas-festivas',
+        'nomina-horas-extras-diurnas-festivas',
+        'nomina-horas-extras-nocturnas-festivas',
+        'nomina-horas-ausente'
+    ];
+
+    camposHoras.forEach(id => {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.value = '0';
+            elemento.disabled = true;
+            console.log(`Campo ${id} reseteado y deshabilitado`);
+        } else {
+            console.log(`No se encontró el elemento ${id}`);
+        }
+    });
+
+    // Limpiar datos almacenados en el dataset
+    formularioNomina.dataset.empleadoId = '';
+    formularioNomina.dataset.salarioBase = '';
+    formularioNomina.dataset.nombreEmpleado = '';
+    
+    console.log('Formulario limpiado completamente');
 }
 
 // Inicialización del módulo de nómina
@@ -684,57 +1213,80 @@ function initNominaModule() {
     const formularioNomina = document.getElementById('formulario-nomina');
     if (!formularioNomina) return;
 
+    // Evento para buscar empleado cuando se ingresa el documento
+    const inputDocumento = document.getElementById('nomina-documento');
+    if (inputDocumento) {
+        // Remover eventos previos si existen
+        const oldBlurHandler = inputDocumento.onblur;
+        const oldInputHandler = inputDocumento.oninput;
+        if (oldBlurHandler) inputDocumento.removeEventListener('blur', oldBlurHandler);
+        if (oldInputHandler) inputDocumento.removeEventListener('input', oldInputHandler);
+        
+        inputDocumento.addEventListener('blur', async function() {
+            const documento = this.value.trim();
+            if (!documento) {
+                limpiarFormularioNomina();
+                Utils.showMessage('Por favor ingrese un número de documento');
+                return;
+            }
+
+            try {
+                await buscarEmpleado(documento);
+            } catch (error) {
+                Utils.showMessage(error.message);
+            }
+        });
+
+        // Agregar evento para limpiar cuando el campo está vacío
+        inputDocumento.addEventListener('input', function() {
+            if (!this.value.trim()) {
+                limpiarFormularioNomina();
+            }
+        });
+    }
+
     // Evento submit del formulario
-    formularioNomina.addEventListener('submit', calcularNomina);
+    formularioNomina.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const empleadoId = formularioNomina.dataset.empleadoId;
+        if (!empleadoId) {
+            Utils.showMessage('Por favor, primero busque un empleado válido');
+            return;
+        }
+        try {
+            await calcularNomina(empleadoId);
+        } catch (error) {
+            Utils.showMessage(error.message);
+        }
+    });
 
     // Evento para limpiar formulario
     const botonLimpiar = document.getElementById('limpiar-formulario');
     if (botonLimpiar) {
-        botonLimpiar.addEventListener('click', function() {
-            formularioNomina.reset();
-            const resumen = document.getElementById('nomina-resumen');
-            if (resumen) resumen.classList.add('hidden');
-            const nombreInput = document.getElementById('nomina-nombre');
-            if (nombreInput) nombreInput.value = '';
-            const salarioInput = document.getElementById('nomina-salario-base');
-            if (salarioInput) salarioInput.value = '';
-        });
+        botonLimpiar.addEventListener('click', limpiarFormularioNomina);
     }
 
     // Evento para generar PDF
     const botonGenerarPDF = document.getElementById('generar-pdf');
     if (botonGenerarPDF) {
-        botonGenerarPDF.addEventListener('click', generarPDFNomina);
+        botonGenerarPDF.addEventListener('click', () => {
+            const resumen = document.getElementById('nomina-resumen');
+            if (resumen.classList.contains('hidden')) {
+                Utils.showMessage('Por favor, primero calcule la nómina');
+                return;
+            }
+            generarPdfNomina();
+        });
     }
 
-    // Evento para buscar empleado por documento
-    const inputDocumento = document.getElementById('nomina-documento');
-    if (inputDocumento) {
-        inputDocumento.addEventListener('blur', async function() {
-            const documento = this.value.trim();
-            if (!documento) return;
-            
-            try {
-                const response = await Utils.makeRequest(`${CONFIG.recursos_humanos.apiUrl}?documento=${documento}`);
-                if (response && response.length > 0) {
-                    const empleado = response[0];
-                    const nombreInput = document.getElementById('nomina-nombre');
-                    const salarioInput = document.getElementById('nomina-salario-base');
-                    
-                    if (nombreInput) nombreInput.value = empleado.nombre;
-                    if (salarioInput) salarioInput.value = empleado.salario;
-                    formularioNomina.dataset.empleadoId = empleado.id;
-                } else {
-                    Utils.showMessage('Empleado no encontrado');
-                    const nombreInput = document.getElementById('nomina-nombre');
-                    const salarioInput = document.getElementById('nomina-salario-base');
-                    
-                    if (nombreInput) nombreInput.value = '';
-                    if (salarioInput) salarioInput.value = '';
-                }
-            } catch (error) {
-                console.error('Error al buscar empleado:', error);
-                Utils.showMessage(`Error al buscar empleado: ${error.message}`);
+    // Evento para recalcular cuando cambia el tipo de periodo
+    const selectPeriodo = document.getElementById('nomina-periodo-tipo');
+    if (selectPeriodo) {
+        selectPeriodo.addEventListener('change', function() {
+            // No calcular automáticamente, solo actualizar el período si es necesario
+            const resumen = document.getElementById('nomina-resumen');
+            if (resumen) {
+                resumen.classList.add('hidden');
             }
         });
     }
@@ -771,6 +1323,98 @@ document.addEventListener('DOMContentLoaded', function() {
                 AuthManager.showModal(btn.id === 'login-btn' ? 'loginModal' : 'registerModal')
             );
         });
+
+        // Inicialización de la sección de ausentismos
+        if (document.getElementById('ausentismos-panel')) {
+            // Cargar datos iniciales
+            EntityManager.loadAusentismos();
+
+            // Manejar el formulario de ausentismos
+            const formAusentismos = document.getElementById('form-ausentismos');
+            if (formAusentismos) {
+                formAusentismos.addEventListener('submit', (e) => EntityManager.saveAusentismo(e));
+            }
+
+            // Manejar el botón de limpiar
+            const btnLimpiar = document.getElementById('limpiar-ausentismos');
+            if (btnLimpiar) {
+                btnLimpiar.addEventListener('click', () => EntityManager.limpiarFormularioAusentismos());
+            }
+
+            // Manejar el cambio de tipo para mostrar/ocultar el campo de motivo
+            const tipoSelect = document.getElementById('ausentismos-tipo');
+            if (tipoSelect) {
+                tipoSelect.addEventListener('change', () => {
+                    const motivoContainer = document.getElementById('ausentismos-motivo-container');
+                    const motivoTextarea = document.getElementById('ausentismos-motivo');
+                    
+                    if (tipoSelect.value === 'ausentismo') {
+                        motivoContainer.style.display = 'block';
+                        motivoTextarea.required = true;
+                    } else {
+                        motivoContainer.style.display = 'none';
+                        motivoTextarea.required = false;
+                        motivoTextarea.value = '';
+                    }
+                });
+            }
+
+            // Cargar lista de empleados
+            const empleadoSelect = document.getElementById('ausentismos-empleado');
+            if (empleadoSelect) {
+                Utils.makeRequest('/api/rrhh/empleados/')
+                    .then(empleados => {
+                        empleadoSelect.innerHTML = '<option value="">Seleccione un empleado</option>';
+                        empleados.forEach(emp => {
+                            const option = document.createElement('option');
+                            option.value = emp.id;
+                            option.textContent = emp.nombre;
+                            empleadoSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => Utils.showMessage(`Error al cargar empleados: ${error.message}`));
+            }
+
+            // Manejar filtros de la tabla
+            const filtroTodos = document.getElementById('filtro-todos');
+            const filtroAusentismos = document.getElementById('filtro-ausentismos');
+            const filtroHorasExtras = document.getElementById('filtro-horas-extras');
+
+            function aplicarFiltro(tipo = null) {
+                const rows = document.querySelectorAll('#tabla-ausentismos tbody tr');
+                rows.forEach(row => {
+                    if (!tipo || row.dataset.tipo === tipo) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            if (filtroTodos) {
+                filtroTodos.addEventListener('click', () => {
+                    aplicarFiltro();
+                    [filtroTodos, filtroAusentismos, filtroHorasExtras].forEach(btn => btn.classList.remove('active'));
+                    filtroTodos.classList.add('active');
+                });
+            }
+
+            if (filtroAusentismos) {
+                filtroAusentismos.addEventListener('click', () => {
+                    aplicarFiltro('ausentismo');
+                    [filtroTodos, filtroAusentismos, filtroHorasExtras].forEach(btn => btn.classList.remove('active'));
+                    filtroAusentismos.classList.add('active');
+                });
+            }
+
+            if (filtroHorasExtras) {
+                filtroHorasExtras.addEventListener('click', () => {
+                    aplicarFiltro('hora_extra');
+                    [filtroTodos, filtroAusentismos, filtroHorasExtras].forEach(btn => btn.classList.remove('active'));
+                    filtroHorasExtras.classList.add('active');
+                });
+            }
+        }
 
         console.log('Inicialización completada con éxito');
     } catch (error) {

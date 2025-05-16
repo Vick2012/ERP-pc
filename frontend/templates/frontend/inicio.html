@@ -333,49 +333,96 @@
                     </div>
                     <!-- Registro de Ausentismos y Horas Extras -->
                     <div class="tab-pane fade" id="ausentismos-panel" role="tabpanel">
-                        <h3 class="text-primary mb-3">Registro de Ausentismos y Horas Extras</h3>
-                        <div class="mb-3">
-                            <label for="ausentismos-empleado" class="form-label">Seleccionar Empleado:</label>
-                            <select id="ausentismos-empleado" class="form-select" required>
-                                <option value="">Seleccione un empleado</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="ausentismos-fecha" class="form-label">Fecha:</label>
-                            <input type="date" id="ausentismos-fecha" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="ausentismos-tipo" class="form-label">Tipo:</label>
-                            <select id="ausentismos-tipo" class="form-select" required>
-                                <option value="ausentismo">Ausentismo</option>
-                                <option value="hora_extra">Horas Extras</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="ausentismos-duracion" class="form-label">Duración (horas):</label>
-                            <input type="number" id="ausentismos-duracion" class="form-control" step="0.5" required>
-                        </div>
-                        <div class="mb-3 hidden" id="ausentismos-motivo-container">
-                            <label for="ausentismos-motivo" class="form-label">Motivo:</label>
-                            <textarea id="ausentismos-motivo" class="form-control"
-                                placeholder="Motivo del ausentismo"></textarea>
-                        </div>
-                        <!-- Corregido: Botón 'guardian-analysis' incompleto -->
-                        <button class="btn btn-primary mb-3" id="guardar-ausentismos">Guardar</button>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover text-center align-middle"
-                                id="tabla-ausentismos">
-                                <thead class="table-primary">
-                                    <tr>
-                                        <th>Empleado</th>
-                                        <th>Tipo</th>
-                                        <th>Fecha</th>
-                                        <th>Duración (horas)</th>
-                                        <th>Motivo</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h3 class="text-primary mb-3">Registro de Ausentismos y Horas Extras</h3>
+                                        <form id="form-ausentismos" class="needs-validation" novalidate>
+                                            <div class="mb-3">
+                                                <label for="ausentismos-empleado" class="form-label">Seleccionar Empleado:</label>
+                                                <select id="ausentismos-empleado" class="form-select" required>
+                                                    <option value="">Seleccione un empleado</option>
+                                                </select>
+                                                <div class="invalid-feedback">
+                                                    Por favor seleccione un empleado
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="ausentismos-fecha" class="form-label">Fecha:</label>
+                                                <input type="date" id="ausentismos-fecha" class="form-control" required>
+                                                <div class="invalid-feedback">
+                                                    Por favor seleccione una fecha
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="ausentismos-tipo" class="form-label">Tipo:</label>
+                                                <select id="ausentismos-tipo" class="form-select" required>
+                                                    <option value="">Seleccione un tipo</option>
+                                                    <option value="ausentismo">Ausentismo</option>
+                                                    <option value="hora_extra">Horas Extras</option>
+                                                </select>
+                                                <div class="invalid-feedback">
+                                                    Por favor seleccione un tipo
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="ausentismos-duracion" class="form-label">Duración (horas):</label>
+                                                <input type="number" id="ausentismos-duracion" class="form-control" step="0.5" min="0" max="24" required>
+                                                <div class="invalid-feedback">
+                                                    Por favor ingrese una duración válida (entre 0 y 24 horas)
+                                                </div>
+                                            </div>
+                                            <div class="mb-3" id="ausentismos-motivo-container">
+                                                <label for="ausentismos-motivo" class="form-label">Motivo:</label>
+                                                <textarea id="ausentismos-motivo" class="form-control" rows="3"
+                                                    placeholder="Describa el motivo del ausentismo"></textarea>
+                                                <div class="invalid-feedback">
+                                                    Por favor ingrese un motivo
+                                                </div>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <button type="submit" class="btn btn-primary" id="guardar-ausentismos">
+                                                    <i class="fas fa-save me-2"></i>Guardar
+                                                </button>
+                                                <button type="button" class="btn btn-secondary" id="limpiar-ausentismos">
+                                                    <i class="fas fa-eraser me-2"></i>Limpiar
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h3 class="text-primary mb-0">Registros</h3>
+                                            <div class="btn-group">
+                                                <button class="btn btn-outline-primary" id="filtro-todos">Todos</button>
+                                                <button class="btn btn-outline-primary" id="filtro-ausentismos">Ausentismos</button>
+                                                <button class="btn btn-outline-primary" id="filtro-horas-extras">Horas Extras</button>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-hover text-center align-middle"
+                                                id="tabla-ausentismos">
+                                                <thead class="table-primary">
+                                                    <tr>
+                                                        <th>Empleado</th>
+                                                        <th>Tipo</th>
+                                                        <th>Fecha</th>
+                                                        <th>Duración</th>
+                                                        <th>Motivo</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <!-- Liquidación -->
@@ -566,10 +613,10 @@
         <!-- Scripts para PDF -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-        <!-- Script local -->
+            src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+        <!-- Configuración y scripts de la aplicación -->
+        <script src="{% static 'js/desprendible_nomina.js' %}"></script>
         <script src="{% static 'js/app.js' %}"></script>
 </body>
 
