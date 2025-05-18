@@ -1,0 +1,187 @@
+{% load static %}
+
+<!-- Tabla de registros -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-4">Registros de Ausentismos y Horas Extras</h5>
+
+        <!-- Búsqueda de empleado -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <label for="buscar-documento-ausentismo" class="form-label">Documento del empleado</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="buscar-documento-ausentismo"
+                        placeholder="Ingrese el documento del empleado" required>
+                    <button class="btn btn-primary" type="button" id="buscar-empleado-ausentismo">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información del empleado -->
+        <div id="info-empleado-ausentismo" class="card mb-4 d-none">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-3">Información del Empleado</h6>
+                <div id="datos-empleado-ausentismo"></div>
+            </div>
+        </div>
+
+        <!-- Panel de filtros -->
+        <div class="mb-4">
+            <h6 class="mb-3">Filtros de búsqueda</h6>
+            <div class="row g-3">
+                <!-- Filtro por tipo -->
+                <div class="col-md-4">
+                    <label class="form-label">Tipo de registro:</label>
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary active" data-filter="todos">
+                            <i class="fas fa-list me-2"></i>Todos
+                        </button>
+                        <button type="button" class="btn btn-outline-warning" data-filter="ausentismo">
+                            <i class="fas fa-user-clock me-2"></i>Ausentismo
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" data-filter="horas_extras">
+                            <i class="fas fa-clock me-2"></i>Horas Extras
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtro por fechas -->
+                <div class="col-md-4">
+                    <label class="form-label">Fecha desde:</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-calendar-alt"></i>
+                        </span>
+                        <input type="date" class="form-control" id="filtro-fecha-desde">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Fecha hasta:</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-calendar-alt"></i>
+                        </span>
+                        <input type="date" class="form-control" id="filtro-fecha-hasta">
+                    </div>
+                </div>
+
+                <!-- Botones de filtrado -->
+                <div class="col-12">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-primary flex-grow-1" id="aplicar-filtros">
+                            <i class="fas fa-filter me-2"></i>Aplicar Filtros
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="limpiar-filtros">
+                            <i class="fas fa-eraser me-2"></i>Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="table-responsive">
+            <table id="tabla-ausentismos" class="table table-hover table-striped align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">Documento</th>
+                        <th class="text-center">Tipo</th>
+                        <th class="text-center">Fecha</th>
+                        <th class="text-center">Duración</th>
+                        <th>Motivo</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los registros se cargarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario de registro -->
+<form id="form-ausentismos" class="needs-validation" novalidate>
+    <!-- Campo oculto para el ID del empleado -->
+    <input type="hidden" id="ausentismos-empleado" name="empleado" required>
+
+    <!-- Tipo de registro -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="ausentismos-tipo" class="form-label">Tipo de registro</label>
+            <select class="form-select" id="ausentismos-tipo" required>
+                <option value="">Seleccione un tipo</option>
+                <option value="ausentismo">Ausentismo</option>
+                <option value="horas_extras">Horas Extras</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="ausentismos-fecha" class="form-label">Fecha</label>
+            <input type="date" class="form-control" id="ausentismos-fecha" required>
+        </div>
+    </div>
+
+    <!-- Duración para ausentismos -->
+    <div id="ausentismo-duracion" class="row mb-3 d-none">
+        <div class="col-md-6">
+            <label for="ausentismos-duracion" class="form-label">Duración (horas)</label>
+            <input type="number" class="form-control" id="ausentismos-duracion" step="0.5" min="0"
+                placeholder="Ingrese la duración en horas">
+        </div>
+    </div>
+
+    <!-- Detalles de horas extras -->
+    <div id="horas-extras-detalles" class="row mb-3 d-none">
+        <div class="col-md-6 mb-3">
+            <label for="horas-extra-diurnas" class="form-label">Horas Extra Diurnas</label>
+            <input type="number" class="form-control" id="horas-extra-diurnas" step="0.5" min="0" value="0">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="horas-extra-nocturnas" class="form-label">Horas Extra Nocturnas</label>
+            <input type="number" class="form-control" id="horas-extra-nocturnas" step="0.5" min="0" value="0">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="recargos-nocturnos" class="form-label">Recargos Nocturnos</label>
+            <input type="number" class="form-control" id="recargos-nocturnos" step="0.5" min="0" value="0">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="horas-extra-dominicales" class="form-label">Horas Extra Dominicales/Festivos</label>
+            <input type="number" class="form-control" id="horas-extra-dominicales" step="0.5" min="0" value="0">
+        </div>
+        <div class="col-12">
+            <div class="alert alert-info">
+                <strong>Total horas extras: </strong>
+                <span id="total-horas-extras">0.0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Motivo -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <label for="ausentismos-motivo" class="form-label">Motivo</label>
+            <textarea class="form-control" id="ausentismos-motivo" rows="3" placeholder="Ingrese el motivo"></textarea>
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="row">
+        <div class="col-12 text-end">
+            <button type="button" class="btn btn-secondary" id="limpiar-ausentismos">
+                <i class="fas fa-times me-2"></i>Limpiar
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>Guardar
+            </button>
+        </div>
+    </div>
+</form>
+
+<!-- Scripts específicos para ausentismos -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // La inicialización se maneja en el script principal
+});
+</script>

@@ -119,9 +119,9 @@
                         <!-- Barra de búsqueda -->
                         <div class="search-bar">
                             <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Buscar empleado..."
-                                    id="search-recursos_humanos" aria-label="Buscar empleado">
-                                <button class="btn btn-primary"
+                            <input type="text" class="form-control" placeholder="Buscar empleado..."
+                                id="search-recursos_humanos" aria-label="Buscar empleado">
+                            <button class="btn btn-primary"
                                     onclick="EntityManager.searchData('recursos_humanos')">
                                     <i class="fas fa-search"></i> Buscar
                                 </button>
@@ -251,11 +251,16 @@
                                 <h5 class="card-title mb-0">Cálculo de Nómina</h5>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
+                                <!-- Container for hidden fields -->
+                                <div id="datos-ocultos-nomina" style="display: none;">
+                                    <input type="hidden" id="nomina-empleado-data" name="nomina-empleado-data">
+                                    <input type="hidden" id="empleado-id-nomina" name="empleado-id-nomina">
+                                </div>
+                        <div class="row">
+                            <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="nomina-documento" class="form-label">Documento del Empleado:</label>
-                                            <div class="input-group">
+                                                            <div class="input-group">
                                                 <input type="text" class="form-control" id="nomina-documento" placeholder="Ingrese el documento">
                                                 <button class="btn btn-primary" type="button" id="buscar-nomina">
                                                     <i class="fas fa-search"></i> Buscar
@@ -271,179 +276,12 @@
 
                     <!-- Panel de Ausentismos -->
                     <div class="tab-pane fade" id="ausentismos-panel" role="tabpanel" aria-labelledby="ausentismos-tab">
-                        <div class="card">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="card-title mb-0">Registro de Ausentismos y Horas Extras</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <!-- Formulario de búsqueda y registro -->
-                                        <div class="card mb-4">
-                                            <div class="card-body">
-                                                <!-- Búsqueda de empleado -->
-                                                <div class="mb-3">
-                                                    <label for="buscar-documento-ausentismo" class="form-label">Documento del Empleado:</label>
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control" id="buscar-documento-ausentismo" placeholder="Ingrese el documento">
-                                                        <button class="btn btn-primary" type="button" id="buscar-empleado-ausentismo">
-                                                            <i class="fas fa-search"></i> Buscar
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Información del empleado -->
-                                                <div id="info-empleado-ausentismo" class="info-empleado d-none">
-                                                    <h6 class="mb-3">Información del Empleado</h6>
-                                                    <div id="datos-empleado-ausentismo"></div>
-                                                </div>
-
-                                                <!-- Formulario de registro -->
-                                                <form id="form-ausentismos" class="needs-validation" novalidate>
-                                                    {% csrf_token %}
-                                                    <input type="hidden" id="ausentismos-empleado">
-                                                    
-                                                    <div class="mb-3">
-                                                        <label for="ausentismos-tipo" class="form-label">Tipo de Registro:</label>
-                                                        <select class="form-select" id="ausentismos-tipo" required>
-                                                            <option value="">Seleccione un tipo</option>
-                                                            <option value="ausentismo">Ausentismo</option>
-                                                            <option value="horas_extras">Horas Extras</option>
-                                                        </select>
-                                                    </div>
-
-                                                    <div class="mb-3">
-                                                        <label for="ausentismos-fecha" class="form-label">Fecha:</label>
-                                                        <input type="date" class="form-control" id="ausentismos-fecha" required>
-                                                    </div>
-
-                                                    <!-- Duración para ausentismos -->
-                                                    <div id="ausentismo-duracion" class="mb-3 d-none">
-                                                        <label for="ausentismos-duracion" class="form-label">Duración (horas):</label>
-                                                        <input type="number" class="form-control" id="ausentismos-duracion" step="0.5" min="0">
-                                                    </div>
-
-                                                    <!-- Campos para horas extras -->
-                                                    <div id="horas-extras-detalles" class="mb-3 d-none">
-                                                        <div class="horas-extras-container">
-                                                            <div class="mb-2">
-                                                                <label class="form-label">
-                                                                    Horas Extra Diurnas
-                                                                    <span class="badge bg-info badge-percentage">25%</span>
-                                                                </label>
-                                                                <input type="number" class="form-control" id="horas-extra-diurnas" step="0.5" min="0">
-                                                            </div>
-                                                            <div class="mb-2">
-                                                                <label class="form-label">
-                                                                    Horas Extra Nocturnas
-                                                                    <span class="badge bg-info badge-percentage">75%</span>
-                                                                </label>
-                                                                <input type="number" class="form-control" id="horas-extra-nocturnas" step="0.5" min="0">
-                                                            </div>
-                                                            <div class="mb-2">
-                                                                <label class="form-label">
-                                                                    Recargos Nocturnos
-                                                                    <span class="badge bg-info badge-percentage">35%</span>
-                                                                </label>
-                                                                <input type="number" class="form-control" id="recargos-nocturnos" step="0.5" min="0">
-                                                            </div>
-                                                            <div class="mb-2">
-                                                                <label class="form-label">
-                                                                    Horas Extra Dominicales/Festivos
-                                                                    <span class="badge bg-info badge-percentage">100%</span>
-                                                                </label>
-                                                                <input type="number" class="form-control" id="horas-extra-dominicales" step="0.5" min="0">
-                                                            </div>
-                                                            <div class="mt-3">
-                                                                <strong>Total Horas: </strong>
-                                                                <span id="total-horas-extras">0</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="mb-3">
-                                                        <label for="ausentismos-motivo" class="form-label">Motivo/Descripción:</label>
-                                                        <textarea class="form-control" id="ausentismos-motivo" rows="3" required></textarea>
-                                                    </div>
-
-                                                    <div class="d-flex gap-2">
-                                                        <button type="submit" class="btn btn-primary">
-                                                            <i class="fas fa-save"></i> Guardar
-                                                        </button>
-                                                        <button type="button" class="btn btn-secondary" id="limpiar-ausentismos">
-                                                            <i class="fas fa-eraser"></i> Limpiar
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Tabla de registros -->
-                                    <div class="col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Registros</h5>
-                                                
-                                                <!-- Filtros -->
-                                                <div class="btn-group mb-3" role="group">
-                                                    <button type="button" class="btn btn-outline-primary active" onclick="filtrarRegistros('todos')">Todos</button>
-                                                    <button type="button" class="btn btn-outline-primary" onclick="filtrarRegistros('ausentismo')">Ausentismos</button>
-                                                    <button type="button" class="btn btn-outline-primary" onclick="filtrarRegistros('horas_extras')">Horas Extras</button>
-                                                </div>
-
-                                                <div class="table-responsive">
-                                                    <table id="tabla-ausentismos" class="table table-hover">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Documento</th>
-                                                                <th>Empleado</th>
-                                                                <th>Tipo</th>
-                                                                <th>Fecha</th>
-                                                                <th>Duración</th>
-                                                                <th>Motivo</th>
-                                                                <th>Acciones</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <!-- Los registros se cargarán dinámicamente -->
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        {% include 'Ausentismos-Extras/ausentismos.html' %}
                     </div>
 
                     <!-- Panel de Liquidación -->
                     <div class="tab-pane fade" id="liquidacion-panel" role="tabpanel" aria-labelledby="liquidacion-tab">
-                        <div class="card">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="card-title mb-0">Liquidación de Empleados</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover" id="tabla-liquidacion">
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Empleado</th>
-                                                <th>Documento</th>
-                                                <th>Fecha Ingreso</th>
-                                                <th>Fecha Retiro</th>
-                                                <th>Motivo</th>
-                                                <th>Estado</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                        {% include 'liquidaciones/liquidacion.html' %}
                     </div>
                 </div>
             </div>
@@ -611,8 +449,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 
-        <!-- Configuración y scripts de la aplicación -->
+        <!-- Scripts de la aplicación -->
         <script src="{% static 'js/recursos_humanos.js' %}"></script>
+        <script src="{% static 'js/liquidacion.js' %}"></script>
         <script src="{% static 'js/app.js' %}"></script>
 
         <!-- Script de inicialización -->
@@ -642,15 +481,14 @@
                         }
                     });
                 });
-            });
-        </script>
 
-        <!-- Scripts -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="{% static 'js/recursos_humanos.js' %}"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                RecursosHumanos.init();
+                // Inicializar módulos
+                if (typeof RecursosHumanos !== 'undefined') {
+                    RecursosHumanos.init();
+                }
+                
+                // Inicializar liquidación
+                window.liquidacionLaboral = new LiquidacionLaboral();
             });
         </script>
     </main>

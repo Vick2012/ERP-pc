@@ -1,0 +1,446 @@
+<!-- Pestaña de Liquidación -->
+<div class="container-fluid py-4" id="liquidacion-container">
+    <!-- Búsqueda de empleado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calculator me-2 text-primary"></i>
+                        Calculadora de Costos y Liquidación Laboral
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="liquidacion-documento" class="form-label fw-bold">
+                                    <i class="fas fa-id-card me-2"></i>Documento del Empleado
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" 
+                                           class="form-control form-control-lg" 
+                                           id="liquidacion-documento" 
+                                           placeholder="Ingrese el número de documento">
+                                    <button class="btn btn-primary btn-lg" type="button" id="buscar-liquidacion">
+                                        <i class="fas fa-search me-2"></i>Buscar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nivel-riesgo-arl" class="form-label fw-bold">
+                                    <i class="fas fa-shield-alt me-2"></i>Nivel de Riesgo ARL
+                                </label>
+                                <select class="form-select form-select-lg" id="nivel-riesgo-arl">
+                                    <option value="1">Riesgo I - Mínimo (0.522%)</option>
+                                    <option value="2">Riesgo II - Bajo (1.044%)</option>
+                                    <option value="3">Riesgo III - Medio (2.436%)</option>
+                                    <option value="4">Riesgo IV - Alto (4.350%)</option>
+                                    <option value="5">Riesgo V - Máximo (6.960%)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información del empleado -->
+    <div id="info-empleado-liquidacion" class="mb-4"></div>
+
+    <!-- Campo oculto para datos del empleado -->
+    <input type="hidden" id="empleado-liquidacion-data">
+
+    <!-- Contenido principal -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white p-0">
+                    <ul class="nav nav-tabs nav-fill" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active py-3 px-4" 
+                                    id="costos-tab" 
+                                    data-bs-toggle="tab" 
+                                    data-bs-target="#costos-panel" 
+                                    type="button" 
+                                    role="tab"
+                                    aria-controls="costos-panel"
+                                    aria-selected="true">
+                                <i class="fas fa-coins me-2"></i>
+                                <span class="fw-bold">Costos Mensuales</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link py-3 px-4" 
+                                    id="liquidacion-tab" 
+                                    data-bs-toggle="tab" 
+                                    data-bs-target="#liquidacion-panel" 
+                                    type="button" 
+                                    role="tab"
+                                    aria-controls="liquidacion-panel"
+                                    aria-selected="false">
+                                <i class="fas fa-file-invoice-dollar me-2"></i>
+                                <span class="fw-bold">Liquidación</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Panel de Costos Mensuales -->
+                        <div class="tab-pane fade show active" id="costos-panel" role="tabpanel" aria-labelledby="costos-tab">
+                            <div id="costos-mensuales" class="fade-in">
+                                <!-- Los resultados se insertarán aquí dinámicamente -->
+                            </div>
+                            <div class="text-end mt-4">
+                                <button type="button" class="btn btn-primary btn-lg" id="calcular-costos">
+                                    <i class="fas fa-calculator me-2"></i>Calcular Costos
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Panel de Liquidación -->
+                        <div class="tab-pane fade" id="liquidacion-panel" role="tabpanel" aria-labelledby="liquidacion-tab">
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header bg-white">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-calculator me-2 text-primary"></i>
+                                        Parámetros de Liquidación
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <form id="form-liquidacion" class="d-block">
+                                        <div class="row g-4">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="motivo-retiro" class="form-label fw-bold">
+                                                        <i class="fas fa-file-alt me-2"></i>Motivo de Retiro
+                                                    </label>
+                                                    <select class="form-select form-select-lg" id="motivo-retiro" required>
+                                                        <option value="">Seleccione el motivo de retiro</option>
+                                                        <optgroup label="Terminación de Contrato">
+                                                            <option value="terminacion_contrato_vencimiento">Por Vencimiento del Plazo</option>
+                                                            <option value="terminacion_contrato_mutuo">Por Mutuo Acuerdo</option>
+                                                            <option value="terminacion_contrato_obra">Por Terminación de Obra</option>
+                                                        </optgroup>
+                                                        <optgroup label="Retiro Voluntario">
+                                                            <option value="renuncia_voluntaria">Renuncia Voluntaria</option>
+                                                            <option value="renuncia_justificada">Renuncia Justificada</option>
+                                                        </optgroup>
+                                                        <optgroup label="Despido">
+                                                            <option value="despido_sin_justa_causa">Sin Justa Causa</option>
+                                                            <option value="despido_con_justa_causa">Con Justa Causa</option>
+                                                        </optgroup>
+                                                        <optgroup label="Otros Motivos">
+                                                            <option value="muerte_trabajador">Muerte del Trabajador</option>
+                                                            <option value="pension_vejez">Reconocimiento Pensión de Vejez</option>
+                                                            <option value="pension_invalidez">Reconocimiento Pensión de Invalidez</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-4 mt-2">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="fecha-inicio" class="form-label fw-bold">
+                                                        <i class="fas fa-calendar me-2"></i>Fecha de Inicio
+                                                    </label>
+                                                    <input type="date" class="form-control form-control-lg" id="fecha-inicio" required>
+                                                    <div class="form-text">Fecha de inicio del período a liquidar</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="fecha-fin" class="form-label fw-bold">
+                                                        <i class="fas fa-calendar-alt me-2"></i>Fecha de Finalización
+                                                    </label>
+                                                    <input type="date" class="form-control form-control-lg" id="fecha-fin" required>
+                                                    <div class="form-text">Fecha de terminación del contrato</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-4">
+                                            <div class="col-12 text-end">
+                                                <button type="submit" class="btn btn-primary btn-lg" id="calcular-liquidacion">
+                                                    <i class="fas fa-calculator me-2"></i>Calcular Liquidación
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Resultados de la Liquidación -->
+                            <div id="resultados-liquidacion" class="fade-in mt-4" style="display: none;">
+                                <!-- Los resultados se insertarán aquí dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>
+                        Información sobre Costos Laborales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="infoLiquidacion">
+                        <!-- Seguridad Social -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#seguridadSocial">
+                                    <i class="fas fa-heart me-2"></i>Seguridad Social
+                                </button>
+                            </h2>
+                            <div id="seguridadSocial" class="accordion-collapse collapse show" 
+                                 data-bs-parent="#infoLiquidacion">
+                                <div class="accordion-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <i class="fas fa-hospital me-2 text-primary"></i>
+                                            <strong>Salud:</strong> 12.5% del salario base (8.5% empleador, 4% empleado)
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-piggy-bank me-2 text-primary"></i>
+                                            <strong>Pensión:</strong> 16% del salario base (12% empleador, 4% empleado)
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-shield-alt me-2 text-primary"></i>
+                                            <strong>ARL:</strong> Varía según el nivel de riesgo (0.522% - 6.96%)
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Parafiscales -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#parafiscales">
+                                    <i class="fas fa-percentage me-2"></i>Parafiscales
+                                </button>
+                            </h2>
+                            <div id="parafiscales" class="accordion-collapse collapse" 
+                                 data-bs-parent="#infoLiquidacion">
+                                <div class="accordion-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <i class="fas fa-graduation-cap me-2 text-primary"></i>
+                                            <strong>SENA:</strong> 2% del salario base
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-child me-2 text-primary"></i>
+                                            <strong>ICBF:</strong> 3% del salario base
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-home me-2 text-primary"></i>
+                                            <strong>Caja de Compensación:</strong> 4% del salario base
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prestaciones Sociales -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#prestaciones">
+                                    <i class="fas fa-hand-holding-usd me-2"></i>Prestaciones Sociales
+                                </button>
+                            </h2>
+                            <div id="prestaciones" class="accordion-collapse collapse" 
+                                 data-bs-parent="#infoLiquidacion">
+                                <div class="accordion-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <i class="fas fa-gift me-2 text-primary"></i>
+                                            <strong>Prima de Servicios:</strong> 8.33% mensual sobre salario + auxilio de transporte
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-coins me-2 text-primary"></i>
+                                            <strong>Cesantías:</strong> 8.33% mensual sobre salario + auxilio de transporte
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-percentage me-2 text-primary"></i>
+                                            <strong>Intereses sobre Cesantías:</strong> 1% mensual sobre cesantías
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="fas fa-umbrella-beach me-2 text-primary"></i>
+                                            <strong>Vacaciones:</strong> 4.17% mensual sobre salario base
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Indemnizaciones -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#indemnizaciones">
+                                    <i class="fas fa-file-contract me-2"></i>Indemnizaciones por Despido
+                                </button>
+                            </h2>
+                            <div id="indemnizaciones" class="accordion-collapse collapse" 
+                                 data-bs-parent="#infoLiquidacion">
+                                <div class="accordion-body">
+                                    <div class="card mb-3 border-primary">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6 class="mb-0">Contrato a Término Indefinido</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item">
+                                                    <i class="fas fa-clock me-2 text-primary"></i>
+                                                    <strong>Menos de 1 año:</strong> 30 días de salario
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <i class="fas fa-calendar me-2 text-primary"></i>
+                                                    <strong>1 a 5 años:</strong> 30 días por el primer año + 20 días adicionales por año siguiente
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                                                    <strong>5 a 10 años:</strong> 20 días adicionales por año después del quinto
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <i class="fas fa-calendar-check me-2 text-primary"></i>
+                                                    <strong>Más de 10 años:</strong> 20 días adicionales por año después del décimo
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="card border-primary">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6 class="mb-0">Contrato a Término Fijo</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="mb-0">
+                                                <i class="fas fa-calendar-times me-2 text-primary"></i>
+                                                El valor de los salarios que falten hasta terminar el contrato
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Auxilio de Transporte -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#auxilios">
+                                    <i class="fas fa-bus me-2"></i>Auxilio de Transporte
+                                </button>
+                            </h2>
+                            <div id="auxilios" class="accordion-collapse collapse" 
+                                 data-bs-parent="#infoLiquidacion">
+                                <div class="accordion-body">
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <p class="mb-0">El auxilio de transporte para 2024 es de <strong>$140,606</strong> y aplica para empleados que devenguen 
+                                           hasta dos salarios mínimos (<strong>$2,600,000</strong>). Este auxilio se incluye para el cálculo de 
+                                           prestaciones sociales pero no para seguridad social ni parafiscales.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Agregar estilos necesarios -->
+<style>
+    .fade-in {
+        opacity: 0;
+        display: none;
+        transition: opacity 0.3s ease-in-out;
+    }
+    
+    .fade-in.show {
+        opacity: 1;
+        display: block !important;
+    }
+    
+    .tab-pane {
+        transition: opacity 0.3s ease-in-out;
+    }
+    
+    .tab-pane.fade {
+        opacity: 0;
+    }
+    
+    .tab-pane.show {
+        opacity: 1;
+    }
+
+    #liquidacion-container {
+        min-height: 600px;
+    }
+
+    /* Prevenir saltos en el layout */
+    #costos-mensuales,
+    #resultados-liquidacion {
+        min-height: 200px;
+    }
+
+    /* Mejorar la visibilidad de la pestaña activa */
+    .nav-tabs .nav-link.active {
+        border-bottom: 3px solid #0d6efd;
+        font-weight: bold;
+    }
+
+    /* Asegurar que los contenedores mantengan su espacio */
+    #costos-panel,
+    #liquidacion-panel {
+        position: relative;
+        min-height: 400px;
+    }
+
+    /* Asegurar visibilidad de los resultados */
+    #resultados-liquidacion.show,
+    #costos-mensuales.show {
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    /* Mejorar la presentación de las tarjetas */
+    .card {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Mejorar la presentación de los resultados */
+    #costos-mensuales .card,
+    #resultados-liquidacion .card {
+        margin-bottom: 1rem;
+    }
+
+    #costos-mensuales .list-group-item,
+    #resultados-liquidacion .list-group-item {
+        background-color: transparent;
+        border-color: rgba(0,0,0,0.125);
+    }
+</style> 

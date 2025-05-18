@@ -3,9 +3,10 @@ const RecursosHumanos = {
     // Función para buscar empleado por documento
     buscarEmpleado: async function(documento) {
         try {
-            const response = await fetch(`/api/recursos_humanos/empleados/?documento=${documento}`);
-            const data = await response.json();
-            return data.length > 0 ? data[0] : null;
+            const response = await fetch(`/api/recursos_humanos/empleados/`);
+            const empleados = await response.json();
+            const empleado = empleados.find(e => e.documento === documento);
+            return empleado || null;
         } catch (error) {
             console.error('Error al buscar empleado:', error);
             return null;
@@ -20,90 +21,31 @@ const RecursosHumanos = {
 
         if (empleado) {
             datosEmpleado.innerHTML = `
-                <p><strong>Nombre:</strong> ${empleado.nombre}</p>
-                <p><strong>Documento:</strong> ${empleado.documento}</p>
-                <p><strong>Cargo:</strong> ${empleado.cargo}</p>
-                <p><strong>Área:</strong> ${empleado.area}</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Nombre:</strong> ${empleado.nombre}</p>
+                        <p><strong>Documento:</strong> ${empleado.documento}</p>
+                        <p><strong>Cargo:</strong> ${empleado.cargo}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Área:</strong> ${empleado.area}</p>
+                        <p><strong>Teléfono:</strong> ${empleado.telefono || 'No especificado'}</p>
+                        <p><strong>Correo:</strong> ${empleado.correo || 'No especificado'}</p>
+                    </div>
+                </div>
             `;
             infoEmpleado.classList.remove('d-none');
             empleadoIdInput.value = empleado.id;
             
             // Cargar registros del empleado
-            this.cargarRegistros(empleado.documento);
+            if (typeof cargarRegistrosEmpleado === 'function') {
+                cargarRegistrosEmpleado(empleado.documento);
+            }
         } else {
-            datosEmpleado.innerHTML = '<p class="text-danger">No se encontró el empleado</p>';
+            datosEmpleado.innerHTML = '<div class="alert alert-warning">No se encontró el empleado</div>';
             infoEmpleado.classList.remove('d-none');
             empleadoIdInput.value = '';
         }
-    },
-
-    // Cargar registros de ausentismos y horas extras
-    cargarRegistros: async function(documento) {
-        try {
-            const response = await fetch(`/api/recursos_humanos/ausentismos/?documento=${documento}`);
-            const data = await response.json();
-            this.mostrarRegistros(data);
-        } catch (error) {
-            console.error('Error al cargar registros:', error);
-        }
-    },
-
-    // Mostrar registros en la tabla
-    mostrarRegistros: function(registros) {
-        const tbody = document.querySelector('#tabla-ausentismos tbody');
-        tbody.innerHTML = '';
-
-        registros.forEach(registro => {
-            const row = document.createElement('tr');
-            row.dataset.tipo = registro.tipo;
-            row.innerHTML = `
-                <td>${registro.documento}</td>
-                <td>${registro.empleado_nombre}</td>
-                <td>${registro.tipo === 'ausentismo' ? 'Ausentismo' : 'Horas Extras'}</td>
-                <td>${registro.fecha}</td>
-                <td>${this.formatearDuracion(registro)}</td>
-                <td>${registro.motivo}</td>
-                <td>
-                    <button class="btn btn-sm btn-warning" onclick="RecursosHumanos.editarRegistro(${registro.id})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="RecursosHumanos.eliminarRegistro(${registro.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    },
-
-    // Formatear duración según el tipo de registro
-    formatearDuracion: function(registro) {
-        if (registro.tipo === 'ausentismo') {
-            return `${registro.duracion_horas} horas`;
-        } else {
-            return `D: ${registro.horas_extra_diurnas}, N: ${registro.horas_extra_nocturnas}, 
-                    RN: ${registro.recargos_nocturnos}, F: ${registro.horas_extra_dominicales}`;
-        }
-    },
-
-    // Filtrar registros
-    filtrarRegistros: function(tipo) {
-        const rows = document.querySelectorAll('#tabla-ausentismos tbody tr');
-        rows.forEach(row => {
-            if (tipo === 'todos' || row.dataset.tipo === tipo) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-
-        // Actualizar estado de los botones
-        document.querySelectorAll('.btn-group .btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.textContent.toLowerCase().includes(tipo)) {
-                btn.classList.add('active');
-            }
-        });
     },
 
     // Calcular total de horas extras
@@ -115,6 +57,12 @@ const RecursosHumanos = {
         
         const total = diurnas + nocturnas + recargos + dominicales;
         document.getElementById('total-horas-extras').textContent = total.toFixed(1);
+        
+        // También actualizar el campo de duración total
+        const duracionInput = document.getElementById('ausentismos-duracion');
+        if (duracionInput) {
+            duracionInput.value = total.toFixed(1);
+        }
     },
 
     // Inicializar eventos
@@ -198,91 +146,189 @@ const RecursosHumanos = {
             }
         });
 
-        // Formulario de registro
-        const formAusentismos = document.getElementById('form-ausentismos');
-        if (formAusentismos) {
-            formAusentismos.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const documento = document.getElementById('buscar-documento-ausentismo').value.trim();
-                const tipo = document.getElementById('ausentismos-tipo').value;
-                
-                if (!documento) {
-                    alert('Por favor, busque un empleado primero');
-                    return;
-                }
+        // Configurar eventos de filtrado
+        this.initFiltros();
+    },
 
-                const formData = {
-                    documento: documento,
-                    tipo: tipo,
-                    fecha: document.getElementById('ausentismos-fecha').value,
-                    motivo: document.getElementById('ausentismos-motivo').value,
-                    duracion_horas: 0,
-                    horas_extra_diurnas: 0,
-                    horas_extra_nocturnas: 0,
-                    recargos_nocturnos: 0,
-                    horas_extra_dominicales: 0
-                };
-
-                if (tipo === 'ausentismo') {
-                    formData.duracion_horas = parseFloat(document.getElementById('ausentismos-duracion').value) || 0;
-                } else if (tipo === 'horas_extras') {
-                    formData.horas_extra_diurnas = parseFloat(document.getElementById('horas-extra-diurnas').value) || 0;
-                    formData.horas_extra_nocturnas = parseFloat(document.getElementById('horas-extra-nocturnas').value) || 0;
-                    formData.recargos_nocturnos = parseFloat(document.getElementById('recargos-nocturnos').value) || 0;
-                    formData.horas_extra_dominicales = parseFloat(document.getElementById('horas-extra-dominicales').value) || 0;
-                }
-
-                try {
-                    const response = await fetch('/api/recursos_humanos/ausentismos/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        },
-                        body: JSON.stringify(formData)
-                    });
-
-                    const responseData = await response.json();
-
-                    if (response.ok) {
-                        alert('Registro guardado exitosamente');
-                        formAusentismos.reset();
-                        document.getElementById('info-empleado-ausentismo').classList.add('d-none');
-                        // Recargar registros
-                        if (documento) {
-                            this.cargarRegistros(documento);
-                        }
-                    } else {
-                        console.error('Error del servidor:', responseData);
-                        const errorMessages = [];
-                        for (const [field, errors] of Object.entries(responseData)) {
-                            errorMessages.push(`${field}: ${errors.join(', ')}`);
-                        }
-                        alert('Error al guardar el registro:\n' + errorMessages.join('\n'));
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error al guardar el registro');
-                }
+    // Inicializar eventos de filtrado
+    initFiltros: function() {
+        // Eventos para botones de tipo
+        const botonesFilter = document.querySelectorAll('[data-filter]');
+        botonesFilter.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remover active de todos los botones
+                botonesFilter.forEach(b => b.classList.remove('active'));
+                // Agregar active al botón clickeado
+                btn.classList.add('active');
+                this.aplicarFiltros();
             });
+        });
+
+        // Eventos para filtros de fecha
+        const filtroFechaDesde = document.getElementById('filtro-fecha-desde');
+        const filtroFechaHasta = document.getElementById('filtro-fecha-hasta');
+        
+        if (filtroFechaDesde) {
+            filtroFechaDesde.addEventListener('change', () => this.aplicarFiltros());
+        }
+        if (filtroFechaHasta) {
+            filtroFechaHasta.addEventListener('change', () => this.aplicarFiltros());
         }
 
-        // Botón para limpiar formulario
-        const btnLimpiar = document.getElementById('limpiar-ausentismos');
+        // Botones de aplicar y limpiar filtros
+        const btnAplicar = document.getElementById('aplicar-filtros');
+        const btnLimpiar = document.getElementById('limpiar-filtros');
+
+        if (btnAplicar) {
+            btnAplicar.addEventListener('click', () => this.aplicarFiltros());
+        }
         if (btnLimpiar) {
-            btnLimpiar.addEventListener('click', () => {
-                formAusentismos.reset();
-                document.getElementById('info-empleado-ausentismo').classList.add('d-none');
-                document.getElementById('total-horas-extras').textContent = '0';
-            });
+            btnLimpiar.addEventListener('click', () => this.limpiarFiltros());
         }
+    },
+
+    // Aplicar filtros
+    aplicarFiltros: function() {
+        const tabla = document.getElementById('tabla-ausentismos');
+        if (!tabla) return;
+
+        const filas = tabla.querySelectorAll('tbody tr');
+        const fechaDesde = document.getElementById('filtro-fecha-desde').value;
+        const fechaHasta = document.getElementById('filtro-fecha-hasta').value;
+        
+        // Obtener el tipo actualmente seleccionado
+        const botonActivo = document.querySelector('.btn-group .btn.active');
+        const tipoSeleccionado = botonActivo ? botonActivo.getAttribute('data-filter') : 'todos';
+        
+        console.log('Iniciando filtrado con parámetros:', {
+            fechaDesde,
+            fechaHasta,
+            tipoSeleccionado
+        });
+        
+        let registrosFiltrados = 0;
+        const totalRegistros = filas.length;
+        
+        filas.forEach((fila, index) => {
+            let mostrar = true;
+            
+            // Filtrar por tipo
+            if (tipoSeleccionado !== 'todos') {
+                const tipoCell = fila.querySelector('td:nth-child(2) span').textContent.trim();
+                const tipoRegistro = tipoCell === 'Horas Extras' ? 'horas_extras' : 'ausentismo';
+                if (tipoRegistro !== tipoSeleccionado) {
+                    mostrar = false;
+                }
+            }
+            
+            // Filtrar por fechas
+            if (mostrar && (fechaDesde || fechaHasta)) {
+                const fechaRegistro = fila.cells[2].textContent.trim();
+                
+                console.log(`Fila ${index + 1} - Comparando fechas:`, {
+                    fechaRegistro,
+                    fechaDesde,
+                    fechaHasta
+                });
+
+                // Comparar fechas (las fechas ya están en formato YYYY-MM-DD)
+                if (fechaDesde && fechaRegistro < fechaDesde) {
+                    console.log(`Fila ${index + 1} - Registro anterior a fecha desde`);
+                    mostrar = false;
+                }
+                if (fechaHasta && fechaRegistro > fechaHasta) {
+                    console.log(`Fila ${index + 1} - Registro posterior a fecha hasta`);
+                    mostrar = false;
+                }
+            }
+            
+            // Aplicar visibilidad
+            fila.style.display = mostrar ? '' : 'none';
+            if (mostrar) {
+                registrosFiltrados++;
+                console.log(`Fila ${index + 1} - Registro mostrado`);
+            } else {
+                console.log(`Fila ${index + 1} - Registro oculto`);
+            }
+        });
+        
+        console.log('Resultado del filtrado:', {
+            totalRegistros,
+            registrosFiltrados
+        });
+
+        // Mostrar resumen de filtrado
+        const resumenFiltros = document.createElement('div');
+        resumenFiltros.className = 'alert alert-info mt-3';
+        resumenFiltros.innerHTML = `
+            <i class="fas fa-info-circle me-2"></i>
+            Mostrando ${registrosFiltrados} de ${totalRegistros} registros
+            ${tipoSeleccionado !== 'todos' ? `<br>Tipo: ${tipoSeleccionado === 'horas_extras' ? 'Horas Extras' : 'Ausentismo'}` : ''}
+            ${fechaDesde ? `<br>Desde: ${this.formatearFecha(fechaDesde)}` : ''}
+            ${fechaHasta ? `<br>Hasta: ${this.formatearFecha(fechaHasta)}` : ''}
+        `;
+        
+        // Actualizar o agregar el resumen al DOM
+        const resumenExistente = tabla.parentElement.querySelector('.alert');
+        if (resumenExistente) {
+            resumenExistente.replaceWith(resumenFiltros);
+        } else {
+            tabla.parentElement.insertBefore(resumenFiltros, tabla);
+        }
+    },
+
+    // Formatear fecha para mostrar en el resumen
+    formatearFecha: function(fechaStr) {
+        const fecha = new Date(fechaStr);
+        return fecha.toLocaleDateString('es-CO', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    },
+
+    // Limpiar filtros
+    limpiarFiltros: function() {
+        // Limpiar campos de fecha
+        document.getElementById('filtro-fecha-desde').value = '';
+        document.getElementById('filtro-fecha-hasta').value = '';
+        
+        // Restablecer botón de tipo a "Todos"
+        const botones = document.querySelectorAll('.btn-group .btn');
+        botones.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-filter') === 'todos') {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Mostrar todas las filas
+        const tabla = document.getElementById('tabla-ausentismos');
+        if (tabla) {
+            tabla.querySelectorAll('tbody tr').forEach(fila => {
+                fila.style.display = '';
+            });
+            
+            // Eliminar el resumen de filtros si existe
+            const resumen = tabla.parentElement.querySelector('.alert');
+            if (resumen) {
+                resumen.remove();
+            }
+        }
+
+        // Aplicar filtros para actualizar el resumen
+        this.aplicarFiltros();
     }
 };
 
-// Hacer accesibles las funciones de filtrado globalmente
-window.filtrarRegistros = function(tipo) {
-    RecursosHumanos.filtrarRegistros(tipo);
-};
+// Función para formatear fecha en formato legible
+function formatearFecha(fecha) {
+    return new Date(fecha).toLocaleDateString('es-CO', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {

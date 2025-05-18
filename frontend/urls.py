@@ -35,6 +35,6 @@ urlpatterns = [
     # Módulo de Recursos Humanos
     path('api/recursos_humanos/empleados/', EmpleadoListCreateView.as_view(), name='empleados_api'),
     path('api/recursos_humanos/empleados/<int:pk>/', EmpleadoDetailView.as_view(), name='empleado_detail'),
-    path('api/recursos_humanos/ausentismos/', AusentismoListCreateView.as_view(), name='ausentismos_api'),
-    path('api/recursos_humanos/ausentismos/<int:pk>/', AusentismoDetailView.as_view(), name='ausentismo_detail'),
+    path('api/ausentismos/', AusentismoListCreateView.as_view(), name='ausentismos_api'),
+    path('api/ausentismos/<int:pk>/', AusentismoDetailView.as_view(), name='ausentismo_detail'),
 ]
