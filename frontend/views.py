@@ -5,13 +5,12 @@ from rest_framework.decorators import api_view
 from rest_framework import generics, status
 from django.contrib.auth.hashers import make_password, check_password
 from django.db import transaction, IntegrityError
-from .models import Contact, Proveedor, Nomina
-from .serializers import ContactSerializer, ProveedorSerializer
-from clientes.models import Cliente
-from clientes.serializers import ClienteSerializer
-from recursos_humanos.models import Empleado
+from .models import Contact, Nomina
+from .serializers import ContactSerializer
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+from recursos_humanos.models import Empleado, Ausentismo
+from recursos_humanos.serializers import EmpleadoSerializer, AusentismoSerializer
 
 # ---------------------- PÁGINAS HTML ----------------------
 
@@ -21,28 +20,25 @@ def index(request):
 def inicio(request):
     return render(request, 'frontend/inicio.html')
 
+def desprendible_nomina_template(request):
+    return render(request, 'desprendible/desprendible_nomina.html')
+
 def logout_user(request):
     if 'user_id' in request.session:
         del request.session['user_id']
-    return HttpResponseRedirect(reverse('index'))
+    return HttpResponseRedirect(reverse('frontend:index'))
 
-# ---------------------- API: CLIENTES, CONTACTOS, PROVEEDORES ----------------------
+def verificar_nomina(request):
+    """
+    Vista para verificar la autenticidad de un desprendible de nómina
+    """
+    return render(request, 'qr/verificar_nomina.html')
 
-class ClientesListCreateView(generics.ListCreateAPIView):
-    queryset = Cliente.objects.all()
-    serializer_class = ClienteSerializer
+# ---------------------- API: CONTACTOS ----------------------
 
 class ContactListCreateView(generics.ListCreateAPIView):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
-
-class ProveedoresListCreateView(generics.ListCreateAPIView):
-    queryset = Proveedor.objects.all()
-    serializer_class = ProveedorSerializer
-
-class ProveedorDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Proveedor.objects.all()
-    serializer_class = ProveedorSerializer
 
 # ---------------------- AUTHENTICACIÓN ----------------------
 
@@ -153,7 +149,7 @@ def generar_pdf_nomina(request, nomina_id):
     html = template.render({'nomina': nomina})
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="nomina_{nomina.empleado.nombre}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="nomina_{nomina.empleado}.pdf"'
 
     pisa_status = pisa.CreatePDF(html, dest=response)
 
@@ -161,3 +157,48 @@ def generar_pdf_nomina(request, nomina_id):
         return HttpResponse("Error al generar PDF", status=500)
     
     return response
+
+# ---------------------- API: RECURSOS HUMANOS ----------------------
+
+class EmpleadoListCreateView(generics.ListCreateAPIView):
+    queryset = Empleado.objects.all()
+    serializer_class = EmpleadoSerializer
+
+    def get_queryset(self):
+        queryset = Empleado.objects.all()
+        documento = self.request.query_params.get('documento', None)
+        if documento:
+            queryset = queryset.filter(documento=documento)
+        return queryset
+
+class EmpleadoDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Empleado.objects.all()
+    serializer_class = EmpleadoSerializer
+
+class AusentismoListCreateView(generics.ListCreateAPIView):
+    queryset = Ausentismo.objects.all()
+    serializer_class = AusentismoSerializer
+
+    def get_queryset(self):
+        queryset = Ausentismo.objects.all()
+        documento = self.request.query_params.get('documento', None)
+        empleado_id = self.request.query_params.get('empleado', None)
+        
+        if documento:
+            queryset = queryset.filter(documento=documento)
+        if empleado_id:
+            queryset = queryset.filter(empleado_id=empleado_id)
+            
+        return queryset.select_related('empleado')
+
+    def perform_create(self, serializer):
+        documento = self.request.data.get('documento')
+        if documento:
+            empleado = Empleado.objects.get(documento=documento)
+            serializer.save(empleado=empleado)
+        else:
+            serializer.save()
+
+class AusentismoDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Ausentismo.objects.all()
+    serializer_class = AusentismoSerializer

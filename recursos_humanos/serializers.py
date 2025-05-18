@@ -28,18 +28,36 @@ class AusentismoSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Ausentismo
-        fields = ['id', 'empleado', 'empleado_documento', 'fecha', 'tipo', 'duracion_horas', 'motivo', 'documento']
-        read_only_fields = ['empleado']
+        fields = [
+            'id', 'empleado', 'empleado_documento', 'fecha', 'tipo', 
+            'duracion_horas', 'motivo', 'documento',
+            'horas_extra_diurnas', 'horas_extra_nocturnas',
+            'recargos_nocturnos', 'horas_extra_dominicales'
+        ]
+
+    def validate(self, data):
+        tipo = data.get('tipo')
+        if tipo == 'ausentismo':
+            if not data.get('duracion_horas'):
+                raise serializers.ValidationError({'duracion_horas': ['Este campo es requerido para ausentismos.']})
+        elif tipo == 'horas_extras':
+            # Calcular duración total de horas extras
+            data['duracion_horas'] = (
+                float(data.get('horas_extra_diurnas', 0)) +
+                float(data.get('horas_extra_nocturnas', 0)) +
+                float(data.get('recargos_nocturnos', 0)) +
+                float(data.get('horas_extra_dominicales', 0))
+            )
+        return data
 
     def create(self, validated_data):
-        documento = validated_data.pop('documento', None)
+        documento = validated_data.get('documento')
         if documento:
             try:
                 empleado = Empleado.objects.get(documento=documento)
                 validated_data['empleado'] = empleado
-                validated_data['documento'] = documento
             except Empleado.DoesNotExist:
-                raise serializers.ValidationError(f"No se encontró empleado con documento {documento}")
+                raise serializers.ValidationError({'documento': [f'No se encontró empleado con documento {documento}']})
         return super().create(validated_data)
 
 class HoraExtraSerializer(serializers.ModelSerializer):

@@ -83,19 +83,35 @@ class Ausentismo(models.Model):
     empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, related_name='ausentismos')
     fecha = models.DateField()
     duracion_horas = models.DecimalField(max_digits=5, decimal_places=2)
-    motivo = models.TextField()
+    motivo = models.TextField(blank=True)
     documento = models.CharField(max_length=20, blank=True, null=True)
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='ausentismo')
+    
+    # Campos para horas extras
+    horas_extra_diurnas = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    horas_extra_nocturnas = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    recargos_nocturnos = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    horas_extra_dominicales = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     class Meta:
         db_table = 'rrhh_ausentismo'
+        ordering = ['-fecha']
 
     def __str__(self):
-        return f"Ausentismo de {self.empleado.nombre} el {self.fecha}"
+        return f"{self.get_tipo_display()} de {self.empleado.nombre} el {self.fecha}"
 
     def save(self, *args, **kwargs):
         if not self.documento and self.empleado:
             self.documento = self.empleado.documento
+            
+        # Si es horas extras, calcular la duración total
+        if self.tipo == 'horas_extras':
+            self.duracion_horas = (
+                self.horas_extra_diurnas +
+                self.horas_extra_nocturnas +
+                self.recargos_nocturnos +
+                self.horas_extra_dominicales
+            )
         super().save(*args, **kwargs)
 
 

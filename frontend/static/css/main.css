@@ -122,11 +122,11 @@ tr:hover {
 }
 
 .card {
-    transition: transform 0.2s;
+    transition: none;
 }
 
 .card:hover {
-    transform: scale(1.05);
+    transform: none;
 }
 
 /* Estilos adicionales para la página principal */
@@ -221,18 +221,32 @@ footer {
     display: inline-block !important;
 }
 #nomina-resumen {
-    border: 2px solid #000;
-    padding: 20px;
+    min-height: 600px;
     margin: 20px 0;
-    background-color: #fff;
-    font-family: Arial, sans-serif;
-    max-width: 800px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: block; /* Ensure visible by default */
+    border: 2px solid #dee2e6;
 }
 
-#nomina-resumen.hidden {
-    display: none; /* Override with hidden class */
+#nomina-resumen .card-header {
+    padding: 1.5rem;
+    border-bottom: 2px solid #dee2e6;
+}
+
+#nomina-resumen .card-body {
+    padding: 2rem;
+}
+
+#nomina-resumen table {
+    box-shadow: none;
+}
+
+#nomina-resumen tr:hover {
+    background-color: transparent;
+}
+
+#nomina-resumen th, 
+#nomina-resumen td {
+    padding: 1.5rem;
+    font-size: 1.2rem;
 }
 
 #nomina-resumen h3 {
@@ -265,3 +279,505 @@ footer {
     margin: 0 5px;
 }
 
+/* Quitar efectos hover de los botones en el panel de nómina */
+#nomina-panel .btn:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Estilos específicos para el panel de nómina */
+#nomina-panel {
+    min-height: 600px;
+}
+
+#nomina-panel .card {
+    border: 2px solid #dee2e6;
+    transition: none;
+}
+
+#nomina-panel .card:hover {
+    transform: none;
+}
+
+#nomina-panel .table {
+    margin-bottom: 0;
+}
+
+#nomina-panel .table tr:hover {
+    background-color: transparent;
+}
+
+#nomina-panel .table td,
+#nomina-panel .table th {
+    padding: 1rem;
+}
+
+#nomina-panel .btn:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Restaurar estilos originales del desprendible */
+#nomina-resumen {
+    border: 2px solid #000;
+    padding: 20px;
+    margin: 20px 0;
+    background-color: #fff;
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: block;
+    position: relative;
+    min-height: 500px;
+}
+
+#nomina-resumen.hidden {
+    display: none;
+}
+
+#nomina-resumen h3 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+#nomina-resumen p {
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+#nomina-resumen strong {
+    display: inline-block;
+    width: 200px;
+    font-weight: bold;
+}
+
+#nomina-resumen span {
+    font-weight: normal;
+}
+
+#nomina-resumen .buttons {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#nomina-resumen button {
+    margin: 0 5px;
+}
+
+.form-transition {
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.form-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.form-hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+/* Estilos para las tablas */
+.table-responsive {
+    margin-bottom: 2rem;
+}
+
+.table th {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Estilos para los botones de acción */
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.btn-action + .btn-action {
+    margin-left: 0.5rem;
+}
+
+/* Estilos para los formularios */
+.form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+/* Estilos para los mensajes de error y éxito */
+.alert {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+/* Estilos para los spinners de carga */
+.spinner-border {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-width: 0.2em;
+}
+
+/* Estilos para los íconos */
+.fas {
+    margin-right: 0.5rem;
+}
+
+/* Estilos para el módulo de ausentismos */
+.info-empleado {
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+}
+
+.info-empleado p {
+    margin-bottom: 0.5rem;
+}
+
+.info-empleado strong {
+    color: #495057;
+}
+
+.form-transition {
+    transition: all 0.3s ease-in-out;
+}
+
+.form-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.form-hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.hidden {
+    display: none;
+}
+
+/* Estilos para los badges de porcentajes */
+.badge-percentage {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Estilos para la tabla de registros */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Estilos para los botones de filtro */
+.btn-group .btn-outline-primary:not(:last-child) {
+    margin-right: -1px;
+}
+
+.btn-group .btn-outline-primary.active {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Estilos para los campos de horas extras */
+.horas-extras-container {
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.horas-extras-container .form-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        width: 100%;
+        margin-right: 0 !important;
+        margin-bottom: 0.5rem;
+    }
+    
+    .table-responsive {
+        margin-top: 1rem;
+    }
+}
+
+/* Estilos para las pestañas */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: -2px;
+}
+
+.nav-tabs .nav-link {
+    color: #495057;
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #1a57dc;
+    border-color: #1a57dc;
+    background-color: rgba(26, 87, 220, 0.05);
+}
+
+.nav-tabs .nav-link.active {
+    color: #1a57dc;
+    background-color: transparent;
+    border-bottom: 2px solid #1a57dc;
+}
+
+/* Contenido de las pestañas */
+.tab-content {
+    position: relative;
+    background-color: #fff;
+    border-radius: 0.375rem;
+    padding: 1.25rem;
+    margin-top: 1rem;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block !important;
+}
+
+.tab-pane.show {
+    opacity: 1;
+}
+
+/* Tarjetas dentro de las pestañas */
+.tab-pane .card {
+    border: 1px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.tab-pane .card-header {
+    background-color: #1a57dc;
+    color: white;
+    padding: 1rem;
+}
+
+.tab-pane .card-body {
+    padding: 1.25rem;
+}
+
+/* Formularios y elementos de entrada */
+.form-control, .form-select {
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #1a57dc;
+    box-shadow: 0 0 0 0.2rem rgba(26, 87, 220, 0.25);
+}
+
+/* Botones dentro de las pestañas */
+.tab-pane .btn {
+    padding: 0.5rem 1rem;
+}
+
+.tab-pane .btn-primary {
+    background-color: #1a57dc;
+    border-color: #1a57dc;
+}
+
+.tab-pane .btn-primary:hover {
+    background-color: #1548b8;
+    border-color: #1548b8;
+}
+
+/* Estilos para el contenido de las pestañas */
+.fade {
+    transition: opacity 0.15s linear;
+}
+
+.fade.show {
+    opacity: 1;
+}
+
+.tab-pane.fade.show.active {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+/* Estilos específicos para el panel de ausentismos */
+#ausentismos-panel .card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1rem;
+}
+
+#ausentismos-panel .card-body {
+    padding: 1.5rem;
+}
+
+#ausentismos-panel .info-empleado {
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+#ausentismos-panel .table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+/* Estilos para los módulos */
+.module {
+    position: relative;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.module:last-child {
+    border-bottom: none;
+}
+
+.module .container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ajuste de espaciado para secciones */
+section {
+    scroll-margin-top: 80px; /* Para el scroll suave con el header fijo */
+}
+
+/* Ajuste de espaciado para el contenido de las pestañas */
+.tab-content {
+    margin-top: 1rem;
+    padding: 1.25rem;
+}
+
+.tab-pane {
+    margin-bottom: 0;
+}
+
+/* Ajuste de espaciado para las tablas */
+.table-responsive {
+    margin-bottom: 1.5rem;
+}
+
+/* Ajuste de espaciado para los formularios */
+form.mt-4 {
+    margin-top: 1.5rem !important;
+}
+
+/* Estilos mejorados para las tablas */
+.table {
+    margin-bottom: 1rem;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    color: #495057;
+    font-weight: 600;
+    padding: 0.75rem;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.table tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Contenedor de tabla responsive */
+.table-responsive {
+    margin: 0;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Ajustes para los botones en las tablas */
+.table .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    margin: 0 0.125rem;
+}
+
+.table .btn i {
+    font-size: 0.875rem;
+    margin-right: 0;
+}
+
+/* Ajustes para el contenedor de búsqueda */
+.search-bar {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.search-bar .form-control {
+    margin-bottom: 0;
+}

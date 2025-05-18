@@ -15,18 +15,18 @@
     <!-- Encabezado -->
     <header class="bg-dark text-white py-3 shadow">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="{% url 'index' %}" class="navbar-brand">
+            <a href="{% url 'frontend:index' %}" class="navbar-brand">
                 <h2 class="h3 mb-0">EventSync</h2>
             </a>
             <nav class="d-flex align-items-center">
-                <a href="{% url 'index' %}" class="text-white mx-2">Inicio</a>
+                <a href="{% url 'frontend:index' %}" class="text-white mx-2">Inicio</a>
                 <a href="#modulos" class="text-white mx-2">Módulos</a>
                 <a href="#mision-vision" class="text-white mx-2">Misión y Visión</a>
                 <a href="#contacto" class="text-white mx-2">Contacto</a>
                 <a href="#" id="buy-erp-btn" class="btn btn-success mx-2" style="display: none;">Comprar EventSync</a>
                 <a href="#" id="register-btn" class="btn btn-warning mx-2">Registrarse</a>
                 <a href="#" id="login-btn" class="btn btn-primary mx-2">Iniciar Sesión</a>
-                <a href="{% url 'logout' %}" id="logout-btn" class="btn btn-secondary mx-2"
+                <a href="{% url 'frontend:logout' %}" id="logout-btn" class="btn btn-secondary mx-2"
                     style="display: none;">Cerrar Sesión</a>
             </nav>
         </div>
@@ -85,7 +85,7 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">Proveedores</h5>
                         <p class="card-text">Administración de proveedores y pedidos.</p>
-                        <a href="{% url 'modulos' %}#proveedores-section" class="btn btn-primary">Acceder</a>
+                        <a href="{% url 'frontend:modulos' %}#proveedores-section" class="btn btn-primary">Acceder</a>
                     </div>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">Clientes</h5>
                         <p class="card-text">Gestión de clientes y CRM básico.</p>
-                        <a href="{% url 'modulos' %}#clientes-section" class="btn btn-primary">Acceder</a>
+                        <a href="{% url 'frontend:modulos' %}#clientes-section" class="btn btn-primary">Acceder</a>
                     </div>
                 </div>
             </div>
@@ -103,7 +103,7 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">Recursos Humanos</h5>
                         <p class="card-text">Gestiona la información del personal, como empleados, cargos y contratos.</p>
-                        <a href="{% url 'modulos' %}#recursos_humanos-section" class="btn btn-primary">Acceder</a>
+                        <a href="{% url 'frontend:modulos' %}#recursos_humanos-section" class="btn btn-primary">Acceder</a>
                     </div>
                 </div>
             </div>

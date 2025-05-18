@@ -2,99 +2,252 @@
 // Define la estructura de datos para cada módulo, incluyendo URLs de API, IDs de elementos HTML y campos de formulario
 const CONFIG = {
     proveedores: {
-        apiUrl: "/api/proveedores/", // URL base para la API de proveedores
-        tableId: "tabla-proveedores", // ID de la tabla HTML donde se mostrarán los proveedores
-        formId: "formulario-proveedor", // ID del formulario para agregar/editar proveedores
-        fields: [ // Lista de campos del formulario con sus propiedades
-            { id: "nombre-proveedor", key: "nombre", required: true }, // Nombre del proveedor, obligatorio
-            { id: "contacto-proveedor", key: "contacto", required: true }, // Contacto del proveedor, obligatorio
-            { id: "direccion-proveedor", key: "direccion", required: false }, // Dirección del proveedor, opcional
-            { id: "telefono-proveedor", key: "telefono", required: false }, // Teléfono del proveedor, opcional
-            { id: "email-proveedor", key: "email", required: false }, // Email del proveedor, opcional
-            { id: "tipo_proveedor", key: "tipo_proveedor", required: false }, // Tipo de proveedor, opcional
+        apiUrl: "/api/proveedores/",
+        tableId: "tabla-proveedores",
+        formId: "formulario-proveedor",
+        fields: [
+            { id: "nombre-proveedor", key: "nombre", required: true },
+            { id: "contacto-proveedor", key: "contacto", required: true },
+            { id: "direccion-proveedor", key: "direccion", required: false },
+            { id: "telefono-proveedor", key: "telefono", required: false },
+            { id: "email-proveedor", key: "email", required: false },
+            { id: "tipo_proveedor", key: "tipo_proveedor", required: false },
         ],
-        tableHeaders: ["ID", "Nombre", "Contacto", "Dirección", "Teléfono", "Email", "Tipo de Proveedor", "Acciones"], // Encabezados de la tabla de proveedores
-        getRowData: (item) => [ // Función para mapear un objeto proveedor a una fila de la tabla
-            item.id, // ID del proveedor
-            item.nombre, // Nombre del proveedor
-            item.contacto, // Contacto del proveedor
-            item.direccion || "Sin dirección", // Dirección, con valor por defecto si no está definida
-            item.telefono || "Sin teléfono", // Teléfono, con valor por defecto si no está definido
-            item.email || "Sin email", // Email, con valor por defecto si no está definido
-            item.tipo_proveedor || "Sin tipo", // Tipo de proveedor, con valor por defecto si no está definido
+        tableHeaders: ["ID", "Nombre", "Contacto", "Dirección", "Teléfono", "Email", "Tipo de Proveedor", "Acciones"],
+        getRowData: (item) => [
+            item.id,
+            item.nombre,
+            item.contacto,
+            item.direccion || "Sin dirección",
+            item.telefono || "Sin teléfono",
+            item.email || "Sin email",
+            item.tipo_proveedor || "Sin tipo",
         ],
-        searchFields: ["nombre", "contacto", "direccion", "telefono", "email", "tipo_proveedor"], // Campos en los que se puede buscar dentro de la tabla de proveedores
+        searchFields: ["nombre", "contacto", "direccion", "telefono", "email", "tipo_proveedor"],
     },
     clientes: {
-        apiUrl: "/api/clientes/", // URL base para la API de clientes
-        tableId: "tabla-clientes", // ID de la tabla HTML donde se mostrarán los clientes
-        formId: "formulario-cliente", // ID del formulario para agregar/editar clientes
-        fields: [ // Lista de campos del formulario con sus propiedades
-            { id: "nombre-cliente", key: "nombre", required: true }, // Nombre del cliente, obligatorio
-            { id: "contacto-cliente", key: "contacto", required: true }, // Contacto del cliente, obligatorio
-            { id: "preferencias-cliente", key: "preferencias", required: false }, // Preferencias del cliente, opcional
+        apiUrl: "/clientes/api/",
+        tableId: "tabla-clientes",
+        formId: "formulario-cliente",
+        fields: [
+            { id: "nombre-cliente", key: "nombre", required: true },
+            { id: "contacto-cliente", key: "contacto", required: true },
+            { id: "preferencias-cliente", key: "preferencias", required: false },
         ],
-        tableHeaders: ["ID", "Nombre", "Contacto", "Preferencias", "Acciones"], // Encabezados de la tabla de clientes
-        getRowData: (item) => [ // Función para mapear un objeto cliente a una fila de la tabla
-            item.id, // ID del cliente
-            item.nombre, // Nombre del cliente
-            item.contacto, // Contacto del cliente
-            item.preferencias || "Sin preferencias", // Preferencias, con valor por defecto si no está definida
+        tableHeaders: ["ID", "Nombre", "Contacto", "Preferencias", "Acciones"],
+        getRowData: (item) => [
+            item.id,
+            item.nombre,
+            item.contacto,
+            item.preferencias || "Sin preferencias",
         ],
-        searchFields: ["nombre", "contacto", "preferencias"], // Campos en los que se puede buscar dentro de la tabla de clientes
+        searchFields: ["nombre", "contacto", "preferencias"],
     },
     recursos_humanos: {
-        apiUrl: "/api/rrhh/empleados/", // URL base para la API de recursos humanos (empleados)
-        tableId: "tabla-recursos_humanos", // ID de la tabla HTML donde se mostrarán los empleados
-        formId: "formulario-recursos_humanos", // ID del formulario para agregar/editar empleados
-        fields: [ // Lista de campos del formulario con sus propiedades
-            { id: "nombre-recursos_humanos", key: "nombre", required: true }, // Nombre del empleado, obligatorio
-            { id: "tipo_documento-recursos_humanos", key: "tipo_documento", required: true }, // Tipo de documento del empleado, obligatorio
-            { id: "documento-recursos_humanos", key: "documento", required: true }, // Número de documento del empleado, obligatorio
-            { id: "fecha_ingreso-recursos_humanos", key: "fecha_ingreso", required: true }, // Fecha de ingreso del empleado, obligatoria
-            { id: "cargo-recursos_humanos", key: "cargo", required: true }, // Cargo del empleado, obligatorio
-            { id: "salario-recursos_humanos", key: "salario", required: true }, // Salario del empleado, obligatorio
-            { id: "area-recursos_humanos", key: "area", required: true }, // Área del empleado, obligatoria
-            { id: "telefono-recursos_humanos", key: "telefono", required: true }, // Teléfono del empleado, obligatorio
-            { id: "correo-recursos_humanos", key: "correo", required: true }, // Correo del empleado, obligatorio
-            { id: "contrato-recursos_humanos", key: "contrato", required: true }, // Tipo de contrato del empleado, obligatorio
-            { id: "contacto-recursos_humanos", key: "contacto", required: false }, // Contacto adicional del empleado, opcional
+        apiUrl: "/api/recursos_humanos/empleados/",
+        tableId: "tabla-recursos_humanos",
+        formId: "formulario-recursos_humanos",
+        fields: [
+            { id: "nombre-recursos_humanos", key: "nombre", required: true },
+            { id: "tipo_documento-recursos_humanos", key: "tipo_documento", required: true },
+            { id: "documento-recursos_humanos", key: "documento", required: true },
+            { id: "fecha_ingreso-recursos_humanos", key: "fecha_ingreso", required: true },
+            { id: "cargo-recursos_humanos", key: "cargo", required: true },
+            { id: "salario-recursos_humanos", key: "salario", required: true },
+            { id: "area-recursos_humanos", key: "area", required: true },
+            { id: "telefono-recursos_humanos", key: "telefono", required: true },
+            { id: "correo-recursos_humanos", key: "correo", required: true },
+            { id: "contrato-recursos_humanos", key: "contrato", required: true },
+            { id: "contacto-recursos_humanos", key: "contacto", required: false },
         ],
-        tableHeaders: ["ID", "Nombre", "Tipo de Documento", "Documento", "Fecha de Ingreso", "Cargo", "Salario", "Área", "Teléfono", "Correo", "Contrato", "Contacto", "Acciones"], // Encabezados de la tabla de empleados
-        getRowData: (item) => [ // Función para mapear un objeto empleado a una fila de la tabla
-            item.id, // ID del empleado
-            item.nombre, // Nombre del empleado
-            item.tipo_documento, // Tipo de documento del empleado
-            item.documento, // Número de documento del empleado
-            item.fecha_ingreso, // Fecha de ingreso del empleado
-            item.cargo, // Cargo del empleado
-            item.salario, // Salario del empleado
-            item.area, // Área del empleado
-            item.telefono, // Teléfono del empleado
-            item.correo, // Correo del empleado
-            item.contrato, // Tipo de contrato del empleado
-            item.contacto, // Contacto adicional, sin valor por defecto (puede ser vacío)
+        tableHeaders: ["ID", "Nombre", "Tipo Documento", "Documento", "Ingreso", "Cargo", "Salario", "Área", "Teléfono", "Correo", "Contrato", "Contacto", "Acciones"],
+        getRowData: (item) => [
+            item.id,
+            item.nombre,
+            item.tipo_documento,
+            item.documento,
+            item.fecha_ingreso,
+            item.cargo,
+            item.salario,
+            item.area,
+            item.telefono,
+            item.correo,
+            item.contrato,
+            item.contacto || "Sin contacto",
         ],
-        searchFields: ["nombre", "tipo_documento", "documento", "fecha_ingreso", "cargo", "salario", "area", "telefono", "correo", "contrato", "contacto"], // Campos en los que se puede buscar dentro de la tabla de empleados
+        searchFields: ["nombre", "tipo_documento", "documento", "cargo", "area", "telefono", "correo", "contrato", "contacto"],
     },
+    ausentismos: {
+        apiUrl: "/api/recursos_humanos/ausentismos/",
+        tableId: "tabla-ausentismos",
+        formId: "form-ausentismos",
+        fields: [
+            { id: "ausentismos-empleado", key: "empleado", required: true },
+            { id: "ausentismos-fecha", key: "fecha", required: true },
+            { id: "ausentismos-tipo", key: "tipo", required: true },
+            { id: "ausentismos-duracion", key: "duracion_horas", required: true },
+            { id: "ausentismos-motivo", key: "motivo", required: false },
+            { id: "horas-extra-diurnas", key: "horas_extra_diurnas", required: false },
+            { id: "horas-extra-nocturnas", key: "horas_extra_nocturnas", required: false },
+            { id: "recargos-nocturnos", key: "recargos_nocturnos", required: false },
+            { id: "horas-extra-dominicales", key: "horas_extra_dominicales", required: false }
+        ],
+        tableHeaders: ["Documento", "Tipo", "Fecha", "Duración", "Motivo", "Acciones"],
+        getRowData: (item) => [
+            item.empleado_documento || item.documento,
+            item.tipo,
+            item.fecha,
+            item.duracion_horas + " horas",
+            item.motivo || "N/A"
+        ],
+        searchFields: ["documento", "tipo", "fecha", "motivo"]
+    },
+};
+
+// Sistema de almacenamiento seguro que maneja múltiples métodos
+const StorageManager = {
+    // Verifica el mejor método de almacenamiento disponible
+    checkStorageMethod() {
+        try {
+            // Intenta usar cookies primero
+            document.cookie = "testcookie=1";
+            if (document.cookie.indexOf("testcookie") !== -1) {
+                document.cookie = "testcookie=1;expires=Thu, 01 Jan 1970 00:00:01 GMT";
+                return 'cookie';
+            }
+        } catch (e) {
+            console.log('Cookies no disponibles, probando localStorage...');
+        }
+
+        try {
+            // Intenta usar localStorage
+            localStorage.setItem('testlocal', '1');
+            localStorage.removeItem('testlocal');
+            return 'localStorage';
+        } catch (e) {
+            console.log('localStorage no disponible, probando sessionStorage...');
+        }
+
+        try {
+            // Intenta usar sessionStorage como última opción
+            sessionStorage.setItem('testsession', '1');
+            sessionStorage.removeItem('testsession');
+            return 'sessionStorage';
+        } catch (e) {
+            console.log('Ningún método de almacenamiento disponible');
+            return 'memory';
+        }
+    },
+
+    // Almacenamiento en memoria como último recurso
+    memoryStorage: new Map(),
+
+    // Guarda un valor usando el mejor método disponible
+    setItem(key, value) {
+        const method = this.checkStorageMethod();
+        try {
+            switch (method) {
+                case 'cookie':
+                    document.cookie = `${key}=${value};path=/;max-age=3600`;
+                    break;
+                case 'localStorage':
+                    localStorage.setItem(key, value);
+                    break;
+                case 'sessionStorage':
+                    sessionStorage.setItem(key, value);
+                    break;
+                case 'memory':
+                    this.memoryStorage.set(key, value);
+                    break;
+            }
+            return true;
+        } catch (e) {
+            console.error('Error al guardar datos:', e);
+            return false;
+        }
+    },
+
+    // Obtiene un valor usando el mejor método disponible
+    getItem(key) {
+        const method = this.checkStorageMethod();
+        try {
+            switch (method) {
+                case 'cookie':
+                    const match = document.cookie.match(new RegExp('(^| )' + key + '=([^;]+)'));
+                    return match ? match[2] : null;
+                case 'localStorage':
+                    return localStorage.getItem(key);
+                case 'sessionStorage':
+                    return sessionStorage.getItem(key);
+                case 'memory':
+                    return this.memoryStorage.get(key) || null;
+            }
+        } catch (e) {
+            console.error('Error al obtener datos:', e);
+            return null;
+        }
+    },
+
+    // Elimina un valor usando el mejor método disponible
+    removeItem(key) {
+        const method = this.checkStorageMethod();
+        try {
+            switch (method) {
+                case 'cookie':
+                    document.cookie = `${key}=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+                    break;
+                case 'localStorage':
+                    localStorage.removeItem(key);
+                    break;
+                case 'sessionStorage':
+                    sessionStorage.removeItem(key);
+                    break;
+                case 'memory':
+                    this.memoryStorage.delete(key);
+                    break;
+            }
+            return true;
+        } catch (e) {
+            console.error('Error al eliminar datos:', e);
+            return false;
+        }
+    }
 };
 
 // Utilidades para manejar solicitudes HTTP, tokens CSRF y mensajes al usuario
 const Utils = {
-    // Obtiene el token CSRF para solicitudes seguras (necesario para métodos POST, PUT, DELETE)
+    // Obtiene el token CSRF para solicitudes seguras
     getCsrfToken() {
-        const token = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
-        if (token) return token;
-        const name = "csrftoken";
-        const cookie = document.cookie.split(";").find((c) => c.trim().startsWith(name + "="));
-        return cookie ? decodeURIComponent(cookie.split("=")[1]) : (() => { throw new Error("Token CSRF no encontrado."); })();
+        try {
+            // Intentar obtener el token del nuevo sistema de almacenamiento
+            let token = StorageManager.getItem('csrftoken');
+
+            if (!token) {
+                // Si no está en el almacenamiento, intentar obtenerlo del DOM
+                token = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+                if (token) {
+                    // Guardar el token para futuros usos
+                    StorageManager.setItem('csrftoken', token);
+                } else {
+                    throw new Error("Token CSRF no encontrado.");
+                }
+            }
+
+            return token;
+        } catch (error) {
+            console.error('Error al obtener token CSRF:', error);
+            throw error;
+        }
     },
 
-    // Realiza solicitudes HTTP a la API con manejo de errores
+    // Realiza solicitudes HTTP a la API con manejo de errores mejorado
     async makeRequest(url, method = "GET", data = null) {
+        console.log(`=== Iniciando solicitud ${method} a ${url} ===`);
+
+        try {
         const headers = { 
             "Content-Type": "application/json",
-            // Agregar headers para prevenir caché
             "Cache-Control": "no-cache, no-store, must-revalidate",
             "Pragma": "no-cache",
             "Expires": "0"
@@ -106,36 +259,79 @@ const Utils = {
         
         // Agregar timestamp para evitar caché
         const urlWithTimestamp = url + (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
+            console.log('URL con timestamp:', urlWithTimestamp);
         
         const options = { 
             method, 
             headers,
-            // Asegurarse de que no se use caché
-            cache: 'no-store'
+                cache: 'no-store',
+                signal: AbortSignal.timeout(30000) // 30 second timeout
         };
         
-        if (data) options.body = JSON.stringify(data);
-        
-        try {
-            const response = await fetch(urlWithTimestamp, options);
-            if (!response.ok) {
-                const errorData = await response.text().then(text => {
-                    try { return JSON.parse(text); } catch { return { detail: text || `Error ${response.status}: ${response.statusText}` }; }
-                }).catch(() => ({}));
-                console.log("Error details:", errorData);
-                throw new Error(errorData.error || errorData.detail || `Error ${response.status}: ${response.statusText}`);
+            if (data) {
+                options.body = JSON.stringify(data);
+                console.log('Datos enviados:', data);
             }
-            // Only parse JSON if the response has content
-            return method === "DELETE" && response.status === 204 ? null : await response.json();
+        
+            console.log('Opciones de la solicitud:', options);
+
+            const response = await fetch(urlWithTimestamp, options);
+            console.log('Respuesta recibida:', {
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers.entries())
+            });
+
+            if (!response.ok) {
+                let errorMessage;
+                try {
+                    const errorData = await response.text();
+                    console.log('Texto de error recibido:', errorData);
+
+                    try {
+                        const jsonError = JSON.parse(errorData);
+                        errorMessage = jsonError.error || jsonError.detail || `Error ${response.status}: ${response.statusText}`;
+                    } catch {
+                        errorMessage = errorData || `Error ${response.status}: ${response.statusText}`;
+                    }
+                } catch (e) {
+                    errorMessage = `Error ${response.status}: ${response.statusText}`;
+                }
+
+                throw new Error(errorMessage);
+            }
+
+            // Solo parsear JSON si la respuesta tiene contenido
+            if (method === "DELETE" && response.status === 204) {
+                console.log('Solicitud DELETE completada exitosamente');
+                return null;
+            }
+
+            const responseData = await response.json();
+            console.log('Datos recibidos:', responseData);
+            console.log('=== Solicitud completada exitosamente ===');
+            return responseData;
+
         } catch (error) {
+            console.error('Error en la solicitud:', error);
+            if (error.name === 'TimeoutError') {
+                throw new Error('La solicitud tomó demasiado tiempo en completarse');
+            }
             throw new Error(`Error en la solicitud a ${url}: ${error.message}`);
         }
     },
 
-    // Muestra mensajes al usuario (error, éxito, advertencia) en consola y como alerta
+    // Muestra mensajes al usuario con mejor formato
     showMessage(message, type = 'error') {
-        console.log(`Mensaje: ${message}, Tipo: ${type}`); // Registra el mensaje en la consola con su tipo
-        alert(message); // Muestra el mensaje como una alerta en la interfaz
+        const types = {
+            error: '🔴',
+            success: '✅',
+            warning: '⚠️',
+            info: 'ℹ️'
+        };
+
+        const icon = types[type] || types.info;
+        alert(`${icon} ${message}`);
     },
 };
 
@@ -144,365 +340,212 @@ const EntityManager = {
     // Carga datos de la API y los renderiza en la tabla correspondiente
     async loadData(tipo) {
         try {
-            const data = await Utils.makeRequest(CONFIG[tipo].apiUrl); // Obtiene los datos desde la API según el tipo (proveedores, clientes, etc.)
-            this.renderTable(tipo, data); // Renderiza los datos en la tabla correspondiente
+            console.log(`Cargando datos de ${tipo}...`);
+            console.log('URL de la API:', CONFIG[tipo].apiUrl);
+            
+            // Verificar que la tabla existe
+            const tabla = document.getElementById(CONFIG[tipo].tableId);
+            if (!tabla) {
+                console.error(`No se encontró la tabla para ${tipo}`, CONFIG[tipo].tableId);
+                return;
+            }
+
+            // Mostrar indicador de carga
+            const tbody = tabla.querySelector("tbody");
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${CONFIG[tipo].tableHeaders.length}" class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            // Realizar la petición a la API
+            console.log('Realizando petición a:', CONFIG[tipo].apiUrl);
+            const data = await Utils.makeRequest(CONFIG[tipo].apiUrl);
+            console.log(`Datos recibidos de ${tipo}:`, data);
+            
+            // Asegurarse de que la tabla aún existe antes de actualizar
+            if (!document.getElementById(CONFIG[tipo].tableId)) {
+                console.log('La tabla ya no existe en el DOM, cancelando actualización');
+                return;
+            }
+
+            this.renderTable(tipo, data);
         } catch (error) {
-            console.error(`Error al cargar ${tipo}:`, error); // Registra el error en la consola
-            Utils.showMessage(`Error al cargar ${tipo}: ${error.message}`); // Muestra un mensaje de error al usuario
+            console.error(`Error al cargar ${tipo}:`, error);
+            const tabla = document.getElementById(CONFIG[tipo].tableId);
+            if (tabla) {
+                const tbody = tabla.querySelector("tbody");
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="${CONFIG[tipo].tableHeaders.length}" class="text-center text-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Error al cargar los datos: ${error.message}
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+            Utils.showMessage(`Error al cargar ${tipo}: ${error.message}`);
         }
     },
 
-    // Renderiza los datos en una tabla HTML
+    // Renderiza los datos en la tabla correspondiente
     renderTable(tipo, data) {
-        const { tableId, getRowData, tableHeaders } = CONFIG[tipo];
-        const table = document.getElementById(tableId);
-        if (!table) return;
+        const tabla = document.getElementById(CONFIG[tipo].tableId);
+        if (!tabla) return;
 
-        const thead = table.querySelector("thead");
-        if (thead) {
-            thead.innerHTML = `<tr><th>${tableHeaders.join("</th><th>")}</th></tr>`;
+        const tbody = tabla.querySelector("tbody");
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="${CONFIG[tipo].tableHeaders.length}" class="text-center">
+                        No hay datos disponibles
+                    </td>
+                </tr>
+            `;
+            return;
         }
 
-        const tbody = table.querySelector("tbody");
-        if (!tbody) return;
-        tbody.innerHTML = "";
-        data.forEach((item) => {
-            const row = document.createElement("tr");
-            // Add data cells
-            getRowData(item).forEach((cell) => {
-                const td = document.createElement("td");
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            const rowData = CONFIG[tipo].getRowData(item);
+            
+            rowData.forEach(cell => {
+                const td = document.createElement('td');
                 td.textContent = cell;
                 row.appendChild(td);
             });
 
-            // Add action cell with buttons
-            const actionTd = document.createElement("td");
-            actionTd.classList.add("text-nowrap");
-
-            const editButton = document.createElement("button");
-            editButton.classList.add("btn", "btn-warning", "btn-sm", "me-1");
-            editButton.textContent = "Editar";
-            editButton.addEventListener("click", () => EntityManager.editEntity(tipo, item.id));
-
-            const deleteButton = document.createElement("button");
-            deleteButton.classList.add("btn", "btn-danger", "btn-sm");
-            deleteButton.textContent = "Eliminar";
-            deleteButton.addEventListener("click", () => EntityManager.deleteEntity(tipo, item.id));
-
-            actionTd.appendChild(editButton);
-            actionTd.appendChild(deleteButton);
-            row.appendChild(actionTd);
+            // Agregar botones de acción
+            const actionsTd = document.createElement('td');
+            actionsTd.innerHTML = `
+                <button class="btn btn-sm btn-primary edit-btn" data-id="${item.id}">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn btn-sm btn-danger delete-btn" data-id="${item.id}">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            `;
+            row.appendChild(actionsTd);
 
             tbody.appendChild(row);
         });
+
+        // Configurar eventos para los botones de acción
+        this.setupActionButtons(tipo, tbody);
     },
 
-    // Busca datos en la tabla según el término ingresado por el usuario
-    searchData(tipo) {
-        const { apiUrl, searchFields } = CONFIG[tipo]; // Obtiene la URL de la API y los campos de búsqueda
-        const searchTerm = document.getElementById(`search-${tipo}`).value.toLowerCase(); // Obtiene el término de búsqueda en minúsculas
-        fetch(apiUrl) // Realiza una solicitud para obtener todos los datos
-            .then(response => response.json()) // Parsea la respuesta como JSON
-            .then(data => {
-                const filtered = data.filter(item => // Filtra los datos según el término de búsqueda
-                    searchFields.some(field => item[field]?.toLowerCase().includes(searchTerm))
-                );
-                this.renderTable(tipo, filtered); // Renderiza los datos filtrados en la tabla
-            })
-            .catch(error => {
-                console.error(`Error al buscar ${tipo}:`, error); // Registra el error en la consola
-                Utils.showMessage(`Error al buscar ${tipo}: ${error.message}`); // Muestra un mensaje de error al usuario
-            });
-    },
-
-    // Carga los datos de una entidad en el formulario para edición
-    async editEntity(tipo, id) {
-        try {
-            const { apiUrl, fields, formId } = CONFIG[tipo]; // Obtiene la URL de la API, los campos y el ID del formulario
-            const item = await Utils.makeRequest(`${apiUrl}${id}/`); // Obtiene los datos de la entidad específica desde la API
-            fields.forEach(field => { // Itera sobre cada campo del formulario
-                const element = document.getElementById(field.id); // Busca el elemento del campo en el DOM
-                if (element.tagName === 'SELECT') { // Si el elemento es un <select>
-                    element.value = item[field.key] || ''; // Establece el valor del <select>
-                } else {
-                    element.value = item[field.key] || ''; // Establece el valor del campo (input, textarea, etc.)
+    // Configura los eventos para los botones de acción
+    setupActionButtons(tipo, tbody) {
+        tbody.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = e.target.dataset.id;
+                try {
+                    const data = await Utils.makeRequest(`${CONFIG[tipo].apiUrl}${id}/`);
+                    this.populateForm(tipo, data);
+        } catch (error) {
+                    console.error(`Error al cargar datos para editar ${tipo}:`, error);
+                    Utils.showMessage(`Error al cargar datos: ${error.message}`);
                 }
             });
-            document.getElementById(`${tipo}-id`).value = id; // Establece el ID de la entidad en un campo oculto
-            if (document.getElementById(formId).classList.contains('hidden')) this.toggleForm(tipo); // Si el formulario está oculto, lo muestra
-        } catch (error) {
-            console.error(`Error al editar ${tipo}:`, error); // Registra el error en la consola
-            Utils.showMessage(`Error al cargar ${tipo} para editar: ${error.message}`); // Muestra un mensaje de error al usuario
-        }
-    },
+        });
 
-    // Elimina una entidad tras confirmar con el usuario
-    async deleteEntity(tipo, id) {
-        console.log(`Attempting to delete ${tipo} with ID: ${id}`);
-        if (!confirm(`¿Eliminar ${tipo.slice(0, -1)} ${id}?`)) return;
-        try {
-            const currentData = await Utils.makeRequest(CONFIG[tipo].apiUrl);
-            console.log("Current data:", currentData);
-            const exists = currentData.some(item => item.id === id);
-            if (!exists) {
-                Utils.showMessage(`El ${tipo.slice(0, -1)} con ID ${id} ya no existe. Actualizando tabla.`, "warning");
-                this.loadData(tipo);
-                return;
-            }
-
-            const response = await Utils.makeRequest(`${CONFIG[tipo].apiUrl}${id}/`, "DELETE");
-            console.log("Delete response:", response); // Debug log
-            Utils.showMessage(`${tipo.slice(0, -1)} eliminado`, "success");
-            this.loadData(tipo);
+        tbody.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = e.target.dataset.id;
+                if (confirm('¿Está seguro de que desea eliminar este registro?')) {
+                    try {
+                        await Utils.makeRequest(`${CONFIG[tipo].apiUrl}${id}/`, 'DELETE');
+                        await this.loadData(tipo);
+                        Utils.showMessage('Registro eliminado exitosamente');
         } catch (error) {
             console.error(`Error al eliminar ${tipo}:`, error);
-            Utils.showMessage(`Error al eliminar ${tipo}: ${error.message}`);
-        }
-    },
-
-    // Guarda una entidad (nueva o editada) en la API
-    async saveEntity(tipo) {
-        try {
-            console.log("Starting saveEntity for tipo:", tipo);
-            const { apiUrl, fields } = CONFIG[tipo];
-            const rawData = Object.fromEntries(
-                fields.map((field) => [field.key, document.getElementById(field.id)?.value || ""])
-            );
-            // Transform data
-            const data = { ...rawData };
-            if (tipo === "recursos_humanos") {
-                // Convert salario to a float
-                if (data.salario) data.salario = parseFloat(data.salario) || 0;
-                // Ensure fecha_ingreso is in the correct format (e.g., YYYY-MM-DD)
-                if (data.fecha_ingreso) {
-                    const date = new Date(data.fecha_ingreso);
-                    if (!isNaN(date.getTime())) {
-                        data.fecha_ingreso = date.toISOString().split("T")[0]; // YYYY-MM-DD
-                    } else {
-                        delete data.fecha_ingreso; // Remove invalid date
+                        Utils.showMessage(`Error al eliminar: ${error.message}`);
                     }
                 }
-            }
-            console.log("Transformed data to save:", data);
-            const requiredFields = fields.filter((f) => f.required);
-            if (requiredFields.some((f) => !data[f.key])) {
-                Utils.showMessage("Completa todos los campos obligatorios.");
-                return;
-            }
-            const id = document.getElementById(`${tipo}-id`)?.value;
-            const method = id ? "PUT" : "POST";
-            const url = id ? `${apiUrl}${id}/` : apiUrl;
-            console.log("Request URL:", url, "Method:", method);
-            const response = await Utils.makeRequest(url, method, data);
-            console.log("Server response:", response);
-            Utils.showMessage(`${tipo.slice(0, -1)} guardado`, "success");
-            this.loadData(tipo);
-            this.clearForm(tipo);
+            });
+        });
+    },
+
+    // Guarda una entidad (crear o actualizar)
+    async saveEntity(tipo) {
+        try {
+            const form = document.getElementById(CONFIG[tipo].formId);
+            if (!form) return;
+
+            const formData = new FormData(form);
+            const data = {};
+            CONFIG[tipo].fields.forEach(field => {
+                data[field.key] = formData.get(field.id);
+            });
+
+            const method = form.dataset.id ? 'PUT' : 'POST';
+            const url = form.dataset.id 
+                ? `${CONFIG[tipo].apiUrl}${form.dataset.id}/`
+                : CONFIG[tipo].apiUrl;
+
+            await Utils.makeRequest(url, method, data);
+            await this.loadData(tipo);
+            form.reset();
+            delete form.dataset.id;
+            Utils.showMessage('Registro guardado exitosamente');
         } catch (error) {
             console.error(`Error al guardar ${tipo}:`, error);
-            Utils.showMessage(`Error al guardar ${tipo}: ${error.message}`);
-        }
-    },
-    // Carga los datos de liquidaciones y los muestra en la tabla
-    async loadLiquidacion() {
-        try {
-            const data = await Utils.makeRequest('/api/rrhh/liquidaciones/'); // Obtiene las liquidaciones desde la API
-            const table = document.getElementById('tabla-liquidacion'); // Busca la tabla de liquidaciones en el DOM
-            const tbody = table.querySelector('tbody'); // Selecciona el cuerpo de la tabla
-            tbody.innerHTML = ''; // Limpia el contenido actual de la tabla
-            data.forEach(item => { // Itera sobre cada liquidación
-                const row = document.createElement('tr'); // Crea una nueva fila
-                row.innerHTML = ` // Llena la fila con los datos de la liquidación y botones de acción
-                <td>${item.id}</td>
-                <td>${item.empleado_nombre || 'Sin nombre'}</td>
-                <td>${item.contrato || 'Sin contrato'}</td>
-                <td>${item.fondo_pensiones || '0'}</td>
-                <td>${item.cesantias || '0'}</td>
-                <td>${item.eps || '0'}</td>
-                <td>${item.caja_compensacion || '0'}</td>
-                <td>
-                    <button class="btn btn-warning btn-sm" onclick="EntityManager.editEntity('liquidacion', ${item.id})">Editar</button>
-                    <button class="btn btn-danger btn-sm" onclick="EntityManager.deleteEntity('liquidacion', ${item.id})">Eliminar</button>
-                </td>
-            `;
-                tbody.appendChild(row); // Agrega la fila al cuerpo de la tabla
-            });
-        } catch (error) {
-            Utils.showMessage(`Error al cargar liquidaciones: ${error.message}`); // Muestra un mensaje de error al usuario
-        }
-    },
-
-    // Carga los datos de ausentismos y los muestra en la tabla
-    async loadAusentismos() {
-        try {
-            const data = await Utils.makeRequest('/api/rrhh/ausentismos/');
-            const table = document.getElementById('tabla-ausentismos');
-            const tbody = table.querySelector('tbody');
-            tbody.innerHTML = '';
-            data.forEach(item => {
-                const row = document.createElement('tr');
-                row.dataset.tipo = item.tipo;
-                row.innerHTML = `
-                    <td>${item.empleado_documento || item.documento}</td>
-                    <td><span class="badge ${getBadgeClass(item.tipo)}">${getTipoTexto(item.tipo)}</span></td>
-                    <td>${new Date(item.fecha).toLocaleDateString()}</td>
-                    <td>${item.duracion_horas || item.duracion} horas</td>
-                    <td>${item.motivo || 'N/A'}</td>
-                    <td>
-                        <button class="btn btn-sm btn-danger eliminar-registro" data-id="${item.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        } catch (error) {
-            Utils.showMessage(`Error al cargar ausentismos: ${error.message}`);
-        }
-    },
-
-    // Guarda un nuevo registro de ausentismo o horas extras
-    async saveAusentismo(event) {
-        event.preventDefault();
-        const form = document.getElementById('form-ausentismos');
-        
-        if (!form.checkValidity()) {
-            event.stopPropagation();
-            form.classList.add('was-validated');
-            return;
-        }
-
-        const empleadoSelect = document.getElementById('ausentismos-empleado');
-        const empleadoOption = empleadoSelect.options[empleadoSelect.selectedIndex];
-        const documento = empleadoOption.getAttribute('data-documento');
-        const fecha = document.getElementById('ausentismos-fecha').value;
-        const tipo = document.getElementById('ausentismos-tipo').value;
-        const motivo = document.getElementById('ausentismos-motivo').value || '';
-
-        if (!documento || !fecha || !tipo) {
-            Utils.showMessage('Complete todos los campos obligatorios.');
-            return;
-        }
-
-        try {
-            let duracion;
-            if (tipo === 'ausentismo') {
-                duracion = parseFloat(document.getElementById('ausentismos-duracion').value);
-                if (isNaN(duracion) || duracion <= 0 || duracion > 24) {
-                    Utils.showMessage('La duración debe estar entre 0 y 24 horas.');
-                    return;
-                }
-            } else if (tipo === 'horas_extras') {
-                // Para horas extras, sumar todas las horas ingresadas
-                const horasDiurnas = parseFloat(document.getElementById('horas-extra-diurnas').value) || 0;
-                const horasNocturnas = parseFloat(document.getElementById('horas-extra-nocturnas').value) || 0;
-                const recargosNocturnos = parseFloat(document.getElementById('recargos-nocturnos').value) || 0;
-                const horasDominicales = parseFloat(document.getElementById('horas-extra-dominicales').value) || 0;
-                
-                duracion = horasDiurnas + horasNocturnas + recargosNocturnos + horasDominicales;
-                
-                if (duracion <= 0 || duracion > 24) {
-                    Utils.showMessage('El total de horas extras debe estar entre 0 y 24 horas.');
-                    return;
-                }
-            }
-
-            let payload;
-            let endpoint;
-
-            if (tipo === 'horas_extras') {
-                payload = {
-                    documento: documento,
-                    fecha,
-                    tipo: 'horas_extras',
-                    duracion_horas: duracion,
-                    motivo,
-                    horas_extra_diurnas: parseFloat(document.getElementById('horas-extra-diurnas').value) || 0,
-                    horas_extra_nocturnas: parseFloat(document.getElementById('horas-extra-nocturnas').value) || 0,
-                    recargos_nocturnos: parseFloat(document.getElementById('recargos-nocturnos').value) || 0,
-                    horas_extra_dominicales: parseFloat(document.getElementById('horas-extra-dominicales').value) || 0
-                };
-                endpoint = '/api/rrhh/horas_extras/';
-            } else {
-                payload = {
-                    documento: documento,
-                    fecha,
-                    tipo: 'ausentismo',
-                    duracion_horas: duracion,
-                    motivo
-                };
-                endpoint = '/api/rrhh/ausentismos/';
-            }
-
-            console.log('Enviando datos:', payload, 'a endpoint:', endpoint);
-            await Utils.makeRequest(endpoint, 'POST', payload);
-            Utils.showMessage('Registro guardado exitosamente', 'success');
-            form.reset();
-            form.classList.remove('was-validated');
-            this.loadAusentismos();
-        } catch (error) {
-            console.error('Error detallado:', error);
             Utils.showMessage(`Error al guardar: ${error.message}`);
         }
     },
 
-    // Inicializar eventos para el formulario de ausentismos y horas extras
-    initAusentismosForm() {
-        const tipoSelect = document.getElementById('ausentismos-tipo');
-        const horasExtrasDetalles = document.getElementById('horas-extras-detalles');
-        const ausentismoDuracion = document.getElementById('ausentismo-duracion');
-        
-        // Función para calcular el total de horas extras
-        const calcularTotalHorasExtras = () => {
-            const horasDiurnas = parseFloat(document.getElementById('horas-extra-diurnas').value) || 0;
-            const horasNocturnas = parseFloat(document.getElementById('horas-extra-nocturnas').value) || 0;
-            const recargosNocturnos = parseFloat(document.getElementById('recargos-nocturnos').value) || 0;
-            const horasDominicales = parseFloat(document.getElementById('horas-extra-dominicales').value) || 0;
-            
-            const total = horasDiurnas + horasNocturnas + recargosNocturnos + horasDominicales;
-            document.getElementById('total-horas-extras').textContent = total.toFixed(1);
-        };
+    // Popula el formulario con los datos para edición
+    populateForm(tipo, data) {
+        const form = document.getElementById(CONFIG[tipo].formId);
+        if (!form) return;
 
-        // Manejar cambios en el tipo de registro
-        if (tipoSelect) {
-            tipoSelect.addEventListener('change', () => {
-                const tipo = tipoSelect.value;
-                
-                if (tipo === 'horas_extras') {
-                    horasExtrasDetalles.classList.remove('d-none');
-                    ausentismoDuracion.classList.add('d-none');
-                } else if (tipo === 'ausentismo') {
-                    horasExtrasDetalles.classList.add('d-none');
-                    ausentismoDuracion.classList.remove('d-none');
+        CONFIG[tipo].fields.forEach(field => {
+            const input = document.getElementById(field.id);
+            if (input) {
+                input.value = data[field.key] || '';
+            }
+        });
+
+        form.dataset.id = data.id;
+    },
+
+    // Función para buscar datos en las tablas
+    searchData(tipo) {
+        const searchInput = document.getElementById(`search-${tipo}`);
+        if (!searchInput) return;
+
+        const searchTerm = searchInput.value.toLowerCase();
+        const tabla = document.getElementById(CONFIG[tipo].tableId);
+        if (!tabla) return;
+
+        const tbody = tabla.querySelector('tbody');
+        if (!tbody) return;
+
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(row => {
+            const text = Array.from(row.cells)
+                .map(cell => cell.textContent.toLowerCase())
+                .join(' ');
+            
+            if (text.includes(searchTerm)) {
+                row.style.display = '';
                 } else {
-                    horasExtrasDetalles.classList.add('d-none');
-                    ausentismoDuracion.classList.add('d-none');
+                row.style.display = 'none';
                 }
             });
         }
-
-        // Agregar listeners para calcular total de horas extras
-        ['horas-extra-diurnas', 'horas-extra-nocturnas', 'recargos-nocturnos', 'horas-extra-dominicales'].forEach(id => {
-            const input = document.getElementById(id);
-            if (input) {
-                input.addEventListener('input', calcularTotalHorasExtras);
-            }
-        });
-    },
-
-    // Muestra u oculta el formulario de un módulo
-    toggleForm(tipo) {
-        document.getElementById(CONFIG[tipo].formId).classList.toggle('hidden'); // Alterna la visibilidad del formulario (muestra u oculta)
-    },
-
-    // Limpia los campos del formulario y lo oculta
-    clearForm(tipo) {
-        const { fields } = CONFIG[tipo]; // Obtiene los campos del formulario
-        fields.forEach(field => document.getElementById(field.id).value = ''); // Limpia cada campo del formulario
-        const idField = document.getElementById(`${tipo}-id`); // Busca el campo oculto del ID
-        if (idField) idField.value = ''; // Limpia el campo del ID
-        this.toggleForm(tipo); // Oculta el formulario
-    },
 };
 
 // Manejo de autenticación y eventos de login/registro/contacto
@@ -632,13 +675,20 @@ const NOMINA_CONFIG = {
     }
 };
 
-// Cargar todas las dependencias necesarias
+/**
+ * Carga las dependencias necesarias para el PDF
+ */
 async function loadDependencies() {
     try {
-        console.log('Iniciando carga de dependencias...');
-        
-        // Cargar jsPDF si no está disponible
-        if (typeof window.jspdf === 'undefined') {
+        // Verificar si jsPDF y QRious ya están cargados
+        if (typeof window.jspdf !== 'undefined' &&
+            typeof window.jspdf.jsPDF !== 'undefined' &&
+            typeof window.QRious !== 'undefined') {
+            return true;
+        }
+
+        // Cargar jsPDF si es necesario
+        if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
             await new Promise((resolve, reject) => {
                 const script = document.createElement('script');
                 script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
@@ -646,22 +696,9 @@ async function loadDependencies() {
                 script.onerror = () => reject(new Error('Error al cargar jsPDF'));
                 document.head.appendChild(script);
             });
-            console.log('jsPDF cargado');
         }
 
-        // Cargar autoTable si no está disponible
-        if (typeof window.jspdf.autoTable === 'undefined') {
-            await new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js';
-                script.onload = resolve;
-                script.onerror = () => reject(new Error('Error al cargar autoTable'));
-                document.head.appendChild(script);
-            });
-            console.log('autoTable cargado');
-        }
-
-        // Cargar QRious para códigos QR si no está disponible
+        // Cargar QRious si es necesario
         if (typeof window.QRious === 'undefined') {
             await new Promise((resolve, reject) => {
                 const script = document.createElement('script');
@@ -670,810 +707,1447 @@ async function loadDependencies() {
                 script.onerror = () => reject(new Error('Error al cargar QRious'));
                 document.head.appendChild(script);
             });
-            console.log('QRious cargado');
+        }
+
+        // Verificar que ambas bibliotecas se cargaron correctamente
+        if (typeof window.jspdf === 'undefined' ||
+            typeof window.jspdf.jsPDF === 'undefined' ||
+            typeof window.QRious === 'undefined') {
+            throw new Error('No se pudieron cargar todas las dependencias necesarias');
         }
 
         return true;
     } catch (error) {
-        console.error('Error al cargar dependencias:', error);
-        throw error;
+        throw new Error('Error al cargar dependencias: ' + error.message);
     }
 }
 
-// Función para cargar el logo de la empresa
-async function cargarLogo() {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error('No se pudo cargar el logo'));
-        img.src = '/static/img/logo.png';
+// Función para cargar datos de nómina
+async function cargarDatosNomina(documento) {
+    try {
+        if (!documento) {
+            console.error('Documento no proporcionado');
+            Utils.showMessage('Por favor ingrese un documento válido');
+            return false;
+        }
+
+        console.log('=== Inicio de carga de datos ===');
+        console.log('Documento a buscar:', documento);
+
+        // Mostrar indicador de carga
+        const nominaEmpleado = document.getElementById('nomina-empleado');
+        if (!nominaEmpleado) {
+            console.error('Elemento nomina-empleado no encontrado en el DOM');
+            return false;
+        }
+
+        nominaEmpleado.innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <div class="mt-2">Buscando empleado...</div>
+            </div>
+        `;
+
+        // Mostrar las secciones
+        const infoEmpleado = document.getElementById('info-empleado');
+        if (infoEmpleado) infoEmpleado.classList.remove('d-none');
+
+        // Obtener datos del empleado desde la API
+        console.log('Realizando petición a la API:', '/api/recursos_humanos/empleados/');
+        const empleados = await Utils.makeRequest('/api/recursos_humanos/empleados/');
+        console.log('Respuesta de la API:', empleados);
+
+        if (!empleados || (Array.isArray(empleados) && empleados.length === 0)) {
+            console.log('No se encontraron datos del empleado');
+            if (infoEmpleado) infoEmpleado.classList.add('d-none');
+            nominaEmpleado.innerHTML = '<div class="alert alert-warning">No se encontró el empleado</div>';
+            return false;
+        }
+
+        const empleado = empleados.find(e => e.documento === documento);
+        console.log('Empleado encontrado:', empleado);
+
+        if (!empleado) {
+            console.log('No se encontró empleado con el documento:', documento);
+            if (infoEmpleado) infoEmpleado.classList.add('d-none');
+            nominaEmpleado.innerHTML = '<div class="alert alert-warning">No se encontró empleado con el documento especificado</div>';
+            return false;
+        }
+
+        // Verificar que los campos necesarios existen
+        const camposRequeridos = ['nombre', 'id', 'salario', 'cargo', 'area'];
+        const camposFaltantes = camposRequeridos.filter(campo => !empleado[campo]);
+
+        if (camposFaltantes.length > 0) {
+            console.error('Campos faltantes en datos del empleado:', camposFaltantes);
+            nominaEmpleado.innerHTML = '<div class="alert alert-danger">Los datos del empleado están incompletos. Campos faltantes: ' + camposFaltantes.join(', ') + '</div>';
+            return false;
+        }
+
+        // Actualizar información del empleado
+        console.log('Actualizando interfaz con datos del empleado');
+        nominaEmpleado.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Información del Empleado</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold">Nombre:</label>
+                                <div class="form-control-plaintext">${empleado.nombre}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">Documento:</label>
+                                <div class="form-control-plaintext">${empleado.documento}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">Cargo:</label>
+                                <div class="form-control-plaintext">${empleado.cargo}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold">Área:</label>
+                                <div class="form-control-plaintext">${empleado.area}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">Salario Base:</label>
+                                <div class="form-control-plaintext">${formatCurrency(empleado.salario)}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">Fecha de Ingreso:</label>
+                                <div class="form-control-plaintext">${empleado.fecha_ingreso || 'No especificada'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Guardar datos en campos ocultos
+        const empleadoIdNomina = document.getElementById('empleado-id-nomina');
+        const nominaEmpleadoData = document.getElementById('nomina-empleado-data');
+
+        if (empleadoIdNomina) empleadoIdNomina.value = empleado.id;
+        if (nominaEmpleadoData) nominaEmpleadoData.value = JSON.stringify(empleado);
+
+        // Calcular y mostrar valores inmediatamente
+        const periodoTipo = document.getElementById('nomina-periodo-tipo')?.value || 'Quincenal';
+        const salarioCalculado = periodoTipo === 'Quincenal' ? empleado.salario / 2 : empleado.salario;
+        const deducciones = salarioCalculado * 0.08; // 8% de deducciones (4% salud + 4% pensión)
+        const salarioNeto = salarioCalculado - deducciones;
+
+        // Actualizar resumen de nómina
+        document.getElementById('nomina-salario-base-resumen').textContent = formatCurrency(salarioCalculado);
+        document.getElementById('nomina-bonificaciones').textContent = formatCurrency(0);
+        document.getElementById('nomina-deducciones').textContent = formatCurrency(deducciones);
+        document.getElementById('nomina-salario-neto').textContent = formatCurrency(salarioNeto);
+
+        // Habilitar botones
+        const generarPdfBtn = document.getElementById('generar-pdf');
+        if (generarPdfBtn) {
+            generarPdfBtn.disabled = false;
+        }
+
+        console.log('=== Carga de datos completada exitosamente ===');
+        return true;
+    } catch (error) {
+        console.error('Error detallado al cargar datos de nómina:', error);
+        const nominaEmpleado = document.getElementById('nomina-empleado');
+        if (nominaEmpleado) {
+            nominaEmpleado.innerHTML = `
+                <div class="alert alert-danger">
+                    <strong>Error al cargar datos:</strong><br>
+                    ${error.message}
+                </div>
+            `;
+        }
+        return false;
+    }
+}
+
+// Función para inicializar el input de documento
+function initDocumentoInput(documentoInput) {
+    if (!documentoInput) return;
+
+    let typingTimer;
+    const doneTypingInterval = 300; // 300ms de espera
+
+    const doneTyping = async () => {
+        const documento = documentoInput.value.trim();
+        if (documento.length >= 5) {
+            console.log('Iniciando búsqueda de empleado:', documento);
+            await cargarDatosNomina(documento);
+        } else {
+            // Ocultar secciones si el documento es muy corto
+            document.getElementById('info-empleado').classList.add('d-none');
+            document.getElementById('nomina-resumen').classList.add('d-none');
+        }
+    };
+
+    // Event listener para el input con debounce
+    documentoInput.addEventListener('input', (e) => {
+        console.log('Input detectado:', e.target.value);
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(doneTyping, doneTypingInterval);
     });
+
+    // Event listener para la tecla Enter
+    documentoInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            clearTimeout(typingTimer);
+            doneTyping();
+        }
+    });
+
+    // Event listener para el botón de búsqueda
+    const buscarBtn = document.getElementById('buscar-empleado');
+    if (buscarBtn) {
+        buscarBtn.addEventListener('click', () => {
+            clearTimeout(typingTimer);
+            doneTyping();
+        });
+    }
+
+    // Si ya hay un valor en el campo, intentar cargar los datos
+    if (documentoInput.value.trim().length >= 5) {
+        doneTyping();
+    }
+}
+
+/**
+ * Calcula el valor de las horas extras
+ */
+function calcularValorHorasExtras(salarioBase, horasExtras) {
+    const valorHoraNormal = salarioBase / NOMINA_CONFIG.HORAS_MES;
+    
+    return {
+        diurnas: horasExtras.horas_extra_diurnas * valorHoraNormal * NOMINA_CONFIG.FACTORES.EXTRA_DIURNA,
+        nocturnas: horasExtras.horas_extra_nocturnas * valorHoraNormal * NOMINA_CONFIG.FACTORES.EXTRA_NOCTURNA,
+        recargos: horasExtras.recargos_nocturnos * valorHoraNormal * NOMINA_CONFIG.FACTORES.RECARGO_NOCTURNO,
+        dominicales: horasExtras.horas_extra_dominicales * valorHoraNormal * NOMINA_CONFIG.FACTORES.EXTRA_FESTIVO_DIURNO
+    };
+}
+
+/**
+ * Calcula el valor de los ausentismos
+ */
+function calcularValorAusentismos(salarioBase, horasAusentismo) {
+    const valorHoraNormal = salarioBase / NOMINA_CONFIG.HORAS_MES;
+    return horasAusentismo * valorHoraNormal;
+}
+
+/**
+ * Obtiene los ausentismos y horas extras para un período
+ */
+async function obtenerRegistrosPeriodo(empleadoId, fechaInicio, fechaFin) {
+    try {
+        const registros = await Utils.makeRequest(`${CONFIG.ausentismos.apiUrl}?empleado=${empleadoId}&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
+        
+        const resultado = {
+            ausentismos: 0,
+            horas_extras: {
+                horas_extra_diurnas: 0,
+                horas_extra_nocturnas: 0,
+                recargos_nocturnos: 0,
+                horas_extra_dominicales: 0
+            }
+        };
+
+        registros.forEach(registro => {
+            if (registro.tipo === 'ausentismo') {
+                resultado.ausentismos += parseFloat(registro.duracion_horas);
+            } else if (registro.tipo === 'horas_extras') {
+                resultado.horas_extras.horas_extra_diurnas += parseFloat(registro.horas_extra_diurnas || 0);
+                resultado.horas_extras.horas_extra_nocturnas += parseFloat(registro.horas_extra_nocturnas || 0);
+                resultado.horas_extras.recargos_nocturnos += parseFloat(registro.recargos_nocturnos || 0);
+                resultado.horas_extras.horas_extra_dominicales += parseFloat(registro.horas_extra_dominicales || 0);
+            }
+        });
+
+        return resultado;
+    } catch (error) {
+        console.error('Error al obtener registros del período:', error);
+        throw error;
+    }
 }
 
 // Función para calcular la nómina
-async function calcularNomina(empleadoId) {
+async function calcularNomina() {
     try {
-        // Verificar que tengamos todos los datos necesarios
-        const formularioNomina = document.getElementById('formulario-nomina');
-        const periodoTipo = document.getElementById("nomina-periodo-tipo").value;
-        const periodoInicio = document.getElementById("nomina-periodo-inicio").value;
-        const periodoFin = document.getElementById("nomina-periodo-fin").value;
-
-        if (!empleadoId || !periodoTipo || !periodoInicio || !periodoFin) {
-            throw new Error('Faltan datos necesarios para el cálculo. Por favor complete todos los campos.');
+        // Validar que haya un empleado seleccionado
+        const empleadoData = document.getElementById('nomina-empleado-data')?.value;
+        if (!empleadoData) {
+            Utils.showMessage('Por favor seleccione un empleado');
+            return false;
         }
 
-        // Obtener datos del empleado desde la API
-        const empleado = await Utils.makeRequest(`/api/rrhh/empleados-list/${empleadoId}/`);
-        if (!empleado) {
-            throw new Error('No se encontró el empleado');
+        const empleado = JSON.parse(empleadoData);
+        const periodoTipo = document.getElementById('nomina-periodo-tipo').value;
+        const periodoInicio = document.getElementById('nomina-periodo-inicio').value;
+        const periodoFin = document.getElementById('nomina-periodo-fin').value;
+
+        if (!periodoInicio || !periodoFin) {
+            Utils.showMessage('Por favor seleccione el período de nómina');
+            return false;
         }
 
-        const salarioBaseMensual = parseFloat(empleado.salario);
+        // Calcular salario base según el periodo
+        const salarioBase = parseFloat(empleado.salario);
+        const salarioPeriodo = periodoTipo === 'Quincenal' ? salarioBase / 2 : salarioBase;
+
+        // Obtener ausentismos y horas extras del período
+        const registros = await obtenerRegistrosPeriodo(empleado.id, periodoInicio, periodoFin);
         
-        // Ajustar el salario base según el periodo
-        const salarioBase = periodoTipo === "Quincenal" ? salarioBaseMensual / 2 : salarioBaseMensual;
-        const horasTotales = periodoTipo === "Quincenal" ? NOMINA_CONFIG.HORAS_QUINCENA : NOMINA_CONFIG.HORAS_MES;
-        const valorHora = salarioBase / horasTotales;
+        // Calcular deducciones por ausentismos
+        const valorAusentismos = calcularValorAusentismos(salarioPeriodo, registros.ausentismos);
+        
+        // Calcular valor de horas extras
+        const valorHorasExtras = calcularValorHorasExtras(salarioPeriodo, registros.horas_extras);
+        const totalHorasExtras = Object.values(valorHorasExtras).reduce((a, b) => a + b, 0);
 
-        // Obtener valores de los campos del formulario
-        const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
-        const horasExtraD = getVal("nomina-horas-extra-diurnas");
-        const horasExtraN = getVal("nomina-horas-extra-nocturnas");
-        const recargosNoc = getVal("nomina-recargos-nocturnos");
-        const horasFestD = getVal("nomina-horas-diurnas-festivas");
-        const horasFestN = getVal("nomina-horas-nocturnas-festivas");
-        const horasExtraFestD = getVal("nomina-horas-extras-diurnas-festivas");
-        const horasExtraFestN = getVal("nomina-horas-extras-nocturnas-festivas");
-        const horasAusente = getVal("nomina-horas-ausente");
+        // Calcular deducciones (4% salud, 4% pensión)
+        const deducciones = salarioPeriodo * 0.08 + valorAusentismos;
 
-        // Calcular bonificaciones
-        const bonificaciones = {
-            extraDiurna: horasExtraD * valorHora * NOMINA_CONFIG.FACTORES.EXTRA_DIURNA,
-            extraNocturna: horasExtraN * valorHora * NOMINA_CONFIG.FACTORES.EXTRA_NOCTURNA,
-            recargoNocturno: recargosNoc * valorHora * NOMINA_CONFIG.FACTORES.RECARGO_NOCTURNO,
-            festivaDiurna: horasFestD * valorHora * NOMINA_CONFIG.FACTORES.FESTIVO_DIURNO,
-            festivaNocturna: horasFestN * valorHora * NOMINA_CONFIG.FACTORES.FESTIVO_NOCTURNO,
-            extraFestivaDiurna: horasExtraFestD * valorHora * NOMINA_CONFIG.FACTORES.EXTRA_FESTIVO_DIURNO,
-            extraFestivaNocturna: horasExtraFestN * valorHora * NOMINA_CONFIG.FACTORES.EXTRA_FESTIVO_NOCTURNO
-        };
+        // Calcular salario neto
+        const salarioNeto = salarioPeriodo + totalHorasExtras - deducciones;
 
-        const totalBonificaciones = Object.values(bonificaciones).reduce((a, b) => a + b, 0);
-        const deducciones = {
-            ausencias: horasAusente * valorHora,
-            salud: salarioBase * NOMINA_CONFIG.DEDUCCIONES.SALUD,
-            pension: salarioBase * NOMINA_CONFIG.DEDUCCIONES.PENSION
-        };
-        const totalDeducciones = Object.values(deducciones).reduce((a, b) => a + b, 0);
-        const salarioNeto = salarioBase + totalBonificaciones - totalDeducciones;
+        // Actualizar la interfaz
+        document.getElementById('nomina-salario-base-resumen').textContent = formatCurrency(salarioPeriodo);
+        document.getElementById('nomina-bonificaciones').textContent = formatCurrency(totalHorasExtras);
+        document.getElementById('nomina-deducciones').textContent = formatCurrency(deducciones);
+        document.getElementById('nomina-salario-neto').textContent = formatCurrency(salarioNeto);
 
-        // Actualizar el resumen en la interfaz
-        document.getElementById("nomina-empleado").textContent = empleado.nombre;
-        document.getElementById("nomina-periodo-tipo-resumen").textContent = periodoTipo;
-        document.getElementById("nomina-salario-base-resumen").textContent = formatCurrency(salarioBase);
-        document.getElementById("nomina-bonificaciones").textContent = formatCurrency(totalBonificaciones);
-        document.getElementById("nomina-deducciones").textContent = formatCurrency(totalDeducciones);
-        document.getElementById("nomina-salario-neto").textContent = formatCurrency(salarioNeto);
+        // Mostrar detalles de ausentismos y horas extras
+        const detallesContainer = document.getElementById('detalles-nomina');
+        if (detallesContainer) {
+            detallesContainer.innerHTML = `
+                <div class="alert alert-info mt-3">
+                    <h6 class="alert-heading">Detalles del período:</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Ausentismos:</strong>
+                            <ul>
+                                <li>Total horas: ${registros.ausentismos}</li>
+                                <li>Valor: ${formatCurrency(valorAusentismos)}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Horas Extras:</strong>
+                            <ul>
+                                <li>Diurnas (25%): ${registros.horas_extras.horas_extra_diurnas}h - ${formatCurrency(valorHorasExtras.diurnas)}</li>
+                                <li>Nocturnas (75%): ${registros.horas_extras.horas_extra_nocturnas}h - ${formatCurrency(valorHorasExtras.nocturnas)}</li>
+                                <li>Recargo Nocturno (35%): ${registros.horas_extras.recargos_nocturnos}h - ${formatCurrency(valorHorasExtras.recargos)}</li>
+                                <li>Dominicales/Festivos (100%): ${registros.horas_extras.horas_extra_dominicales}h - ${formatCurrency(valorHorasExtras.dominicales)}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
 
-        // Mostrar el resumen
-        const resumen = document.getElementById("nomina-resumen");
-        resumen.classList.remove("hidden");
+        // Habilitar el botón de generar PDF
+        const generarPdfBtn = document.getElementById('generar-pdf');
+        if (generarPdfBtn) {
+            generarPdfBtn.disabled = false;
+        }
 
-        return {
-            empleado,
-            salarioBase,
-            totalBonificaciones,
-            totalDeducciones,
-            salarioNeto
-        };
+        Utils.showMessage('Nómina calculada exitosamente', 'success');
+        return true;
     } catch (error) {
-        console.error('Error en cálculo de nómina:', error);
-        Utils.showMessage("Error al calcular nómina: " + error.message);
+        console.error('Error al calcular nómina:', error);
+        Utils.showMessage('Error al calcular nómina: ' + error.message);
+        return false;
+    }
+}
+
+/**
+ * Control de debounce para evitar múltiples clics
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+/**
+ * Genera el PDF del desprendible
+ */
+async function generarDesprendiblePDF() {
+    try {
+        // Verificar que tengamos los datos necesarios
+        verificarDatosNecesarios();
+
+        const empleadoData = document.getElementById('nomina-empleado-data')?.value;
+        if (!empleadoData) {
+            throw new Error('No hay datos del empleado disponibles');
+        }
+
+        const empleado = JSON.parse(empleadoData);
+        const periodoInicio = document.getElementById('nomina-periodo-inicio')?.value;
+        const periodoFin = document.getElementById('nomina-periodo-fin')?.value;
+        const salarioBase = document.getElementById('nomina-salario-base-resumen')?.textContent;
+        const bonificaciones = document.getElementById('nomina-bonificaciones')?.textContent;
+        const deducciones = document.getElementById('nomina-deducciones')?.textContent;
+        const salarioNeto = document.getElementById('nomina-salario-neto')?.textContent;
+
+        // Crear nuevo documento PDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'letter'
+        });
+
+        // Cargar y agregar el logo
+        const logoImg = document.querySelector('img[src="/static/img/logo.png"]');
+        if (logoImg) {
+            doc.addImage(logoImg, 'PNG', 150, 10, 40, 40);
+        }
+
+        // Generar el texto para el QR
+        const textoQR = generarTextoQR(empleado, periodoInicio, periodoFin, salarioNeto);
+
+        // Generar y agregar código QR
+        const qr = new QRious({
+            value: textoQR,
+            size: 250, // Tamaño fijo para el QR (para buena calidad)
+            level: 'H' // Alta corrección de errores para mejor lectura
+        });
+        const qrDataUrl = qr.toDataURL();
+        
+        // Calcular dimensiones para mantener el QR legible
+        const qrSize = 35; // Tamaño fijo en el PDF (en mm, igual que en CSS)
+        doc.addImage(qrDataUrl, 'PNG', 20, 15, qrSize, qrSize); // Mantener el mismo tamaño que en el CSS (35mm)
+
+        // Configurar fuentes y estilos
+        doc.setFont('helvetica');
+        doc.setFontSize(16);
+
+        // Agregar encabezado (ajustado para el nuevo tamaño del QR)
+        doc.setTextColor(0, 0, 139); // Azul oscuro
+        doc.text('DESPRENDIBLE DE NÓMINA', 105, 30, { align: 'center' });
+        
+        // Información de la empresa (ajustada para el nuevo tamaño del QR)
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text('EMPRESA S.A.S', 105, 40, { align: 'center' });
+        doc.setFontSize(10);
+        doc.text('NIT: 900.123.456-7', 105, 45, { align: 'center' });
+        doc.text('Calle Principal #123', 105, 50, { align: 'center' });
+        doc.text('Ciudad - Tel: (1) 234 5678', 105, 55, { align: 'center' });
+
+        // Línea divisoria
+        doc.setLineWidth(0.5);
+        doc.line(20, 60, 190, 60);
+
+        // Información del empleado
+        doc.setFontSize(11);
+        doc.text('INFORMACIÓN DEL EMPLEADO', 20, 70);
+        
+        const infoEmpleado = [
+            ['Nombre:', empleado.nombre],
+            ['Documento:', `${empleado.tipo_documento || 'CC'} ${empleado.documento}`],
+            ['Cargo:', empleado.cargo],
+            ['Área:', empleado.area],
+            ['Fecha de Ingreso:', empleado.fecha_ingreso || 'No especificada'],
+            ['Tipo de Contrato:', empleado.contrato || 'No especificado'],
+            ['Teléfono:', empleado.telefono || 'No especificado'],
+            ['Correo:', empleado.correo || 'No especificado']
+        ];
+
+        let y = 80;
+        infoEmpleado.forEach(([label, value]) => {
+            doc.setFont('helvetica', 'bold');
+            doc.text(label, 20, y);
+            doc.setFont('helvetica', 'normal');
+            doc.text(value, 60, y);
+            y += 7;
+        });
+
+        // Línea divisoria
+        doc.line(20, y + 5, 190, y + 5);
+
+        // Información del período
+        y += 15;
+        doc.setFont('helvetica', 'bold');
+        doc.text('PERÍODO DE PAGO', 20, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Del ${periodoInicio} al ${periodoFin}`, 80, y);
+
+        // Detalle de pago
+        y += 15;
+        doc.setFont('helvetica', 'bold');
+        doc.text('DETALLE DE PAGO', 20, y);
+
+        const detallePago = [
+            ['Salario Base:', salarioBase],
+            ['Bonificaciones:', bonificaciones],
+            ['Deducciones:', deducciones],
+            ['TOTAL A PAGAR:', salarioNeto]
+        ];
+
+        y += 10;
+        detallePago.forEach(([concepto, valor], index) => {
+            doc.setFont('helvetica', index === detallePago.length - 1 ? 'bold' : 'normal');
+            doc.text(concepto, 20, y);
+            doc.text(valor, 160, y, { align: 'right' });
+            y += 7;
+        });
+
+        // Pie de página
+        doc.setFontSize(8);
+        doc.text('Este documento es un comprobante de pago. Para verificar su autenticidad escanee el código QR.', 105, y + 35, { align: 'center' });
+        doc.text(`Generado el ${new Date().toLocaleDateString()}`, 105, y + 40, { align: 'center' });
+
+        // Guardar el PDF
+        const fileName = `desprendible_${empleado.documento}_${periodoInicio}.pdf`;
+        doc.save(fileName);
+
+        return true;
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
         throw error;
     }
 }
 
-// Función para crear el desprendible de nómina en PDF
-async function generarDesprendibleNominaPDF(datosNomina) {
-    console.log('Iniciando generación del desprendible de nómina en PDF:', datosNomina);
-    
-    const { jsPDF } = window.jspdf;
-    if (!jsPDF) {
-        console.error('jsPDF no está disponible');
-        throw new Error('jsPDF no está disponible');
-    }
-    
-    // Crear documento en formato A4 horizontal
-    const desprendible = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: "a4"
-    });
-
-    console.log('Desprendible PDF creado con dimensiones:', {
-        width: desprendible.internal.pageSize.width,
-        height: desprendible.internal.pageSize.height
-    });
-
-    const pageWidth = desprendible.internal.pageSize.width;
-    const pageHeight = desprendible.internal.pageSize.height;
-    const margin = 20;
-    let y = margin;
-
-    // Configuración de estilos del desprendible
-    const estilosDesprendible = {
-        titulo: { size: 16, style: 'bold', color: [13, 110, 253] },
-        subtitulo: { size: 12, style: 'normal', color: [33, 37, 41] },
-        texto: { size: 10, style: 'normal', color: [33, 37, 41] },
-        textoSmall: { size: 8, style: 'normal', color: [108, 117, 125] }
-    };
-
-    // Función helper para aplicar estilos del desprendible
-    const aplicarEstiloDesprendible = (tipo) => {
-        desprendible.setFontSize(estilosDesprendible[tipo].size);
-        desprendible.setFont('helvetica', estilosDesprendible[tipo].style);
-        desprendible.setTextColor(...estilosDesprendible[tipo].color);
-    };
-
-    // Agregar logo
-    try {
-        const logo = await cargarLogo();
-        desprendible.addImage(logo, 'PNG', margin, y, 25, 25);
-        console.log('Logo agregado al desprendible');
-    } catch (error) {
-        console.warn('No se pudo cargar el logo:', error);
-    }
-
-    // Encabezado con datos de la empresa
-    aplicarEstiloDesprendible('titulo');
-    desprendible.text("Desprendible de Nómina", pageWidth / 2, y + 10, { align: "center" });
-    
-    y += 20;
-    aplicarEstiloDesprendible('subtitulo');
-    desprendible.text(EMPRESA_CONFIG.nombre, pageWidth / 2, y, { align: "center" });
-    
-    y += 6;
-    aplicarEstiloDesprendible('texto');
-    desprendible.text(`NIT: ${EMPRESA_CONFIG.nit}`, pageWidth / 2, y, { align: "center" });
-    y += 5;
-    desprendible.text(EMPRESA_CONFIG.direccion, pageWidth / 2, y, { align: "center" });
-    y += 5;
-    desprendible.text(`${EMPRESA_CONFIG.ciudad} | Tel: ${EMPRESA_CONFIG.telefono}`, pageWidth / 2, y, { align: "center" });
-
-    // Agregar línea separadora
-    y += 8;
-    desprendible.setDrawColor(222, 226, 230);
-    desprendible.setLineWidth(0.5);
-    desprendible.line(margin, y, pageWidth - margin - 60, y);
-
-    // Calcular ancho disponible para las tablas (dejando espacio para el QR)
-    const anchoTablas = pageWidth - (margin * 2) - 60;
-
-    // Información del empleado
-    y += 10;
-    aplicarEstiloDesprendible('subtitulo');
-    desprendible.text("Información del Empleado", margin, y);
-    
-    y += 5;
-    desprendible.autoTable({
-        startY: y,
-        head: [['Campo', 'Valor']],
-        body: [
-            ['Empleado', datosNomina.datos.empleado],
-            ['Documento', datosNomina.datos.documento || 'No especificado'],
-            ['Periodo', `${datosNomina.datos.periodoTipo} (${formatDate(datosNomina.datos.periodoInicio)} - ${formatDate(datosNomina.datos.periodoFin)})`],
-            ['Salario Base', datosNomina.datos.salarioBase]
-        ],
-        theme: 'grid',
-        styles: { 
-            fontSize: 10,
-            cellPadding: 3,
-            lineColor: [222, 226, 230],
-            lineWidth: 0.1
-        },
-        headStyles: {
-            fillColor: [13, 110, 253],
-            textColor: 255,
-            fontStyle: 'bold'
-        },
-        margin: { left: margin, right: margin },
-        tableWidth: anchoTablas
-    });
-
-    // Detalles de la nómina
-    y = desprendible.lastAutoTable.finalY + 10;
-    aplicarEstiloDesprendible('subtitulo');
-    desprendible.text("Detalles de Nómina", margin, y);
-    
-    y += 5;
-    desprendible.autoTable({
-        startY: y,
-        head: [['Concepto', 'Valor']],
-        body: [
-            ['Bonificaciones', datosNomina.datos.bonificaciones],
-            ['Deducciones', datosNomina.datos.deducciones],
-            ['Salario Neto', datosNomina.datos.salarioNeto]
-        ],
-        theme: 'grid',
-        styles: { 
-            fontSize: 10,
-            cellPadding: 3,
-            lineColor: [222, 226, 230],
-            lineWidth: 0.1
-        },
-        headStyles: {
-            fillColor: [13, 110, 253],
-            textColor: 255,
-            fontStyle: 'bold'
-        },
-        margin: { left: margin, right: margin },
-        tableWidth: anchoTablas
-    });
-
-    // Generar y agregar código QR
-    try {
-        console.log('Generando código QR para el desprendible');
-        // Crear texto legible para el QR
-        const textoQR = [
-            'DESPRENDIBLE DE NÓMINA',
-            '---------------------',
-            `Empresa: ${EMPRESA_CONFIG.nombre}`,
-            `NIT: ${EMPRESA_CONFIG.nit}`,
-            `Empleado: ${datosNomina.datos.empleado}`,
-            `Documento: ${datosNomina.datos.documento}`,
-            `Periodo: ${datosNomina.datos.periodoTipo}`,
-            `Fecha: ${formatDate(datosNomina.datos.periodoInicio)} - ${formatDate(datosNomina.datos.periodoFin)}`,
-            `Salario Neto: ${datosNomina.datos.salarioNeto}`,
-            '---------------------',
-            `Generado: ${new Date().toLocaleDateString()}`
-        ].join('\n');
-        
-        const qr = new QRious({
-            value: textoQR,
-            size: 1000,
-            level: 'H'
-        });
-        
-        // Posicionar QR en la parte derecha
-        const tamanoQR = 50;
-        const posXQR = pageWidth - margin - tamanoQR;
-        const posYQR = margin;
-        desprendible.addImage(qr.toDataURL(), 'PNG', posXQR, posYQR, tamanoQR, tamanoQR);
-        
-        // Agregar leyenda debajo del QR
-        aplicarEstiloDesprendible('textoSmall');
-        desprendible.text('Escanee el código QR\npara verificar', posXQR + (tamanoQR/2), posYQR + tamanoQR + 5, {
-            align: 'center'
-        });
-        
-        console.log('Código QR agregado al desprendible');
-    } catch (error) {
-        console.warn('No se pudo generar el código QR:', error);
-    }
-
-    // Pie de página
-    aplicarEstiloDesprendible('textoSmall');
-    const textoLegal = desprendible.splitTextToSize(EMPRESA_CONFIG.textoLegal, anchoTablas);
-    desprendible.text(textoLegal, pageWidth / 2 - 30, pageHeight - margin - 15, { 
-        align: "center"
-    });
-    
-    desprendible.text(`Generado el ${new Date().toLocaleDateString()} | ${EMPRESA_CONFIG.sitioWeb}`, pageWidth / 2 - 30, pageHeight - margin - 8, {
-        align: "center"
-    });
-
-    console.log('Desprendible de nómina generado completamente');
-    return desprendible;
+/**
+ * Genera el texto para el código QR
+ */
+function generarTextoQR(empleado, periodoInicio, periodoFin, salarioNeto) {
+    return `     DESPRENDIBLE
+---------------------------------------
+NOMBRE: ${empleado.nombre}
+DOCUMENTO: ${empleado.tipo_documento || 'CC'} ${empleado.documento}
+SALARIO NETO: ${salarioNeto}
+PERIODO DE PAGO: ${periodoInicio} al ${periodoFin}`;
 }
 
-// En la función generarPdfNomina, actualizar la llamada
+// Variable para controlar si hay una generación en proceso
+let isGeneratingPDF = false;
+
+/**
+ * Genera el PDF del desprendible de nómina
+ */
 async function generarPdfNomina() {
-    try {
-        console.log('Iniciando generación de desprendible de nómina...');
-
-        // Cargar dependencias de manera segura
-        const dependenciesLoaded = await loadDependencies().catch(error => {
-            console.error('Error al cargar dependencias:', error);
-            throw new Error(`No se pudieron cargar las dependencias necesarias: ${error.message}`);
-        });
-
-        if (!dependenciesLoaded) {
-            throw new Error('No se pudieron cargar las dependencias necesarias');
-        }
-
-        // Verificar que jsPDF esté disponible
-        if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
-            throw new Error('jsPDF no está disponible correctamente');
-        }
-
-        // Obtener y validar datos
-        const datosNomina = obtenerDatosNomina();
-        if (!datosNomina.valido) {
-            throw new Error(datosNomina.mensaje);
-        }
-
-        // Crear desprendible PDF
-        const desprendible = await generarDesprendibleNominaPDF(datosNomina);
-        
-        // Generar nombre de archivo
-        const nombreArchivo = generarNombreArchivo(datosNomina.datos);
-
-        // Guardar PDF
-        console.log('Guardando desprendible como:', nombreArchivo);
-        desprendible.save(nombreArchivo);
-        
-        console.log('Desprendible generado exitosamente');
-        Utils.showMessage('Desprendible de nómina generado exitosamente', 'success');
-    } catch (error) {
-        console.error('Error al generar desprendible:', error);
-        Utils.showMessage(`Error al generar el desprendible de nómina: ${error.message}`);
-    }
-}
-
-// Función para obtener y validar datos de nómina
-function obtenerDatosNomina() {
-    const formularioNomina = document.getElementById('formulario-nomina');
-    const datos = {
-        empleado: formularioNomina.dataset.nombreEmpleado || document.getElementById("nomina-empleado")?.textContent,
-        documento: document.getElementById("nomina-documento")?.value,
-        periodoInicio: document.getElementById("nomina-periodo-inicio")?.value,
-        periodoFin: document.getElementById("nomina-periodo-fin")?.value,
-        periodoTipo: document.getElementById("nomina-periodo-tipo")?.value,
-        salarioBase: document.getElementById("nomina-salario-base-resumen")?.textContent,
-        bonificaciones: document.getElementById("nomina-bonificaciones")?.textContent,
-        deducciones: document.getElementById("nomina-deducciones")?.textContent,
-        salarioNeto: document.getElementById("nomina-salario-neto")?.textContent
-    };
-
-    if (!datos.empleado || !datos.periodoInicio || !datos.periodoFin || !datos.periodoTipo) {
-        return {
-            valido: false,
-            mensaje: 'Faltan datos necesarios para generar el PDF'
-        };
-    }
-
-    return {
-        valido: true,
-        datos
-    };
-}
-
-// Función para generar el nombre del archivo
-function generarNombreArchivo(datos) {
-    const fechaArchivo = formatDate(datos.periodoFin).replace(/\//g, "-");
-    return `nomina_${datos.empleado.replace(/\s+/g, "_")}_${datos.periodoTipo}_${fechaArchivo}.pdf`;
-}
-
-async function buscarEmpleado(documento) {
-    try {
-        console.log('Buscando empleado con documento:', documento);
-        
-        // Limpiar el formulario antes de buscar
-        limpiarFormularioNomina();
-        
-        // Validar que el documento no esté vacío
-        if (!documento || documento.trim() === '') {
-            throw new Error('Por favor ingrese un número de documento válido');
-        }
-
-        // Construir URL con el documento como parámetro de búsqueda exacta
-        const url = `/api/rrhh/empleados-list/?documento=${documento.trim()}`;
-        console.log('URL de búsqueda:', url);
-
-        const response = await Utils.makeRequest(url);
-        console.log('Respuesta completa de la API:', response);
-
-        if (!response || !Array.isArray(response) || response.length === 0) {
-            throw new Error('No se encontró ningún empleado con ese documento');
-        }
-
-        const empleado = response[0];
-        console.log('Datos del empleado encontrado:', empleado);
-
-        // Verificar que los datos del empleado sean válidos
-        if (!empleado.nombre || !empleado.documento || !empleado.salario) {
-            console.error('Datos del empleado incompletos:', empleado);
-            throw new Error('Los datos del empleado están incompletos');
-        }
-
-        // Actualizar TODOS los campos que muestran el nombre del empleado
-        const elementosNombre = [
-            { id: 'nomina-nombre', type: 'input' },
-            { id: 'nomina-empleado', type: 'text' },
-            { id: 'nombre-empleado', type: 'text' }
-        ];
-
-        elementosNombre.forEach(elemento => {
-            const el = document.getElementById(elemento.id);
-            if (el) {
-                if (elemento.type === 'input') {
-                    el.value = empleado.nombre;
-                } else {
-                    el.textContent = empleado.nombre;
-                }
-                console.log(`Nombre actualizado en ${elemento.id}:`, empleado.nombre);
-            }
-        });
-
-        // Actualizar elementos que muestran el salario
-        const salarioFormateado = formatCurrency(empleado.salario);
-        const elementosSalario = [
-            { id: 'nomina-salario-base', type: 'input' },
-            { id: 'salario-base', type: 'text' },
-            { id: 'nomina-salario-base-resumen', type: 'text' }
-        ];
-
-        elementosSalario.forEach(elemento => {
-            const el = document.getElementById(elemento.id);
-            if (el) {
-                if (elemento.type === 'input') {
-                    el.value = salarioFormateado;
-                } else {
-                    el.textContent = salarioFormateado;
-                }
-                console.log(`Salario actualizado en ${elemento.id}:`, salarioFormateado);
-            }
-        });
-
-        // Actualizar documento en todos los elementos relevantes
-        const elementosDocumento = [
-            { id: 'nomina-documento', type: 'input' },
-            { id: 'documento-empleado', type: 'text' }
-        ];
-
-        elementosDocumento.forEach(elemento => {
-            const el = document.getElementById(elemento.id);
-            if (el) {
-                if (elemento.type === 'input') {
-                    el.value = empleado.documento;
-                } else {
-                    el.textContent = empleado.documento;
-                }
-                console.log(`Documento actualizado en ${elemento.id}:`, empleado.documento);
-            }
-        });
-
-        // Guardar datos en el formulario
-        const formularioNomina = document.getElementById('formulario-nomina');
-        if (formularioNomina) {
-            formularioNomina.dataset.empleadoId = empleado.id;
-            formularioNomina.dataset.salarioBase = empleado.salario;
-            formularioNomina.dataset.nombreEmpleado = empleado.nombre;
-            console.log('Datos guardados en el formulario:', {
-                id: empleado.id,
-                salario: empleado.salario,
-                nombre: empleado.nombre
-            });
-        }
-
-        // Pre-cargar el periodo actual
-        const hoy = new Date();
-        const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-        const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
-        
-        const periodoInicioElement = document.getElementById('nomina-periodo-inicio');
-        const periodoFinElement = document.getElementById('nomina-periodo-fin');
-        
-        if (periodoInicioElement) periodoInicioElement.value = primerDiaMes.toISOString().split('T')[0];
-        if (periodoFinElement) periodoFinElement.value = ultimoDiaMes.toISOString().split('T')[0];
-
-        // Habilitar campos de horas
-        const camposHoras = [
-            'nomina-horas-extra-diurnas',
-            'nomina-horas-extra-nocturnas',
-            'nomina-recargos-nocturnos',
-            'nomina-horas-diurnas-festivas',
-            'nomina-horas-nocturnas-festivas',
-            'nomina-horas-extras-diurnas-festivas',
-            'nomina-horas-extras-nocturnas-festivas',
-            'nomina-horas-ausente'
-        ];
-
-        camposHoras.forEach(id => {
-            const elemento = document.getElementById(id);
-            if (elemento) {
-                elemento.disabled = false;
-                console.log(`Campo ${id} habilitado`);
-            }
-        });
-
-    } catch (error) {
-        console.error('Error al buscar empleado:', error);
-        Utils.showMessage(error.message);
-        limpiarFormularioNomina();
-    }
-}
-
-// Función para limpiar el formulario de nómina
-function limpiarFormularioNomina() {
-    console.log('Iniciando limpieza del formulario de nómina...');
-    const formularioNomina = document.getElementById('formulario-nomina');
-    if (!formularioNomina) {
-        console.log('No se encontró el formulario de nómina');
-        return;
-    }
-
-    // Resetear el formulario
-    formularioNomina.reset();
-
-    // Limpiar el resumen
-    const resumen = document.getElementById('nomina-resumen');
-    if (resumen) {
-        resumen.classList.add('hidden');
-    }
-
-    // Limpiar campos específicos y asegurarse de que estén vacíos
-    const camposTexto = {
-        'nomina-empleado': '',
-        'nomina-documento': '',
-        'nomina-salario-base': '',
-        'nomina-bonificaciones': '',
-        'nomina-deducciones': '',
-        'nomina-salario-neto': '',
-        'nomina-periodo-inicio': '',
-        'nomina-periodo-fin': ''
-    };
-
-    for (const [id, valor] of Object.entries(camposTexto)) {
-        const elemento = document.getElementById(id);
-        if (elemento) {
-            if (elemento.tagName === 'INPUT') {
-                elemento.value = valor;
-            } else {
-                elemento.textContent = valor;
-            }
-            console.log(`Campo ${id} limpiado`);
-        } else {
-            console.log(`No se encontró el elemento ${id}`);
-        }
-    }
-
-    // Limpiar y deshabilitar campos de horas
-    const camposHoras = [
-        'nomina-horas-extra-diurnas',
-        'nomina-horas-extra-nocturnas',
-        'nomina-recargos-nocturnos',
-        'nomina-horas-diurnas-festivas',
-        'nomina-horas-nocturnas-festivas',
-        'nomina-horas-extras-diurnas-festivas',
-        'nomina-horas-extras-nocturnas-festivas',
-        'nomina-horas-ausente'
-    ];
-
-    camposHoras.forEach(id => {
-        const elemento = document.getElementById(id);
-        if (elemento) {
-            elemento.value = '0';
-            elemento.disabled = true;
-            console.log(`Campo ${id} reseteado y deshabilitado`);
-        } else {
-            console.log(`No se encontró el elemento ${id}`);
-        }
-    });
-
-    // Limpiar datos almacenados en el dataset
-    formularioNomina.dataset.empleadoId = '';
-    formularioNomina.dataset.salarioBase = '';
-    formularioNomina.dataset.nombreEmpleado = '';
-    
-    console.log('Formulario limpiado completamente');
-}
-
-// Inicialización del módulo de nómina
-function initNominaModule() {
-    const formularioNomina = document.getElementById('formulario-nomina');
-    if (!formularioNomina) return;
-
-    // Evento para buscar empleado cuando se ingresa el documento
-    const inputDocumento = document.getElementById('nomina-documento');
-    if (inputDocumento) {
-        // Remover eventos previos si existen
-        const oldBlurHandler = inputDocumento.onblur;
-        const oldInputHandler = inputDocumento.oninput;
-        if (oldBlurHandler) inputDocumento.removeEventListener('blur', oldBlurHandler);
-        if (oldInputHandler) inputDocumento.removeEventListener('input', oldInputHandler);
-        
-        inputDocumento.addEventListener('blur', async function() {
-            const documento = this.value.trim();
-            if (!documento) {
-                limpiarFormularioNomina();
-                Utils.showMessage('Por favor ingrese un número de documento');
-                return;
-            }
-
-            try {
-                await buscarEmpleado(documento);
-            } catch (error) {
-                Utils.showMessage(error.message);
-            }
-        });
-
-        // Agregar evento para limpiar cuando el campo está vacío
-        inputDocumento.addEventListener('input', function() {
-            if (!this.value.trim()) {
-                limpiarFormularioNomina();
-            }
-        });
-    }
-
-    // Evento submit del formulario
-    formularioNomina.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const empleadoId = formularioNomina.dataset.empleadoId;
-        if (!empleadoId) {
-            Utils.showMessage('Por favor, primero busque un empleado válido');
-            return;
-        }
-        try {
-            await calcularNomina(empleadoId);
-        } catch (error) {
-            Utils.showMessage(error.message);
-        }
-    });
-
-    // Evento para limpiar formulario
-    const botonLimpiar = document.getElementById('limpiar-formulario');
-    if (botonLimpiar) {
-        botonLimpiar.addEventListener('click', limpiarFormularioNomina);
-    }
-
-    // Evento para generar PDF
-    const botonGenerarPDF = document.getElementById('generar-pdf');
-    if (botonGenerarPDF) {
-        botonGenerarPDF.addEventListener('click', () => {
-            const resumen = document.getElementById('nomina-resumen');
-            if (resumen.classList.contains('hidden')) {
-                Utils.showMessage('Por favor, primero calcule la nómina');
-                return;
-            }
-            generarPdfNomina();
-        });
-    }
-
-    // Evento para recalcular cuando cambia el tipo de periodo
-    const selectPeriodo = document.getElementById('nomina-periodo-tipo');
-    if (selectPeriodo) {
-        selectPeriodo.addEventListener('change', function() {
-            // No calcular automáticamente, solo actualizar el período si es necesario
-            const resumen = document.getElementById('nomina-resumen');
-            if (resumen) {
-                resumen.classList.add('hidden');
-            }
-        });
-    }
-}
-
-// Inicialización general cuando el DOM está listo
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Inicializando aplicación...');
+    const botonPDF = document.getElementById('generar-pdf');
+    if (!botonPDF || botonPDF.disabled || isGeneratingPDF) return;
     
     try {
-        // Inicializar módulos principales
-        ['proveedores', 'clientes', 'recursos_humanos'].forEach(tipo => {
-            if (document.getElementById(CONFIG[tipo].tableId)) {
-                EntityManager.loadData(tipo);
-                const form = document.getElementById(CONFIG[tipo].formId);
-                if (form) {
-                    form.addEventListener('submit', (e) => {
-                        e.preventDefault();
-                        EntityManager.saveEntity(tipo);
-                    });
+        isGeneratingPDF = true;
+        botonPDF.disabled = true;
+        botonPDF.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generando...';
+
+        await loadDependencies();
+        await generarDesprendiblePDF();
+        Utils.showMessage('PDF generado exitosamente', 'success');
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
+        Utils.showMessage('Error al generar el PDF: ' + error.message, 'error');
+    } finally {
+        isGeneratingPDF = false;
+        botonPDF.disabled = false;
+        botonPDF.innerHTML = '<i class="fas fa-file-pdf me-2"></i>PDF';
+    }
+}
+
+// Función para inicializar el módulo de nómina
+async function initNominaModule() {
+    try {
+        console.log('Iniciando inicialización del módulo de nómina...');
+
+        // Esperar a que el DOM esté completamente cargado
+        if (document.readyState !== 'complete') {
+            await new Promise(resolve => window.addEventListener('load', resolve, { once: true }));
+        }
+
+        // Verificar que estamos en la página correcta
+        const nominaPanel = document.getElementById('nomina-panel');
+        if (!nominaPanel) {
+            console.error('No se encontró el panel de nómina');
+            return false;
+        }
+
+        // Crear la estructura base si no existe
+        let nominaResumen = document.getElementById('nomina-resumen');
+        if (!nominaResumen) {
+            console.log('Creando estructura del módulo de nómina...');
+            nominaResumen = document.createElement('div');
+            nominaResumen.id = 'nomina-resumen';
+            nominaResumen.className = 'container-fluid mt-4';
+            nominaPanel.appendChild(nominaResumen);
+
+            nominaResumen.innerHTML = `
+                <div class="row">
+                    <!-- Información del empleado -->
+                    <div class="col-md-6">
+                        <div class="card mb-3" id="info-empleado">
+                            <div class="card-body">
+                                <h5 class="card-title">Información del Empleado</h5>
+                                <div class="mb-3">
+                                    <label for="nomina-documento" class="form-label">Documento:</label>
+                                    <div class="input-group">
+                                        <input type="text" id="nomina-documento" class="form-control" placeholder="Ingrese documento">
+                                        <button class="btn btn-primary" type="button" id="buscar-empleado">
+                                            <i class="fas fa-search"></i> Buscar
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="nomina-empleado" class="mt-3">
+                                    <!-- Aquí se mostrará la información del empleado -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cálculo de Nómina -->
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Cálculo de Nómina</h5>
+                                <div class="mb-3">
+                                    <label class="form-label">Periodo:</label>
+                                    <div class="row g-2">
+                                        <div class="col">
+                                            <input type="date" id="nomina-periodo-inicio" class="form-control">
+                                        </div>
+                                        <div class="col-auto">
+                                            <span class="form-text">al</span>
+                                        </div>
+                                        <div class="col">
+                                            <input type="date" id="nomina-periodo-fin" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="nomina-periodo-tipo" class="form-label">Tipo de Periodo:</label>
+                                    <select id="nomina-periodo-tipo" class="form-select">
+                                        <option value="Quincenal">Quincenal</option>
+                                        <option value="Mensual">Mensual</option>
+                                    </select>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Salario Base:</strong></td>
+                                                <td class="text-end">
+                                                    <span id="nomina-salario-base-resumen">$0</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Bonificaciones:</strong></td>
+                                                <td class="text-end">
+                                                    <span id="nomina-bonificaciones">$0</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Deducciones:</strong></td>
+                                                <td class="text-end">
+                                                    <span id="nomina-deducciones">$0</span>
+                                                </td>
+                                            </tr>
+                                            <tr class="table-primary">
+                                                <td><strong>Salario Neto:</strong></td>
+                                                <td class="text-end">
+                                                    <strong><span id="nomina-salario-neto">$0</span></strong>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mt-3 d-flex gap-2 justify-content-end">
+                                    <button type="button" class="btn btn-primary" id="calcular-nomina">
+                                        <i class="fas fa-calculator"></i> Calcular
+                                    </button>
+                                    <button type="button" class="btn btn-success" id="guardar-nomina">
+                                        <i class="fas fa-save"></i> Guardar
+                                    </button>
+                                    <button type="button" class="btn btn-info" id="generar-pdf" disabled>
+                                        <i class="fas fa-file-pdf"></i> PDF
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campos ocultos para datos adicionales -->
+                <input type="hidden" id="empleado-id-nomina">
+                <input type="hidden" id="nomina-empleado-data">
+            `;
+        }
+
+        // Configurar el input de documento con debounce
+        const documentoInput = document.getElementById('nomina-documento');
+        if (documentoInput) {
+            let typingTimer;
+            const doneTypingInterval = 300;
+
+            const doneTyping = async () => {
+                const documento = documentoInput.value.trim();
+                if (documento.length >= 5) {
+                    console.log('Iniciando búsqueda de empleado:', documento);
+                    await cargarDatosNomina(documento);
                 }
-            }
-        });
-
-        // Inicializar módulo de nómina
-        initNominaModule();
-
-        // Verificar autenticación
-        AuthManager.verifyAuth();
-
-        // Configurar botones de login/registro
-        document.querySelectorAll('#login-btn, #register-btn').forEach(btn => {
-            btn.addEventListener('click', () => 
-                AuthManager.showModal(btn.id === 'login-btn' ? 'loginModal' : 'registerModal')
-            );
-        });
-
-        // Inicialización de la sección de ausentismos
-        if (document.getElementById('ausentismos-panel')) {
-            // Cargar datos iniciales
-            EntityManager.loadAusentismos();
-
-            // Inicializar el formulario y sus eventos
-            EntityManager.initAusentismosForm();
-
-            // Manejar el formulario de ausentismos
-            const formAusentismos = document.getElementById('form-ausentismos');
-            if (formAusentismos) {
-                formAusentismos.addEventListener('submit', (e) => EntityManager.saveAusentismo(e));
-            }
-
-            // Manejar el botón de limpiar
-            const btnLimpiar = document.getElementById('limpiar-ausentismos');
-            if (btnLimpiar) {
-                btnLimpiar.addEventListener('click', () => {
-                    const form = document.getElementById('form-ausentismos');
-                    form.reset();
-                    form.classList.remove('was-validated');
-                    // Ocultar ambos contenedores de detalles
-                    document.getElementById('horas-extras-detalles').classList.add('d-none');
-                    document.getElementById('ausentismo-duracion').classList.add('d-none');
-                });
-            }
-
-            // Cargar lista de empleados
-            const empleadoSelect = document.getElementById('ausentismos-empleado');
-            if (empleadoSelect) {
-                Utils.makeRequest('/api/rrhh/empleados/')
-                    .then(empleados => {
-                        empleadoSelect.innerHTML = '<option value="">Seleccione un empleado</option>';
-                        empleados.forEach(emp => {
-                            const option = document.createElement('option');
-                            option.value = emp.id;
-                            option.textContent = emp.nombre;
-                            option.setAttribute('data-documento', emp.documento);
-                            empleadoSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => Utils.showMessage(`Error al cargar empleados: ${error.message}`));
-            }
-
-            // Manejar filtros de la tabla
-            const filtros = {
-                todos: document.getElementById('filtro-todos'),
-                ausentismos: document.getElementById('filtro-ausentismos'),
-                horasExtras: document.getElementById('filtro-horas-extras')
             };
 
-            function aplicarFiltro(tipo = null) {
-                const rows = document.querySelectorAll('#tabla-ausentismos tbody tr');
-                rows.forEach(row => {
-                    if (!tipo) {
-                        row.style.display = '';
-                    } else if (tipo === 'ausentismo') {
-                        row.style.display = row.dataset.tipo === 'ausentismo' ? '' : 'none';
-                    } else if (tipo === 'horas_extras') {
-                        row.style.display = row.dataset.tipo.startsWith('hora_extra') ? '' : 'none';
-                    }
+            documentoInput.addEventListener('input', (e) => {
+                console.log('Input detectado:', e.target.value);
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(doneTyping, doneTypingInterval);
+            });
+
+            documentoInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(typingTimer);
+                    doneTyping();
+                }
+            });
+
+            // Configurar botón de búsqueda
+            const buscarBtn = document.getElementById('buscar-empleado');
+            if (buscarBtn) {
+                buscarBtn.addEventListener('click', () => {
+                    clearTimeout(typingTimer);
+                    doneTyping();
                 });
             }
+        }
 
-            Object.entries(filtros).forEach(([key, btn]) => {
-                if (btn) {
-                    btn.addEventListener('click', () => {
-                        Object.values(filtros).forEach(b => b?.classList.remove('active'));
-                        btn.classList.add('active');
-                        aplicarFiltro(key === 'todos' ? null : key === 'ausentismos' ? 'ausentismo' : 'horas_extras');
-                    });
-                }
+        // Configurar botones
+        const calcularBtn = document.getElementById('calcular-nomina');
+        const guardarBtn = document.getElementById('guardar-nomina');
+        const generarPdfBtn = document.getElementById('generar-pdf');
+
+        if (calcularBtn) {
+            calcularBtn.addEventListener('click', async () => {
+                await calcularNomina();
             });
         }
 
-        console.log('Inicialización completada con éxito');
+        if (guardarBtn) {
+            guardarBtn.addEventListener('click', async () => {
+                await guardarNomina();
+            });
+        }
+
+        if (generarPdfBtn) {
+            generarPdfBtn.disabled = true;
+            // Remover el atributo onclick para evitar duplicación
+            generarPdfBtn.removeAttribute('onclick');
+            
+            // Remover cualquier event listener existente
+            const nuevoBoton = generarPdfBtn.cloneNode(true);
+            generarPdfBtn.parentNode.replaceChild(nuevoBoton, generarPdfBtn);
+            
+            // Agregar un único event listener con debounce
+            nuevoBoton.addEventListener('click', debounce(async () => {
+                if (!isGeneratingPDF) {
+                    await generarPdfNomina();
+                }
+            }, 1000));
+            
+            // Deshabilitar inicialmente
+            nuevoBoton.disabled = true;
+        }
+
+        // Inicializar fechas por defecto
+        const hoy = new Date();
+        const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        const ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+
+        const periodoInicio = document.getElementById('nomina-periodo-inicio');
+        const periodoFin = document.getElementById('nomina-periodo-fin');
+
+        if (periodoInicio) periodoInicio.value = primerDia.toISOString().split('T')[0];
+        if (periodoFin) periodoFin.value = ultimoDia.toISOString().split('T')[0];
+
+        console.log('Módulo de nómina inicializado correctamente');
+        return true;
+    } catch (error) {
+        console.error('Error al inicializar el módulo de nómina:', error);
+        Utils.showMessage('Error al inicializar el módulo de nómina: ' + error.message);
+        return false;
+    }
+}
+
+// Función para cargar datos según la pestaña
+async function cargarDatosPestaña(targetId) {
+    try {
+        console.log('Cargando datos para pestaña:', targetId);
+        switch (targetId) {
+            case '#empleados-panel':
+                await EntityManager.loadData('recursos_humanos');
+                break;
+            case '#proveedores-section':
+            case '#proveedores':
+                console.log('Cargando datos de proveedores...');
+                await EntityManager.loadData('proveedores');
+                break;
+            case '#clientes-section':
+            case '#clientes':
+                console.log('Cargando datos de clientes...');
+                await EntityManager.loadData('clientes');
+                break;
+            case '#nomina-panel':
+                if (typeof initNominaModule === 'function') {
+                    console.log('Inicializando módulo de nómina...');
+                    await initNominaModule();
+                }
+                break;
+            case '#ausentismos-panel':
+                // Manejar ausentismos si es necesario
+                break;
+            case '#liquidacion-panel':
+                // Manejar liquidación si es necesario
+                break;
+        }
+    } catch (error) {
+        console.error('Error al cargar datos de pestaña:', error);
+        Utils.showMessage('Error al cargar los datos: ' + error.message);
+    }
+}
+
+// Función para verificar elementos del módulo de nómina
+function verificarElementosNomina() {
+    console.log('Verificando elementos del módulo de nómina...');
+
+    const elementosRequeridos = [
+        { id: 'nomina-empleado', tipo: 'div', descripcion: 'Contenedor de información del empleado' },
+        { id: 'nomina-documento', tipo: 'input', descripcion: 'Campo de documento' },
+        { id: 'nomina-salario-base-resumen', tipo: 'span', descripcion: 'Campo de salario base' },
+        { id: 'nomina-bonificaciones', tipo: 'span', descripcion: 'Campo de bonificaciones' },
+        { id: 'nomina-deducciones', tipo: 'span', descripcion: 'Campo de deducciones' },
+        { id: 'nomina-salario-neto', tipo: 'span', descripcion: 'Campo de salario neto' },
+        { id: 'info-empleado', tipo: 'div', descripcion: 'Sección de información del empleado' },
+        { id: 'nomina-resumen', tipo: 'div', descripcion: 'Sección de resumen de nómina' }
+    ];
+
+    const elementosFaltantes = elementosRequeridos.filter(elemento => {
+        const elementoDOM = document.getElementById(elemento.id);
+        if (!elementoDOM) {
+            console.error(`Elemento faltante: ${elemento.id} (${elemento.descripcion})`);
+            return true;
+        }
+        console.log(`Elemento encontrado: ${elemento.id} (${elemento.tipo})`);
+        return false;
+    });
+
+    return elementosFaltantes.length === 0;
+}
+
+// Inicialización de la página y eventos al cargar el DOM
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        console.log('Página cargada, inicializando...');
+        
+        // Verificar autenticación
+        await AuthManager.verifyAuth();
+
+        // Cargar datos iniciales de cada módulo
+        console.log('Cargando datos iniciales de los módulos...');
+        await EntityManager.loadData('recursos_humanos');
+        await EntityManager.loadData('proveedores');
+        await EntityManager.loadData('clientes');
+
+        // Configurar eventos de las pestañas
+        const moduloTabs = document.getElementById('moduloTabs');
+        if (moduloTabs) {
+            console.log('Configurando eventos de pestañas...');
+            
+            // Cargar datos iniciales de la pestaña activa
+            const activeTab = moduloTabs.querySelector('.nav-link.active');
+            if (activeTab) {
+                const targetId = activeTab.getAttribute('href');
+                console.log('Cargando datos de pestaña activa:', targetId);
+                await cargarDatosPestaña(targetId);
+            }
+
+            // Configurar eventos de cambio de pestaña
+            moduloTabs.querySelectorAll('.nav-link').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', async (e) => {
+                    const targetId = e.target.getAttribute('href');
+                    console.log('Cambiando a pestaña:', targetId);
+                    await cargarDatosPestaña(targetId);
+                });
+            });
+        }
+
+        // Configurar eventos para cambios de sección
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                const targetId = link.getAttribute('href');
+                if (targetId === '#proveedores' || targetId === '#clientes') {
+                    console.log('Cambiando a sección:', targetId);
+                    await cargarDatosPestaña(targetId);
+                }
+            });
+        });
+
+        // Configurar formularios y botones para cada módulo
+        ['proveedores', 'clientes', 'recursos_humanos'].forEach(tipo => {
+            // Configurar formulario
+                const form = document.getElementById(CONFIG[tipo].formId);
+                if (form) {
+                // Manejar envío del formulario
+                form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+                    await EntityManager.saveEntity(tipo);
+                });
+
+                // Configurar botón de agregar
+                const addButton = document.getElementById(`add-${tipo}`);
+                if (addButton) {
+                    addButton.addEventListener('click', () => {
+                        // Toggle del formulario con animación
+                        if (form.classList.contains('form-visible')) {
+                            // Si está visible, lo ocultamos
+                            form.classList.remove('form-visible');
+                            form.classList.add('form-hidden');
+                            setTimeout(() => {
+                                form.classList.add('hidden');
+                                form.classList.remove('form-transition', 'form-hidden');
+                            }, 300);
+                        } else {
+                            // Si está oculto, lo mostramos
+                            form.classList.remove('hidden');
+                            form.classList.add('form-transition');
+                            // Usar setTimeout para asegurar que la transición funcione
+                            setTimeout(() => {
+                                form.classList.add('form-visible');
+                            }, 10);
+                        }
+                    });
+                }
+
+                // Configurar botón de cancelar
+                const cancelButton = document.getElementById(`cancel-${tipo}`);
+                if (cancelButton) {
+                    cancelButton.addEventListener('click', () => {
+                    form.reset();
+                        form.classList.remove('form-visible');
+                        form.classList.add('form-hidden');
+                        setTimeout(() => {
+                            form.classList.add('hidden');
+                            form.classList.remove('form-transition', 'form-hidden');
+                        }, 300);
+                    });
+                }
+
+                // Configurar búsqueda con debounce
+                const searchInput = document.getElementById(`search-${tipo}`);
+                if (searchInput) {
+                    let debounceTimer;
+                    searchInput.addEventListener('input', () => {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => {
+                            EntityManager.searchData(tipo);
+                        }, 300);
+        });
+    }
+}
+        });
+
+        console.log('Inicialización completada');
     } catch (error) {
         console.error('Error durante la inicialización:', error);
+        Utils.showMessage('Error al inicializar la aplicación: ' + error.message);
     }
 });
 
-// Funciones auxiliares para el formato de la tabla
-function getBadgeClass(tipo) {
-    switch(tipo) {
-        case 'ausentismo': return 'bg-danger';
-        case 'hora_extra_diurna': return 'bg-success';
-        case 'hora_extra_nocturna': return 'bg-primary';
-        case 'hora_extra_dominical': return 'bg-warning';
-        default: return 'bg-secondary';
+/**
+ * Actualiza los datos del empleado en el formulario
+ * @param {Object} empleado - Datos del empleado
+ */
+function actualizarDatosEmpleado(empleado) {
+    try {
+        console.log('Actualizando datos del empleado:', empleado);
+        
+        // Asegurarse de que el empleado existe y tiene los datos necesarios
+        if (!empleado || !empleado.nombre) {
+            throw new Error('Datos del empleado inválidos o incompletos');
+        }
+
+        // Actualizar el campo oculto con los datos del empleado
+        const empleadoDataInput = document.getElementById('nomina-empleado-data');
+        if (empleadoDataInput) {
+            empleadoDataInput.value = JSON.stringify(empleado);
+            console.log('Datos del empleado actualizados en campo oculto');
+        }
+
+        // Actualizar la visualización de los datos del empleado
+        const nominaEmpleado = document.getElementById('nomina-empleado');
+        if (nominaEmpleado) {
+            nominaEmpleado.innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Información del Empleado</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="fw-bold">Nombre:</label>
+                                    <div class="form-control-plaintext">${empleado.nombre}</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="fw-bold">Documento:</label>
+                                    <div class="form-control-plaintext">${empleado.documento}</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="fw-bold">Cargo:</label>
+                                    <div class="form-control-plaintext">${empleado.cargo}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="fw-bold">Área:</label>
+                                    <div class="form-control-plaintext">${empleado.area}</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="fw-bold">Salario Base:</label>
+                                    <div class="form-control-plaintext">${formatCurrency(empleado.salario)}</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="fw-bold">Fecha de Ingreso:</label>
+                                    <div class="form-control-plaintext">${empleado.fecha_ingreso || 'No especificada'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Mostrar el contenedor del resumen
+        const contenedor = document.getElementById('nomina-resumen');
+        if (contenedor) {
+            contenedor.classList.remove('d-none');
+        }
+
+        // Habilitar el botón de generar PDF
+        const generarPdfBtn = document.getElementById('generar-pdf');
+        if (generarPdfBtn) {
+            generarPdfBtn.disabled = false;
+        }
+
+        Utils.showMessage('Datos del empleado cargados exitosamente', 'success');
+    } catch (error) {
+        console.error('Error al actualizar datos del empleado:', error);
+        Utils.showMessage('Error al actualizar datos del empleado: ' + error.message, 'error');
     }
 }
 
-function getTipoTexto(tipo) {
-    switch(tipo) {
-        case 'ausentismo': return 'Ausentismo';
-        case 'hora_extra_diurna': return 'H.E. Diurna';
-        case 'hora_extra_nocturna': return 'H.E. Nocturna';
-        case 'hora_extra_dominical': return 'H.E. Dominical';
-        default: return tipo;
+/**
+ * Busca un empleado por documento
+ */
+async function buscarEmpleado(documento) {
+    try {
+        if (!documento) {
+            Utils.showMessage('Por favor ingrese un número de documento', 'warning');
+            return null;
+        }
+
+        console.log('Buscando empleado con documento:', documento);
+        const response = await fetch(`/api/recursos_humanos/empleados/`);
+        const empleados = await response.json();
+        const empleado = empleados.find(emp => emp.documento === documento);
+        
+        if (empleado) {
+            console.log('Empleado encontrado:', empleado);
+            // Guardar los datos del empleado en el campo oculto
+            const empleadoDataInput = document.getElementById('nomina-empleado-data');
+            if (empleadoDataInput) {
+                empleadoDataInput.value = JSON.stringify(empleado);
+                console.log('Datos del empleado guardados:', empleadoDataInput.value);
+            } else {
+                console.error('No se encontró el elemento nomina-empleado-data');
+            }
+            
+            actualizarDatosEmpleado(empleado);
+            // Ya no llamamos a calcularNomina() aquí
+            return empleado;
+        } else {
+            Utils.showMessage('No se encontró el empleado con el documento especificado', 'warning');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error al buscar empleado:', error);
+        Utils.showMessage('Error al buscar empleado: ' + error.message, 'error');
+        return null;
     }
 }
 
+/**
+ * Verifica que los datos necesarios estén presentes
+ */
+function verificarDatosNecesarios() {
+    const empleadoData = document.getElementById('nomina-empleado-data')?.value;
+    if (!empleadoData) {
+        throw new Error('No hay datos del empleado para generar el PDF');
+    }
+
+    const periodoInicio = document.getElementById('nomina-periodo-inicio')?.value;
+    const periodoFin = document.getElementById('nomina-periodo-fin')?.value;
+    
+    if (!periodoInicio || !periodoFin) {
+        throw new Error('Por favor seleccione el período de nómina');
+    }
+
+    return true;
+}
+
+// Inicialización cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    const documentoInput = document.getElementById('nomina-documento');
+    if (documentoInput) {
+        const buscarEmpleadoDebounced = debounce(async (documento) => {
+            if (documento.length >= 5) {
+                await buscarEmpleado(documento);
+            }
+        }, 300);
+
+        documentoInput.addEventListener('input', (e) => {
+            buscarEmpleadoDebounced(e.target.value.trim());
+        });
+
+        documentoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarEmpleado(e.target.value.trim());
+            }
+        });
+    }
+
+    // Configurar el botón de calcular nómina
+    const calcularBtn = document.getElementById('calcular-nomina');
+    if (calcularBtn) {
+        calcularBtn.addEventListener('click', async () => {
+            try {
+                const resultado = await calcularNomina();
+                if (resultado) {
+                    Utils.showMessage('Nómina calculada exitosamente', 'success');
+                }
+            } catch (error) {
+                Utils.showMessage('Error al calcular nómina: ' + error.message, 'error');
+            }
+        });
+    }
+
+    // Configurar el botón de generar PDF (una sola vez)
+    const generarPdfBtn = document.getElementById('generar-pdf');
+    if (generarPdfBtn) {
+        // Remover el atributo onclick para evitar duplicación
+        generarPdfBtn.removeAttribute('onclick');
+        
+        // Remover cualquier event listener existente
+        const nuevoBoton = generarPdfBtn.cloneNode(true);
+        generarPdfBtn.parentNode.replaceChild(nuevoBoton, generarPdfBtn);
+        
+        // Agregar un único event listener con debounce
+        nuevoBoton.addEventListener('click', debounce(async () => {
+            if (!isGeneratingPDF) {
+                await generarPdfNomina();
+            }
+        }, 1000));
+        
+        // Deshabilitar inicialmente
+        nuevoBoton.disabled = true;
+    }
+});
+
+/**
+ * Maneja el cambio de tipo de registro (ausentismo/horas extras)
+ */
+function handleTipoChange() {
+    const tipo = document.getElementById('ausentismos-tipo').value;
+    const horasExtrasDetalles = document.getElementById('horas-extras-detalles');
+    const ausentismoDuracion = document.getElementById('ausentismo-duracion');
+    const motivoContainer = document.getElementById('ausentismos-motivo-container');
+    const motivoLabel = document.querySelector('label[for="ausentismos-motivo"]');
+    const motivoInput = document.getElementById('ausentismos-motivo');
+
+    if (tipo === 'horas_extras') {
+        horasExtrasDetalles.classList.remove('d-none');
+        ausentismoDuracion.classList.add('d-none');
+        motivoLabel.textContent = 'Descripción del trabajo realizado:';
+        motivoInput.placeholder = 'Detalle la labor realizada durante las horas extras';
+    } else if (tipo === 'ausentismo') {
+        horasExtrasDetalles.classList.add('d-none');
+        ausentismoDuracion.classList.remove('d-none');
+        motivoLabel.textContent = 'Motivo del ausentismo:';
+        motivoInput.placeholder = 'Especifique el motivo del ausentismo';
+    } else {
+        horasExtrasDetalles.classList.add('d-none');
+        ausentismoDuracion.classList.add('d-none');
+    }
+}
+
+/**
+ * Calcula el total de horas extras
+ */
+function calcularTotalHorasExtras() {
+    const diurnas = parseFloat(document.getElementById('horas-extra-diurnas').value) || 0;
+    const nocturnas = parseFloat(document.getElementById('horas-extra-nocturnas').value) || 0;
+    const recargos = parseFloat(document.getElementById('recargos-nocturnos').value) || 0;
+    const dominicales = parseFloat(document.getElementById('horas-extra-dominicales').value) || 0;
+    
+    const total = diurnas + nocturnas + recargos + dominicales;
+    document.getElementById('total-horas-extras').textContent = total.toFixed(1);
+    
+    // También actualizar el campo de duración
+    document.getElementById('ausentismos-duracion').value = total.toFixed(1);
+}
+
+/**
+ * Guarda un registro de ausentismo o horas extras
+ */
+async function guardarRegistro(event) {
+    event.preventDefault();
+    
+    try {
+        const form = document.getElementById('form-ausentismos');
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        const tipo = document.getElementById('ausentismos-tipo').value;
+        const empleadoId = document.getElementById('ausentismos-empleado').value;
+        const fecha = document.getElementById('ausentismos-fecha').value;
+        const motivo = document.getElementById('ausentismos-motivo').value;
+        
+        let duracion_horas;
+        let detalles = {};
+        
+        if (tipo === 'horas_extras') {
+            detalles = {
+                horas_extra_diurnas: parseFloat(document.getElementById('horas-extra-diurnas').value) || 0,
+                horas_extra_nocturnas: parseFloat(document.getElementById('horas-extra-nocturnas').value) || 0,
+                recargos_nocturnos: parseFloat(document.getElementById('recargos-nocturnos').value) || 0,
+                horas_extra_dominicales: parseFloat(document.getElementById('horas-extra-dominicales').value) || 0
+            };
+            duracion_horas = Object.values(detalles).reduce((a, b) => a + b, 0);
+        } else {
+            duracion_horas = parseFloat(document.getElementById('ausentismos-duracion').value);
+        }
+
+        const data = {
+            empleado: empleadoId,
+            fecha,
+            tipo,
+            duracion_horas,
+            motivo,
+            ...detalles
+        };
+
+        await Utils.makeRequest(CONFIG.ausentismos.apiUrl, 'POST', data);
+        Utils.showMessage('Registro guardado exitosamente', 'success');
+        
+        // Limpiar formulario
+        form.reset();
+        form.classList.remove('was-validated');
+        document.getElementById('total-horas-extras').textContent = '0';
+        
+        // Recargar tabla
+        await EntityManager.loadData('ausentismos');
+        
+    } catch (error) {
+        console.error('Error al guardar registro:', error);
+        Utils.showMessage('Error al guardar el registro: ' + error.message);
+    }
+}
+
+/**
+ * Filtra los registros por tipo
+ */
+function filtrarRegistros(tipo) {
+    const tabla = document.getElementById('tabla-ausentismos');
+    const filas = tabla.querySelectorAll('tbody tr');
+    
+    filas.forEach(fila => {
+        const tipoRegistro = fila.cells[1].textContent;
+        if (tipo === 'todos' || tipoRegistro === tipo) {
+            fila.style.display = '';
+        } else {
+            fila.style.display = 'none';
+        }
+    });
+}
+
+// Función para buscar empleado por documento en el módulo de ausentismos
+async function buscarEmpleadoAusentismo() {
+    const documentoInput = document.getElementById('buscar-documento-ausentismo');
+    const documento = documentoInput.value.trim();
+    
+    if (!documento) {
+        Utils.showMessage('Por favor ingrese un documento', 'warning');
+        return;
+    }
+
+    try {
+        const empleados = await Utils.makeRequest('/api/recursos_humanos/empleados/');
+        const empleado = empleados.find(e => e.documento === documento);
+
+        const infoEmpleado = document.getElementById('info-empleado-ausentismo');
+        const datosEmpleado = document.getElementById('datos-empleado-ausentismo');
+        const empleadoIdInput = document.getElementById('ausentismos-empleado');
+
+        if (empleado) {
+            // Mostrar información del empleado
+            datosEmpleado.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Nombre:</strong> ${empleado.nombre}</p>
+                        <p><strong>Documento:</strong> ${empleado.documento}</p>
+                        <p><strong>Cargo:</strong> ${empleado.cargo}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Área:</strong> ${empleado.area}</p>
+                        <p><strong>Teléfono:</strong> ${empleado.telefono}</p>
+                        <p><strong>Correo:</strong> ${empleado.correo}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Guardar el ID del empleado
+            empleadoIdInput.value = empleado.id;
+            
+            // Mostrar el contenedor de información
+            infoEmpleado.classList.remove('d-none');
+            
+            // Cargar los registros del empleado
+            await cargarRegistrosEmpleado(empleado.documento);
+            
+            Utils.showMessage('Empleado encontrado', 'success');
+        } else {
+            infoEmpleado.classList.add('d-none');
+            empleadoIdInput.value = '';
+            Utils.showMessage('No se encontró el empleado con el documento especificado', 'warning');
+        }
+    } catch (error) {
+        console.error('Error al buscar empleado:', error);
+        Utils.showMessage('Error al buscar empleado: ' + error.message, 'error');
+    }
+}
+
+// Función para cargar los registros de un empleado
+async function cargarRegistrosEmpleado(documento) {
+    try {
+        const registros = await Utils.makeRequest(`${CONFIG.ausentismos.apiUrl}?documento=${documento}`);
+        const tabla = document.getElementById('tabla-ausentismos');
+        const tbody = tabla.querySelector('tbody');
+        
+        tbody.innerHTML = '';
+        
+        if (registros.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center">No hay registros para este empleado</td>
+                </tr>
+            `;
+            return;
+        }
+
+        registros.forEach(registro => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${registro.documento}</td>
+                <td>${registro.empleado_nombre || 'N/A'}</td>
+                <td>${registro.tipo === 'ausentismo' ? 'Ausentismo' : 'Horas Extras'}</td>
+                <td>${registro.fecha}</td>
+                <td>${registro.duracion_horas} horas</td>
+                <td>${registro.motivo || 'N/A'}</td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarRegistro(${registro.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error al cargar registros:', error);
+        Utils.showMessage('Error al cargar los registros: ' + error.message, 'error');
+    }
+}
+
+// Función para eliminar un registro
+async function eliminarRegistro(id) {
+    if (confirm('¿Está seguro de que desea eliminar este registro?')) {
+        try {
+            await Utils.makeRequest(`${CONFIG.ausentismos.apiUrl}${id}/`, 'DELETE');
+            Utils.showMessage('Registro eliminado exitosamente', 'success');
+            
+            // Recargar los registros del empleado actual
+            const documentoInput = document.getElementById('buscar-documento-ausentismo');
+            if (documentoInput.value) {
+                await cargarRegistrosEmpleado(documentoInput.value.trim());
+            }
+        } catch (error) {
+            console.error('Error al eliminar registro:', error);
+            Utils.showMessage('Error al eliminar el registro: ' + error.message, 'error');
+        }
+    }
+}
+
+// Función para limpiar el formulario
+function limpiarFormularioAusentismo() {
+    const form = document.getElementById('form-ausentismos');
+    const infoEmpleado = document.getElementById('info-empleado-ausentismo');
+    
+    form.reset();
+    form.classList.remove('was-validated');
+    infoEmpleado.classList.add('d-none');
+    document.getElementById('ausentismos-empleado').value = '';
+    document.getElementById('total-horas-extras').textContent = '0';
+    
+    // Ocultar contenedores específicos
+    document.getElementById('horas-extras-detalles').classList.add('d-none');
+    document.getElementById('ausentismo-duracion').classList.add('d-none');
+}
+
+// ... (mantener el código existente) ...
+
+// Agregar al DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (código existente) ...
+
+    // Configurar eventos para el módulo de ausentismos
+    const buscarEmpleadoBtn = document.getElementById('buscar-empleado-ausentismo');
+    if (buscarEmpleadoBtn) {
+        buscarEmpleadoBtn.addEventListener('click', buscarEmpleadoAusentismo);
+    }
+
+    const documentoInput = document.getElementById('buscar-documento-ausentismo');
+    if (documentoInput) {
+        documentoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarEmpleadoAusentismo();
+            }
+        });
+    }
+
+    const limpiarBtn = document.getElementById('limpiar-ausentismos');
+    if (limpiarBtn) {
+        limpiarBtn.addEventListener('click', limpiarFormularioAusentismo);
+    }
+
+    const formAusentismos = document.getElementById('form-ausentismos');
+    if (formAusentismos) {
+        formAusentismos.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await guardarRegistro(e);
+        });
+    }
+});

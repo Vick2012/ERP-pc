@@ -1,14 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import generar_pdf_nomina
 from .views import (
     index, inicio, logout_user, list_contacts, auth_status, register,
-    login_user, save_contact, ContactListCreateView, ProveedoresListCreateView,
-    ClientesListCreateView, ProveedorDetailView, ClienteDetailView,
+    login_user, save_contact, ContactListCreateView,
+    desprendible_nomina_template, verificar_nomina, generar_pdf_nomina,
+    EmpleadoListCreateView, EmpleadoDetailView, AusentismoListCreateView, AusentismoDetailView
 )
-from recursos_humanos.views import RecursosHumanosListCreateView, EmpleadoDetailView as RecursosHumanosDetailView
-from recursos_humanos.models import Empleado
-
 
 app_name = 'frontend'
 
@@ -17,6 +14,9 @@ urlpatterns = [
     path('', index, name='index'),
     path('modulos/', inicio, name='modulos'),
     path('logout/', logout_user, name='logout'),
+    path('nomina/desprendible/', desprendible_nomina_template, name='desprendible_nomina'),
+    path('verificar-nomina/', verificar_nomina, name='verificar_nomina'),
+    path('v/', verificar_nomina, name='v'),  # URL corta para el QR
 
     # Rutas API autenticación y contactos
     path('api/contacts/list/', list_contacts, name='list_contacts'),
@@ -24,21 +24,17 @@ urlpatterns = [
     path('api/auth/register/', register, name='register'),
     path('api/auth/login/', login_user, name='login'),
     path('api/auth/save-contact/', save_contact, name='save_contact'),
-
-    # Rutas API por módulo
     path('api/contacts/', ContactListCreateView.as_view(), name='contact_list_create'),
-    path('api/proveedores/', ProveedoresListCreateView.as_view(), name='proveedores_list_create'),
-    path('api/proveedores/<int:pk>/', ProveedorDetailView.as_view(), name='proveedor_detail'),
-    path('api/clientes/', ClientesListCreateView.as_view(), name='clientes_list_create'),
-    path('api/clientes/<int:pk>/', ClienteDetailView.as_view(), name='cliente_detail'),
-    path('api/recursos_humanos/', RecursosHumanosListCreateView.as_view(), name='recursos_humanos_list_create'),
-    path('api/recursos_humanos/<int:pk>/', RecursosHumanosDetailView.as_view(), name='recursos_humanos_detail'),
 
     # Rutas internas de las apps con namespaces
+    path('clientes/', include('clientes.urls', namespace='clientes')),
+    path('proveedores/', include('proveedores.urls', namespace='proveedores')),
     path('recursos_humanos/', include('recursos_humanos.urls', namespace='recursos_humanos')),
     path('nomina/pdf/<int:nomina_id>/', generar_pdf_nomina, name='nomina_pdf'),
-    #path('inventario/', include('inventario.urls', namespace='inventario')),
-    #path('contabilidad/', include('contabilidad.urls', namespace='contabilidad')),
-    #path('servicios/', include('servicios.urls', namespace='servicios')),
-    path('admin/', admin.site.urls),
+
+    # Módulo de Recursos Humanos
+    path('api/recursos_humanos/empleados/', EmpleadoListCreateView.as_view(), name='empleados_api'),
+    path('api/recursos_humanos/empleados/<int:pk>/', EmpleadoDetailView.as_view(), name='empleado_detail'),
+    path('api/recursos_humanos/ausentismos/', AusentismoListCreateView.as_view(), name='ausentismos_api'),
+    path('api/recursos_humanos/ausentismos/<int:pk>/', AusentismoDetailView.as_view(), name='ausentismo_detail'),
 ]

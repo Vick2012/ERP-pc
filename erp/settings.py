@@ -36,7 +36,10 @@ INSTALLED_APPS = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'frontend/templates'),
+            os.path.join(BASE_DIR, 'recursos_humanos/templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -44,7 +47,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.static',  # Necesario para usar {% static %}
+                'django.template.context_processors.static',
             ],
         },
     },
@@ -52,10 +55,9 @@ TEMPLATES = [
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-# Configuración de la base de datos
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'frontend/static'),
+]
 
 # Middleware
 MIDDLEWARE = [
@@ -71,23 +73,6 @@ MIDDLEWARE = [
 
 # URLs raíz
 ROOT_URLCONF = 'erp.urls'
-
-# Configuración de plantillas
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'recursos_humanos/templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
 
 # Configuración de WSGI (necesaria para el despliegue)
 WSGI_APPLICATION = 'erp.wsgi.application'
@@ -119,11 +104,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-# Configuración de archivos estáticos
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend/static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración de CSRF
 CSRF_COOKIE_SECURE = False
