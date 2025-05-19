@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'proveedores',       # Módulo Proveedores
     'clientes',          # Módulo Clientes
     'recursos_humanos',  # Módulo Recursos Humanos
-    # 'inventario',        # Módulo Inventario
+    'inventario',        # Módulo Inventario
     # 'contabilidad',     # Módulo Contabilidad
     # 'servicios',        # Módulo Servicios
 ]

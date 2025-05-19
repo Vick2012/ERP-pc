@@ -38,21 +38,24 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
-    unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.PROTECT)
+    unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.PROTECT, null=True, blank=True)
     precio_compra = models.DecimalField(
         max_digits=10, 
         decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.01'))]
+        validators=[MinValueValidator(Decimal('0.01'))],
+        default=0
     )
     precio_venta = models.DecimalField(
         max_digits=10, 
         decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.01'))]
+        validators=[MinValueValidator(Decimal('0.01'))],
+        default=0
     )
     stock_minimo = models.DecimalField(
         max_digits=10, 
         decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.00'))]
+        validators=[MinValueValidator(Decimal('0.00'))],
+        default=0
     )
     stock_actual = models.DecimalField(
         max_digits=10, 
@@ -94,7 +97,8 @@ class Movimiento(models.Model):
     precio_unitario = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.01'))]
+        validators=[MinValueValidator(Decimal('0.01'))],
+        default=0
     )
     documento_referencia = models.CharField(max_length=100, blank=True)
     observaciones = models.TextField(blank=True)

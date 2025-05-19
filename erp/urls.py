@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/proveedores/', include('proveedores.urls', namespace='proveedores-api')),
     path('api/clientes/', include('clientes.api_urls', namespace='clientes-api')),
     path('api/recursos_humanos/', include('recursos_humanos.api_urls', namespace='recursos_humanos-api')),
+    path('api/inventario/', include('inventario.urls', namespace='inventario-api')),
 
     # Admin
     path('admin/', admin.site.urls),
