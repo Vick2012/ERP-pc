@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/liquidacion_calculo.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-calculator me-2"></i>
+                Calculadora de Liquidación
+            </h2>
+        </div>
+    </div>
+
+    <div class="calculator-container">
+        <!-- Formulario de Cálculo -->
+        <form id="calculadora-liquidacion" class="mb-4">
+            {% csrf_token %}
+            
+            <!-- Información del Empleado -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Información del Empleado
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="documento_empleado" class="form-label">Documento del Empleado</label>
+                                <input type="text" class="form-control" id="documento_empleado" name="documento_empleado" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="nombre_empleado" class="form-label">Nombre del Empleado</label>
+                                <input type="text" class="form-control" id="nombre_empleado" name="nombre_empleado" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="salario_base" class="form-label">Salario Base</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="text" class="form-control" id="salario_base" name="salario_base" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="tipo_contrato" class="form-label">Tipo de Contrato</label>
+                                <select class="form-select" id="tipo_contrato" name="tipo_contrato" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="indefinido">Indefinido</option>
+                                    <option value="fijo">Término Fijo</option>
+                                    <option value="obra_labor">Obra o Labor</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fechas y Tiempo Laborado -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar me-2"></i>
+                        Período Laborado
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
+                                <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fecha_terminacion" class="form-label">Fecha de Terminación</label>
+                                <input type="date" class="form-control" id="fecha_terminacion" name="fecha_terminacion" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-section mt-3">
+                        <div class="info-title">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Tiempo Laborado
+                        </div>
+                        <div id="tiempo_laborado" class="info-text">
+                            <!-- Se llenará dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Motivo de Retiro -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-door-open me-2"></i>
+                        Motivo de Retiro
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <select class="form-select" id="motivo_retiro" name="motivo_retiro" required>
+                            <option value="">Seleccione el motivo...</option>
+                            <optgroup label="Terminación de Contrato">
+                                <option value="vencimiento">Por Vencimiento del Plazo</option>
+                                <option value="mutuo_acuerdo">Por Mutuo Acuerdo</option>
+                                <option value="terminacion_obra">Por Terminación de Obra</option>
+                            </optgroup>
+                            <optgroup label="Retiro Voluntario">
+                                <option value="renuncia">Renuncia Voluntaria</option>
+                                <option value="renuncia_justa">Renuncia con Justa Causa</option>
+                            </optgroup>
+                            <optgroup label="Despido">
+                                <option value="sin_justa_causa">Sin Justa Causa</option>
+                                <option value="con_justa_causa">Con Justa Causa</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="d-flex justify-content-end gap-2">
+                <button type="reset" class="btn btn-reset">
+                    <i class="fas fa-undo me-2"></i>
+                    Reiniciar
+                </button>
+                <button type="submit" class="btn btn-calculate">
+                    <i class="fas fa-calculator me-2"></i>
+                    Calcular Liquidación
+                </button>
+            </div>
+        </form>
+
+        <!-- Resultados del Cálculo -->
+        <div id="resultados" class="mt-4" style="display: none;">
+            <h3 class="mb-4">Resultados del Cálculo</h3>
+            
+            <!-- Cesantías -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-piggy-bank me-2"></i>
+                    Cesantías
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Cesantías</span>
+                    <span class="result-value" id="cesantias">$0</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Intereses sobre Cesantías</span>
+                    <span class="result-value" id="intereses_cesantias">$0</span>
+                </div>
+            </div>
+
+            <!-- Prima de Servicios -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-gift me-2"></i>
+                    Prima de Servicios
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Prima Proporcional</span>
+                    <span class="result-value" id="prima_servicios">$0</span>
+                </div>
+            </div>
+
+            <!-- Vacaciones -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-umbrella-beach me-2"></i>
+                    Vacaciones
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Vacaciones Pendientes</span>
+                    <span class="result-value" id="vacaciones">$0</span>
+                </div>
+            </div>
+
+            <!-- Indemnización -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-gavel me-2"></i>
+                    Indemnización
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Valor Indemnización</span>
+                    <span class="result-value" id="indemnizacion">$0</span>
+                </div>
+            </div>
+
+            <!-- Total Liquidación -->
+            <div class="result-card">
+                <div class="result-header">
+                    <i class="fas fa-coins me-2"></i>
+                    Total Liquidación
+                </div>
+                <div class="total-row">
+                    <div class="result-item">
+                        <span class="total-label">Total a Pagar</span>
+                        <span class="total-value" id="total_liquidacion">$0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmacionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Liquidación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea proceder con esta liquidación?</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Esta acción generará un registro de liquidación en el sistema.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmarLiquidacion">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/liquidacion_calculo.js' %}"></script>
+{% endblock %} 

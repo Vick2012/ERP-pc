@@ -5,7 +5,7 @@
 <head>
     <!-- Metadatos básicos -->
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=4.0" />
     <meta name="description" content="Plataforma EventSync para gestionar Recursos Humanos, Proveedores y Clientes" />
     <title>EventSync - Módulos</title>
     <!-- Bootstrap CSS desde CDN -->
@@ -21,7 +21,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
     <!-- Estilos locales -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}" />
-    <link rel="icon" href="{% static 'img/logo.png' %}" type="image/png" />
+    <link rel="icon" href="{% static 'img/EnentSync.png' %}" type="image/png" />
+    <!-- Scripts -->
+    <script src="{% static 'js/app.js' %}" defer></script>
+    <script src="{% static 'js/recursos_humanos.js' %}" defer></script>
 </head>
 
 <body>
@@ -62,10 +65,9 @@
                         <li class="nav-item"><a class="nav-link" href="#recursos_humanos">RRHH</a></li>
                         <li class="nav-item"><a class="nav-link" href="#proveedores">Proveedores</a></li>
                         <li class="nav-item"><a class="nav-link" href="#clientes">Clientes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#inventario">Inventario</a></li>
                         <!-- Corregido: 'Inision vision' a 'Misión y Visión' -->
-                        <li class="nav-item"><a class="nav-link" href="{% url 'frontend:index' %}#mision-vision">Misión
-                                y
-                                Visión</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'frontend:index' %}#mision-vision">Misión y Visión</a></li>
                         <!-- Corregido: 'Iniconto' a 'Contacto' -->
                         <li class="nav-item"><a class="nav-link" href="{% url 'frontend:index' %}#contacto">Contacto</a>
                         </li>
@@ -77,15 +79,15 @@
     <!-- Contenido principal -->
     <main>
         <!-- Sección de inicio con imagen -->
-        <section id="inicio" class="hero-section py-5" aria-label="Sección de bienvenida">
+        <section id="inicio" class="hero-section py-3" aria-label="Sección de bienvenida">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-lg-6">
-                        <img src="{% static 'img/logo.png' %}" alt="Logo ERP" class="img-fluid" style="height:250px;">
+                        <img src="{% static 'img/EnentSync.png' %}" alt="Logo ERP" class="img-fluid"style="height:600px;">
                     </div>
                     <div class="col-lg-6 text-center">
-                        <img src="{% static 'img/imagen1.png' %}" alt="Equipo trabajando en logística"
-                            class="img-fluid rounded shadow">
+                        <img src="{% static 'img/Imagen1.png' %}" alt="Equipo trabajando en logística"
+                            class="img-fluid rounded shadow" style="max-height:600px; object-fit: cover;">
                     </div>
                 </div>
             </div>
@@ -93,36 +95,44 @@
         <!-- Módulo de Recursos Humanos -->
         <section id="recursos_humanos" class="module py-4" aria-label="Módulo de Recursos Humanos">
             <div class="container">
-                <h2 class="text-primary text-center mb-3">Módulo de Recursos Humanos</h2>
-                <p class="text-muted text-center mb-4">Gestiona tus empleados, nómina y registros de ausentismos/horas extras.</p>
-                
+                <h2 class="text-primary mb-3">Módulo de Recursos Humanos</h2>
+                <p class="text-muted mb-4">Gestiona tus empleados, nómina y registros de ausentismos/horas extras.</p>
+
                 <!-- Navegación de pestañas -->
                 <ul class="nav nav-tabs mb-3" id="moduloTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="empleados-tab" data-bs-toggle="tab" data-bs-target="#empleados-panel" type="button" role="tab" aria-controls="empleados-panel" aria-selected="true">Empleados</button>
+                        <button class="nav-link active" id="empleados-tab" data-bs-toggle="tab"
+                            data-bs-target="#empleados-panel" type="button" role="tab" aria-controls="empleados-panel"
+                            aria-selected="true">Empleados</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="nomina-tab" data-bs-toggle="tab" data-bs-target="#nomina-panel" type="button" role="tab" aria-controls="nomina-panel" aria-selected="false">Cálculo de Nómina</button>
+                        <button class="nav-link" id="nomina-tab" data-bs-toggle="tab" data-bs-target="#nomina-panel"
+                            type="button" role="tab" aria-controls="nomina-panel" aria-selected="false">Cálculo de
+                            Nómina</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="ausentismos-tab" data-bs-toggle="tab" data-bs-target="#ausentismos-panel" type="button" role="tab" aria-controls="ausentismos-panel" aria-selected="false">Ausentismos y Horas Extras</button>
+                        <button class="nav-link" id="ausentismos-tab" data-bs-toggle="tab"
+                            data-bs-target="#ausentismos-panel" type="button" role="tab"
+                            aria-controls="ausentismos-panel" aria-selected="false">Ausentismos y Horas Extras</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="liquidacion-tab" data-bs-toggle="tab" data-bs-target="#liquidacion-panel" type="button" role="tab" aria-controls="liquidacion-panel" aria-selected="false">Liquidación</button>
+                        <button class="nav-link" id="liquidacion-tab" data-bs-toggle="tab"
+                            data-bs-target="#liquidacion-panel" type="button" role="tab"
+                            aria-controls="liquidacion-panel" aria-selected="false">Liquidación</button>
                     </li>
                 </ul>
 
                 <!-- Contenido de las pestañas -->
                 <div class="tab-content" id="moduloTabsContent">
                     <!-- Panel de Empleados -->
-                    <div class="tab-pane fade show active" id="empleados-panel" role="tabpanel" aria-labelledby="empleados-tab">
+                    <div class="tab-pane fade show active" id="empleados-panel" role="tabpanel"
+                        aria-labelledby="empleados-tab">
                         <!-- Barra de búsqueda -->
                         <div class="search-bar">
                             <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Buscar empleado..."
-                                id="search-recursos_humanos" aria-label="Buscar empleado">
-                            <button class="btn btn-primary"
-                                    onclick="EntityManager.searchData('recursos_humanos')">
+                                <input type="text" class="form-control" placeholder="Buscar empleado..."
+                                    id="search-recursos_humanos" aria-label="Buscar empleado">
+                                <button class="btn btn-primary" onclick="EntityManager.searchData('recursos_humanos')">
                                     <i class="fas fa-search"></i> Buscar
                                 </button>
                             </div>
@@ -256,12 +266,14 @@
                                     <input type="hidden" id="nomina-empleado-data" name="nomina-empleado-data">
                                     <input type="hidden" id="empleado-id-nomina" name="empleado-id-nomina">
                                 </div>
-                        <div class="row">
-                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="nomina-documento" class="form-label">Documento del Empleado:</label>
-                                                            <div class="input-group">
-                                                <input type="text" class="form-control" id="nomina-documento" placeholder="Ingrese el documento">
+                                            <label for="nomina-documento" class="form-label">Documento del
+                                                Empleado:</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="nomina-documento"
+                                                    placeholder="Ingrese el documento">
                                                 <button class="btn btn-primary" type="button" id="buscar-nomina">
                                                     <i class="fas fa-search"></i> Buscar
                                                 </button>
@@ -290,7 +302,8 @@
         <section id="proveedores" class="module py-4 bg-light" aria-label="Módulo de Proveedores">
             <div class="container">
                 <h2 class="text-primary mb-3">Módulo de Proveedores</h2>
-                <p class="mb-4">Gestiona tus proveedores de manera eficiente con herramientas de seguimiento de cotizaciones, pagos y entregas.</p>
+                <p class="mb-4">Gestiona tus proveedores de manera eficiente con herramientas de seguimiento de
+                    cotizaciones, pagos y entregas.</p>
                 <div class="search-bar mb-4 d-flex gap-3">
                     <input type="text" id="search-proveedores" class="form-control" placeholder="Buscar proveedor..."
                         aria-label="Buscar proveedor">
@@ -316,7 +329,7 @@
                 <button class="btn btn-success mt-3" id="add-proveedores">
                     <i class="fas fa-plus"></i> Agregar Proveedor
                 </button>
-                
+
                 <form id="formulario-proveedor" class="mt-4 p-4 bg-white rounded shadow hidden">
                     <h3 class="text-primary mb-3">Agregar/Editar Proveedor</h3>
                     <div class="mb-3">
@@ -354,7 +367,8 @@
         <section id="clientes" class="module py-4" aria-label="Módulo de Clientes">
             <div class="container">
                 <h2 class="text-primary mb-3">Módulo de Clientes</h2>
-                <p class="mb-4">Gestiona tus clientes con herramientas de registro, seguimiento y análisis para mejorar su experiencia.</p>
+                <p class="mb-4">Gestiona tus clientes con herramientas de registro, seguimiento y análisis para mejorar
+                    su experiencia.</p>
                 <div class="search-bar mb-4 d-flex gap-3">
                     <input type="text" id="search-clientes" class="form-control" placeholder="Buscar cliente..."
                         aria-label="Buscar cliente">
@@ -396,6 +410,320 @@
                         <button type="button" class="btn btn-secondary" id="cancel-clientes">Cancelar</button>
                     </div>
                 </form>
+            </div>
+        </section>
+        <!-- Módulo de Inventario -->
+        <section id="inventario" class="module py-4" aria-label="Módulo de Inventario">
+            <div class="container">
+                <h2 class="text-primary mb-3">Módulo de Inventario</h2>
+                <p class="text-muted mb-4">Gestiona tus productos, categorías y movimientos de inventario de manera
+                    eficiente.</p>
+
+                <!-- Navegación de pestañas -->
+                <ul class="nav nav-tabs mb-3" id="inventarioTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="productos-tab" data-bs-toggle="tab"
+                            data-bs-target="#productos-panel" type="button" role="tab" aria-controls="productos-panel"
+                            aria-selected="true">Productos</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="categorias-tab" data-bs-toggle="tab"
+                            data-bs-target="#categorias-panel" type="button" role="tab" aria-controls="categorias-panel"
+                            aria-selected="false">Categorías</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="movimientos-tab" data-bs-toggle="tab"
+                            data-bs-target="#movimientos-panel" type="button" role="tab"
+                            aria-controls="movimientos-panel" aria-selected="false">Movimientos</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="reportes-tab" data-bs-toggle="tab" data-bs-target="#reportes-panel"
+                            type="button" role="tab" aria-controls="reportes-panel"
+                            aria-selected="false">Reportes</button>
+                    </li>
+                </ul>
+
+                <!-- Contenido de las pestañas -->
+                <div class="tab-content" id="inventarioTabsContent">
+                    <!-- Panel de Productos -->
+                    <div class="tab-pane fade show active" id="productos-panel" role="tabpanel"
+                        aria-labelledby="productos-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="search-bar flex-grow-1 me-3">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Buscar producto..."
+                                        id="search-productos">
+                                    <button class="btn btn-primary" onclick="Inventario.buscarProductos()">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="btn btn-success" id="add-producto">
+                                <i class="fas fa-plus"></i> Nuevo Producto
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="tabla-productos">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Categoría</th>
+                                        <th>Stock</th>
+                                        <th>Precio Compra</th>
+                                        <th>Precio Venta</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Categorías -->
+                    <div class="tab-pane fade" id="categorias-panel" role="tabpanel" aria-labelledby="categorias-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4>Categorías de Productos</h4>
+                            <button class="btn btn-success" id="add-categoria">
+                                <i class="fas fa-plus"></i> Nueva Categoría
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="tabla-categorias">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Movimientos -->
+                    <div class="tab-pane fade" id="movimientos-panel" role="tabpanel" aria-labelledby="movimientos-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4>Movimientos de Inventario</h4>
+                            <button class="btn btn-success" id="add-movimiento">
+                                <i class="fas fa-plus"></i> Nuevo Movimiento
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="tabla-movimientos">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unit.</th>
+                                        <th>Total</th>
+                                        <th>Referencia</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Reportes -->
+                    <div class="tab-pane fade" id="reportes-panel" role="tabpanel" aria-labelledby="reportes-tab">
+                        <div class="row g-4">
+                            <!-- Valor Total del Inventario -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Valor Total Inventario</h5>
+                                        <h3 class="mb-0" id="valor-total-inventario">$0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Productos en Stock Bajo -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card bg-warning text-dark">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Stock Bajo</h5>
+                                        <h3 class="mb-0" id="productos-stock-bajo">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Total Productos -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Total Productos</h5>
+                                        <h3 class="mb-0" id="total-productos">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Movimientos del Mes -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Movimientos del Mes</h5>
+                                        <h3 class="mb-0" id="movimientos-mes">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filtros de Reportes -->
+                        <div class="card mt-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Generar Reporte</h5>
+                                <form id="form-reporte" class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Tipo de Reporte</label>
+                                        <select class="form-select" id="tipo-reporte">
+                                            <option value="movimientos">Movimientos</option>
+                                            <option value="stock">Estado de Stock</option>
+                                            <option value="valoracion">Valoración de Inventario</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Fecha Inicio</label>
+                                        <input type="date" class="form-control" id="fecha-inicio-reporte">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Fecha Fin</label>
+                                        <input type="date" class="form-control" id="fecha-fin-reporte">
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-file-export"></i> Generar Reporte
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formularios Modales -->
+                <!-- Modal Producto -->
+                <div class="modal fade" id="productoModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Producto</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="form-producto">
+                                    <div class="mb-3">
+                                        <label class="form-label">Código</label>
+                                        <input type="text" class="form-control" id="codigo-producto" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre</label>
+                                        <input type="text" class="form-control" id="nombre-producto" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Categoría</label>
+                                        <select class="form-select" id="categoria-producto" required></select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Unidad de Medida</label>
+                                        <select class="form-select" id="unidad-medida-producto" required></select>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Precio Compra</label>
+                                            <input type="number" class="form-control" id="precio-compra-producto"
+                                                required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Precio Venta</label>
+                                            <input type="number" class="form-control" id="precio-venta-producto"
+                                                required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Stock Mínimo</label>
+                                            <input type="number" class="form-control" id="stock-minimo-producto"
+                                                required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Stock Actual</label>
+                                            <input type="number" class="form-control" id="stock-actual-producto"
+                                                readonly>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Estado</label>
+                                        <select class="form-select" id="estado-producto">
+                                            <option value="activo">Activo</option>
+                                            <option value="inactivo">Inactivo</option>
+                                            <option value="descontinuado">Descontinuado</option>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" id="guardar-producto">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Movimiento -->
+                <div class="modal fade" id="movimientoModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Movimiento de Inventario</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="form-movimiento">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tipo de Movimiento</label>
+                                        <select class="form-select" id="tipo-movimiento" required>
+                                            <option value="entrada">Entrada</option>
+                                            <option value="salida">Salida</option>
+                                            <option value="ajuste">Ajuste de Inventario</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Producto</label>
+                                        <select class="form-select" id="producto-movimiento" required></select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Cantidad</label>
+                                        <input type="number" class="form-control" id="cantidad-movimiento" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Precio Unitario</label>
+                                        <input type="number" class="form-control" id="precio-movimiento" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Documento de Referencia</label>
+                                        <input type="text" class="form-control" id="referencia-movimiento">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Observaciones</label>
+                                        <textarea class="form-control" id="observaciones-movimiento"
+                                            rows="3"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" id="guardar-movimiento">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         <!-- Footer -->
@@ -441,22 +769,18 @@
                 </div>
             </div>
         </footer>
-        <!-- Bootstrap Bundle JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        
-        <!-- Scripts para PDF -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-
-        <!-- Scripts de la aplicación -->
+        <!-- Scripts -->
+        <!-- jQuery primero -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <!-- Luego Bootstrap -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Nuestros scripts personalizados -->
+        <script src="{% static 'js/app.js' %}"></script>
         <script src="{% static 'js/recursos_humanos.js' %}"></script>
         <script src="{% static 'js/liquidacion.js' %}"></script>
-        <script src="{% static 'js/app.js' %}"></script>
-
         <!-- Script de inicialización -->
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 // Inicializar todas las pestañas
                 const tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
                 tabs.forEach(tab => {
@@ -486,7 +810,7 @@
                 if (typeof RecursosHumanos !== 'undefined') {
                     RecursosHumanos.init();
                 }
-                
+
                 // Inicializar liquidación
                 window.liquidacionLaboral = new LiquidacionLaboral();
             });

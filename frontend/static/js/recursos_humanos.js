@@ -1,5 +1,5 @@
-// Funciones para el módulo de Recursos Humanos
-const RecursosHumanos = {
+// Clase RecursosHumanos
+window.RecursosHumanos = window.RecursosHumanos || {
     // Función para buscar empleado por documento
     buscarEmpleado: async function(documento) {
         try {
@@ -200,16 +200,7 @@ const RecursosHumanos = {
         const botonActivo = document.querySelector('.btn-group .btn.active');
         const tipoSeleccionado = botonActivo ? botonActivo.getAttribute('data-filter') : 'todos';
         
-        console.log('Iniciando filtrado con parámetros:', {
-            fechaDesde,
-            fechaHasta,
-            tipoSeleccionado
-        });
-        
-        let registrosFiltrados = 0;
-        const totalRegistros = filas.length;
-        
-        filas.forEach((fila, index) => {
+        filas.forEach(fila => {
             let mostrar = true;
             
             // Filtrar por tipo
@@ -224,66 +215,11 @@ const RecursosHumanos = {
             // Filtrar por fechas
             if (mostrar && (fechaDesde || fechaHasta)) {
                 const fechaRegistro = fila.cells[2].textContent.trim();
-                
-                console.log(`Fila ${index + 1} - Comparando fechas:`, {
-                    fechaRegistro,
-                    fechaDesde,
-                    fechaHasta
-                });
-
-                // Comparar fechas (las fechas ya están en formato YYYY-MM-DD)
-                if (fechaDesde && fechaRegistro < fechaDesde) {
-                    console.log(`Fila ${index + 1} - Registro anterior a fecha desde`);
-                    mostrar = false;
-                }
-                if (fechaHasta && fechaRegistro > fechaHasta) {
-                    console.log(`Fila ${index + 1} - Registro posterior a fecha hasta`);
-                    mostrar = false;
-                }
+                if (fechaDesde && fechaRegistro < fechaDesde) mostrar = false;
+                if (fechaHasta && fechaRegistro > fechaHasta) mostrar = false;
             }
             
-            // Aplicar visibilidad
             fila.style.display = mostrar ? '' : 'none';
-            if (mostrar) {
-                registrosFiltrados++;
-                console.log(`Fila ${index + 1} - Registro mostrado`);
-            } else {
-                console.log(`Fila ${index + 1} - Registro oculto`);
-            }
-        });
-        
-        console.log('Resultado del filtrado:', {
-            totalRegistros,
-            registrosFiltrados
-        });
-
-        // Mostrar resumen de filtrado
-        const resumenFiltros = document.createElement('div');
-        resumenFiltros.className = 'alert alert-info mt-3';
-        resumenFiltros.innerHTML = `
-            <i class="fas fa-info-circle me-2"></i>
-            Mostrando ${registrosFiltrados} de ${totalRegistros} registros
-            ${tipoSeleccionado !== 'todos' ? `<br>Tipo: ${tipoSeleccionado === 'horas_extras' ? 'Horas Extras' : 'Ausentismo'}` : ''}
-            ${fechaDesde ? `<br>Desde: ${this.formatearFecha(fechaDesde)}` : ''}
-            ${fechaHasta ? `<br>Hasta: ${this.formatearFecha(fechaHasta)}` : ''}
-        `;
-        
-        // Actualizar o agregar el resumen al DOM
-        const resumenExistente = tabla.parentElement.querySelector('.alert');
-        if (resumenExistente) {
-            resumenExistente.replaceWith(resumenFiltros);
-        } else {
-            tabla.parentElement.insertBefore(resumenFiltros, tabla);
-        }
-    },
-
-    // Formatear fecha para mostrar en el resumen
-    formatearFecha: function(fechaStr) {
-        const fecha = new Date(fechaStr);
-        return fecha.toLocaleDateString('es-CO', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
         });
     },
 
@@ -321,16 +257,9 @@ const RecursosHumanos = {
     }
 };
 
-// Función para formatear fecha en formato legible
-function formatearFecha(fecha) {
-    return new Date(fecha).toLocaleDateString('es-CO', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-}
-
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    RecursosHumanos.init();
+    if (window.RecursosHumanos) {
+        window.RecursosHumanos.init();
+    }
 }); 

@@ -1,5 +1,16 @@
-<!-- Pestaña de Liquidación -->
+{% load static %}
+
+<!-- Estilos específicos de liquidación -->
+<link rel="stylesheet" href="{% static 'css/liquidacion.css' %}">
+
+<!-- Contenido de la pestaña de Liquidación -->
 <div class="container-fluid py-4" id="liquidacion-container">
+    <!-- Token CSRF -->
+    {% csrf_token %}
+    
+    <!-- Campo oculto para datos del empleado -->
+    <input type="hidden" id="empleado-liquidacion-data">
+    
     <!-- Búsqueda de empleado -->
     <div class="row mb-4">
         <div class="col-12">
@@ -7,7 +18,7 @@
                 <div class="card-header bg-white">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-calculator me-2 text-primary"></i>
-                        Calculadora de Costos y Liquidación Laboral
+                        Calculadora de Liquidación Laboral
                     </h5>
                 </div>
                 <div class="card-body">
@@ -28,20 +39,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="nivel-riesgo-arl" class="form-label fw-bold">
-                                    <i class="fas fa-shield-alt me-2"></i>Nivel de Riesgo ARL
-                                </label>
-                                <select class="form-select form-select-lg" id="nivel-riesgo-arl">
-                                    <option value="1">Riesgo I - Mínimo (0.522%)</option>
-                                    <option value="2">Riesgo II - Bajo (1.044%)</option>
-                                    <option value="3">Riesgo III - Medio (2.436%)</option>
-                                    <option value="4">Riesgo IV - Alto (4.350%)</option>
-                                    <option value="5">Riesgo V - Máximo (6.960%)</option>
-                                </select>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -49,71 +46,129 @@
     </div>
 
     <!-- Información del empleado -->
-    <div id="info-empleado-liquidacion" class="mb-4"></div>
+    <div id="info-empleado-liquidacion" class="mb-4">
+        <!-- La información del empleado se mostrará aquí dinámicamente -->
+    </div>
 
-    <!-- Campo oculto para datos del empleado -->
-    <input type="hidden" id="empleado-liquidacion-data">
-
-    <!-- Contenido principal -->
+    <!-- Costos al Empleador -->
+    <div id="costos-empleador" class="mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-dollar-sign me-2 text-primary"></i>
+                    Costos al Empleador
+                </h5>
+            </div>
+            <div class="card-body">
     <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white p-0">
-                    <ul class="nav nav-tabs nav-fill" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active py-3 px-4" 
-                                    id="costos-tab" 
-                                    data-bs-toggle="tab" 
-                                    data-bs-target="#costos-panel" 
-                                    type="button" 
-                                    role="tab"
-                                    aria-controls="costos-panel"
-                                    aria-selected="true">
-                                <i class="fas fa-coins me-2"></i>
-                                <span class="fw-bold">Costos Mensuales</span>
-                            </button>
+                    <!-- Seguridad Social -->
+                    <div class="col-md-4">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-shield-alt me-2"></i>Seguridad Social</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Salud (8.5%)
+                                <span id="costo-salud" class="badge bg-primary">$0</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Pensión (12%)
+                                <span id="costo-pension" class="badge bg-primary">$0</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                ARL
+                                <div class="d-flex align-items-center">
+                                    <select id="nivel-riesgo-arl" class="form-select form-select-sm me-2">
+                                        <option value="1">Nivel I (0.522%)</option>
+                                        <option value="2">Nivel II (1.044%)</option>
+                                        <option value="3">Nivel III (2.436%)</option>
+                                        <option value="4">Nivel IV (4.35%)</option>
+                                        <option value="5">Nivel V (6.96%)</option>
+                                    </select>
+                                    <span id="costo-arl" class="badge bg-primary">$0</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Parafiscales -->
+                    <div class="col-md-4">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-percentage me-2"></i>Parafiscales</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                SENA (2%)
+                                <span id="costo-sena" class="badge bg-primary">$0</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                ICBF (3%)
+                                <span id="costo-icbf" class="badge bg-primary">$0</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Caja de Compensación (4%)
+                                <span id="costo-caja" class="badge bg-primary">$0</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Prestaciones Sociales -->
+                    <div class="col-md-4">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-hand-holding-usd me-2"></i>Prestaciones Sociales</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Prima (8.33%)
+                                <span id="costo-prima" class="badge bg-primary">$0</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Cesantías (8.33%)
+                                <span id="costo-cesantias" class="badge bg-primary">$0</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Intereses Cesantías (1%)
+                                <span id="costo-intereses" class="badge bg-primary">$0</span>
                         </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link py-3 px-4" 
-                                    id="liquidacion-tab" 
-                                    data-bs-toggle="tab" 
-                                    data-bs-target="#liquidacion-panel" 
-                                    type="button" 
-                                    role="tab"
-                                    aria-controls="liquidacion-panel"
-                                    aria-selected="false">
-                                <i class="fas fa-file-invoice-dollar me-2"></i>
-                                <span class="fw-bold">Liquidación</span>
-                            </button>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Vacaciones (4.17%)
+                                <span id="costo-vacaciones" class="badge bg-primary">$0</span>
                         </li>
                     </ul>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="tab-content">
-                        <!-- Panel de Costos Mensuales -->
-                        <div class="tab-pane fade show active" id="costos-panel" role="tabpanel" aria-labelledby="costos-tab">
-                            <div id="costos-mensuales" class="fade-in">
-                                <!-- Los resultados se insertarán aquí dinámicamente -->
+
+                <!-- Total Costos -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-primary">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-calculator me-2"></i>Total Costos al Empleador:</h5>
+                                <h5 class="mb-0" id="total-costos">$0</h5>
                             </div>
-                            <div class="text-end mt-4">
-                                <button type="button" class="btn btn-primary btn-lg" id="calcular-costos">
-                                    <i class="fas fa-calculator me-2"></i>Calcular Costos
-                                </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
                             </div>
                         </div>
 
-                        <!-- Panel de Liquidación -->
-                        <div class="tab-pane fade" id="liquidacion-panel" role="tabpanel" aria-labelledby="liquidacion-tab">
-                            <div class="card shadow-sm mb-4">
+    <!-- Estado del empleado y formulario de liquidación -->
+    <div id="liquidacion-form-container" class="mb-4" style="display: none;">
+        <div class="card shadow-sm">
                                 <div class="card-header bg-white">
-                                    <h6 class="mb-0">
-                                        <i class="fas fa-calculator me-2 text-primary"></i>
-                                        Parámetros de Liquidación
-                                    </h6>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-clock me-2 text-primary"></i>
+                        Estado del Empleado y Liquidación
+                    </h5>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="estado-empleado-switch">
+                        <label class="form-check-label" for="estado-empleado-switch">
+                            <span class="badge bg-success" id="estado-badge-activo">Activo</span>
+                            <span class="badge bg-danger" id="estado-badge-retirado" style="display: none;">Retirado</span>
+                        </label>
+                    </div>
+                </div>
                                 </div>
                                 <div class="card-body">
-                                    <form id="form-liquidacion" class="d-block">
+                <form id="form-liquidacion">
                                         <div class="row g-4">
+                        <!-- Motivo de Retiro -->
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <label for="motivo-retiro" class="form-label fw-bold">
@@ -140,11 +195,10 @@
                                                             <option value="pension_invalidez">Reconocimiento Pensión de Invalidez</option>
                                                         </optgroup>
                                                     </select>
-                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="row g-4 mt-2">
+                        <!-- Fechas -->
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="fecha-inicio" class="form-label fw-bold">
@@ -161,32 +215,30 @@
                                                     </label>
                                                     <input type="date" class="form-control form-control-lg" id="fecha-fin" required>
                                                     <div class="form-text">Fecha de terminación del contrato</div>
-                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="row mt-4">
-                                            <div class="col-12 text-end">
+                        <!-- Botones de acción -->
+                        <div class="col-12 text-end mt-4">
+                            <button type="button" class="btn btn-secondary btn-lg me-2" id="cancelar-liquidacion">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </button>
                                                 <button type="submit" class="btn btn-primary btn-lg" id="calcular-liquidacion">
                                                     <i class="fas fa-calculator me-2"></i>Calcular Liquidación
                                                 </button>
                                             </div>
                                         </div>
                                     </form>
+            </div>
                                 </div>
                             </div>
 
                             <!-- Resultados de la Liquidación -->
-                            <div id="resultados-liquidacion" class="fade-in mt-4" style="display: none;">
+    <div id="resultados-liquidacion" class="mt-4" style="display: none;">
                                 <!-- Los resultados se insertarán aquí dinámicamente -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
+    <!-- Resto del contenido... -->
     <!-- Información adicional -->
     <div class="row mt-4">
         <div class="col-12">

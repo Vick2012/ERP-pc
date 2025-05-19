@@ -7,7 +7,14 @@ from .models import Liquidacion
 class LiquidacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Liquidacion
-        fields = ['id', 'empleado_nombre', 'contrato', 'fondo_pensiones', 'cesantias', 'eps', 'caja_compensacion']
+        fields = [
+            'id', 'empleado', 'empleado_nombre', 'contrato', 
+            'motivo_retiro', 'fecha_liquidacion',
+            'cesantias', 'intereses_cesantias', 'prima_servicios',
+            'vacaciones', 'indemnizacion', 'fondo_pensiones',
+            'eps', 'caja_compensacion'
+        ]
+        read_only_fields = ['id']
 
 class EmpleadoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,6 +24,15 @@ class EmpleadoSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         print("Validated:", validated_data)
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # Si se está actualizando el estado a 'retirado', verificar si ya tiene una liquidación
+        if 'estado' in validated_data and validated_data['estado'] == 'retirado':
+            if not instance.liquidaciones.exists():
+                raise serializers.ValidationError({
+                    'estado': ['No se puede retirar un empleado sin generar su liquidación']
+                })
+        return super().update(instance, validated_data)
 
 class NominaSerializer(serializers.ModelSerializer):
     class Meta:

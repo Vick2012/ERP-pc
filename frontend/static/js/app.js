@@ -1,66 +1,10 @@
-// Configuración de módulos para Proveedores, Clientes y Recursos Humanos
-// Define la estructura de datos para cada módulo, incluyendo URLs de API, IDs de elementos HTML y campos de formulario
-const CONFIG = {
-    proveedores: {
-        apiUrl: "/api/proveedores/",
-        tableId: "tabla-proveedores",
-        formId: "formulario-proveedor",
-        fields: [
-            { id: "nombre-proveedor", key: "nombre", required: true },
-            { id: "contacto-proveedor", key: "contacto", required: true },
-            { id: "direccion-proveedor", key: "direccion", required: false },
-            { id: "telefono-proveedor", key: "telefono", required: false },
-            { id: "email-proveedor", key: "email", required: false },
-            { id: "tipo_proveedor", key: "tipo_proveedor", required: false },
-        ],
-        tableHeaders: ["ID", "Nombre", "Contacto", "Dirección", "Teléfono", "Email", "Tipo de Proveedor", "Acciones"],
-        getRowData: (item) => [
-            item.id,
-            item.nombre,
-            item.contacto,
-            item.direccion || "Sin dirección",
-            item.telefono || "Sin teléfono",
-            item.email || "Sin email",
-            item.tipo_proveedor || "Sin tipo",
-        ],
-        searchFields: ["nombre", "contacto", "direccion", "telefono", "email", "tipo_proveedor"],
-    },
-    clientes: {
-        apiUrl: "/clientes/api/",
-        tableId: "tabla-clientes",
-        formId: "formulario-cliente",
-        fields: [
-            { id: "nombre-cliente", key: "nombre", required: true },
-            { id: "contacto-cliente", key: "contacto", required: true },
-            { id: "preferencias-cliente", key: "preferencias", required: false },
-        ],
-        tableHeaders: ["ID", "Nombre", "Contacto", "Preferencias", "Acciones"],
-        getRowData: (item) => [
-            item.id,
-            item.nombre,
-            item.contacto,
-            item.preferencias || "Sin preferencias",
-        ],
-        searchFields: ["nombre", "contacto", "preferencias"],
-    },
+// Configuración global
+const APP_CONFIG = {
     recursos_humanos: {
-        apiUrl: "/api/recursos_humanos/empleados/",
-        tableId: "tabla-recursos_humanos",
-        formId: "formulario-recursos_humanos",
-        fields: [
-            { id: "nombre-recursos_humanos", key: "nombre", required: true },
-            { id: "tipo_documento-recursos_humanos", key: "tipo_documento", required: true },
-            { id: "documento-recursos_humanos", key: "documento", required: true },
-            { id: "fecha_ingreso-recursos_humanos", key: "fecha_ingreso", required: true },
-            { id: "cargo-recursos_humanos", key: "cargo", required: true },
-            { id: "salario-recursos_humanos", key: "salario", required: true },
-            { id: "area-recursos_humanos", key: "area", required: true },
-            { id: "telefono-recursos_humanos", key: "telefono", required: true },
-            { id: "correo-recursos_humanos", key: "correo", required: true },
-            { id: "contrato-recursos_humanos", key: "contrato", required: true },
-            { id: "contacto-recursos_humanos", key: "contacto", required: false },
-        ],
-        tableHeaders: ["ID", "Nombre", "Tipo Documento", "Documento", "Ingreso", "Cargo", "Salario", "Área", "Teléfono", "Correo", "Contrato", "Contacto", "Acciones"],
+        apiUrl: '/api/recursos_humanos/empleados/',
+        tableId: 'tabla-recursos_humanos',
+        formId: 'formulario-recursos_humanos',
+        searchFields: ['nombre', 'documento', 'cargo', 'area'],
         getRowData: (item) => [
             item.id,
             item.nombre,
@@ -73,28 +17,63 @@ const CONFIG = {
             item.telefono,
             item.correo,
             item.contrato,
-            item.contacto || "Sin contacto",
-        ],
-        searchFields: ["nombre", "tipo_documento", "documento", "cargo", "area", "telefono", "correo", "contrato", "contacto"],
+            item.contacto
+        ]
     },
     ausentismos: {
-        apiUrl: "/api/ausentismos/",
-        tableId: "tabla-ausentismos",
-        formId: "form-ausentismos",
-        fields: [
-            { id: "ausentismos-empleado", key: "empleado", required: true },
-            { id: "ausentismos-fecha", key: "fecha", required: true },
-            { id: "ausentismos-tipo", key: "tipo", required: true },
-            { id: "ausentismos-duracion", key: "duracion_horas", required: true },
-            { id: "ausentismos-motivo", key: "motivo", required: false },
-            { id: "horas-extra-diurnas", key: "horas_extra_diurnas", required: false },
-            { id: "horas-extra-nocturnas", key: "horas_extra_nocturnas", required: false },
-            { id: "recargos-nocturnos", key: "recargos_nocturnos", required: false },
-            { id: "horas-extra-dominicales", key: "horas_extra_dominicales", required: false }
-        ],
-        tableHeaders: ["Documento", "Tipo", "Fecha", "Duración", "Motivo", "Acciones"]
+        apiUrl: '/api/recursos_humanos/ausentismos/',
+        tableId: 'tabla-ausentismos',
+        formId: 'form-ausentismos',
+        searchFields: ['empleado_documento', 'tipo', 'fecha'],
+        getRowData: (item) => [
+            item.empleado_documento,
+            item.tipo,
+            item.fecha,
+            item.duracion_horas,
+            item.motivo
+        ]
     },
+    proveedores: {
+        apiUrl: '/api/proveedores/',
+        tableId: 'tabla-proveedores',
+        formId: 'formulario-proveedor',
+        searchFields: ['nombre', 'contacto', 'tipo_proveedor'],
+        getRowData: (item) => [
+            item.id,
+            item.nombre,
+            item.contacto,
+            item.direccion,
+            item.telefono,
+            item.email,
+            item.tipo_proveedor
+        ]
+    },
+    clientes: {
+        apiUrl: '/api/clientes/',
+        tableId: 'tabla-clientes',
+        formId: 'formulario-cliente',
+        searchFields: ['nombre', 'contacto', 'preferencias'],
+        getRowData: (item) => [
+            item.id,
+            item.nombre,
+            item.contacto,
+            item.preferencias
+        ]
+    }
 };
+
+// Función de debounce para búsquedas
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 
 // Sistema de almacenamiento seguro que maneja múltiples métodos
 const StorageManager = {
@@ -137,71 +116,19 @@ const StorageManager = {
     // Guarda un valor usando el mejor método disponible
     setItem(key, value) {
         const method = this.checkStorageMethod();
-        try {
-            switch (method) {
-                case 'cookie':
-                    document.cookie = `${key}=${value};path=/;max-age=3600`;
-                    break;
-                case 'localStorage':
-                    localStorage.setItem(key, value);
-                    break;
-                case 'sessionStorage':
-                    sessionStorage.setItem(key, value);
-                    break;
-                case 'memory':
-                    this.memoryStorage.set(key, value);
-                    break;
-            }
-            return true;
-        } catch (e) {
-            console.error('Error al guardar datos:', e);
-            return false;
-        }
-    },
-
-    // Obtiene un valor usando el mejor método disponible
-    getItem(key) {
-        const method = this.checkStorageMethod();
-        try {
-            switch (method) {
-                case 'cookie':
-                    const match = document.cookie.match(new RegExp('(^| )' + key + '=([^;]+)'));
-                    return match ? match[2] : null;
-                case 'localStorage':
-                    return localStorage.getItem(key);
-                case 'sessionStorage':
-                    return sessionStorage.getItem(key);
-                case 'memory':
-                    return this.memoryStorage.get(key) || null;
-            }
-        } catch (e) {
-            console.error('Error al obtener datos:', e);
-            return null;
-        }
-    },
-
-    // Elimina un valor usando el mejor método disponible
-    removeItem(key) {
-        const method = this.checkStorageMethod();
-        try {
-            switch (method) {
-                case 'cookie':
-                    document.cookie = `${key}=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT`;
-                    break;
-                case 'localStorage':
-                    localStorage.removeItem(key);
-                    break;
-                case 'sessionStorage':
-                    sessionStorage.removeItem(key);
-                    break;
-                case 'memory':
-                    this.memoryStorage.delete(key);
-                    break;
-            }
-            return true;
-        } catch (e) {
-            console.error('Error al eliminar datos:', e);
-            return false;
+        switch (method) {
+            case 'cookie':
+                document.cookie = `${key}=${value};path=/`;
+                break;
+            case 'localStorage':
+                localStorage.setItem(key, value);
+                break;
+            case 'sessionStorage':
+                sessionStorage.setItem(key, value);
+                break;
+            case 'memory':
+                this.memoryStorage.set(key, value);
+                break;
         }
     }
 };
@@ -333,12 +260,18 @@ const EntityManager = {
     async loadData(tipo) {
         try {
             console.log(`Cargando datos de ${tipo}...`);
-            console.log('URL de la API:', CONFIG[tipo].apiUrl);
+            console.log('URL de la API:', APP_CONFIG[tipo].apiUrl);
+            
+            // Verificar que la configuración existe
+            if (!APP_CONFIG[tipo] || !APP_CONFIG[tipo].apiUrl) {
+                console.error(`Configuración no encontrada para ${tipo}`);
+                return;
+            }
             
             // Verificar que la tabla existe
-            const tabla = document.getElementById(CONFIG[tipo].tableId);
+            const tabla = document.getElementById(APP_CONFIG[tipo].tableId);
             if (!tabla) {
-                console.error(`No se encontró la tabla para ${tipo}`, CONFIG[tipo].tableId);
+                console.error(`No se encontró la tabla para ${tipo}`, APP_CONFIG[tipo].tableId);
                 return;
             }
 
@@ -347,7 +280,7 @@ const EntityManager = {
             if (tbody) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="${CONFIG[tipo].tableHeaders.length}" class="text-center">
+                        <td colspan="${APP_CONFIG[tipo].tableHeaders?.length || 1}" class="text-center">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Cargando...</span>
                             </div>
@@ -357,12 +290,15 @@ const EntityManager = {
             }
 
             // Realizar la petición a la API
-            console.log('Realizando petición a:', CONFIG[tipo].apiUrl);
-            const data = await Utils.makeRequest(CONFIG[tipo].apiUrl);
-            console.log(`Datos recibidos de ${tipo}:`, data);
+            console.log('Realizando petición a:', APP_CONFIG[tipo].apiUrl);
+            const response = await Utils.makeRequest(APP_CONFIG[tipo].apiUrl);
+            console.log(`Datos recibidos de ${tipo}:`, response);
+            
+            // Asegurarse de que la respuesta sea un array
+            const data = Array.isArray(response) ? response : (response?.results || []);
             
             // Asegurarse de que la tabla aún existe antes de actualizar
-            if (!document.getElementById(CONFIG[tipo].tableId)) {
+            if (!document.getElementById(APP_CONFIG[tipo].tableId)) {
                 console.log('La tabla ya no existe en el DOM, cancelando actualización');
                 return;
             }
@@ -370,13 +306,13 @@ const EntityManager = {
             this.renderTable(tipo, data);
         } catch (error) {
             console.error(`Error al cargar ${tipo}:`, error);
-            const tabla = document.getElementById(CONFIG[tipo].tableId);
+            const tabla = document.getElementById(APP_CONFIG[tipo].tableId);
             if (tabla) {
                 const tbody = tabla.querySelector("tbody");
                 if (tbody) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="${CONFIG[tipo].tableHeaders.length}" class="text-center text-danger">
+                            <td colspan="${APP_CONFIG[tipo].tableHeaders?.length || 1}" class="text-center text-danger">
                                 <i class="fas fa-exclamation-circle me-2"></i>
                                 Error al cargar los datos: ${error.message}
                             </td>
@@ -390,7 +326,7 @@ const EntityManager = {
 
     // Renderiza los datos en la tabla correspondiente
     renderTable(tipo, data) {
-        const tabla = document.getElementById(CONFIG[tipo].tableId);
+        const tabla = document.getElementById(APP_CONFIG[tipo].tableId);
         if (!tabla) return;
 
         const tbody = tabla.querySelector("tbody");
@@ -401,17 +337,17 @@ const EntityManager = {
         if (!data || data.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="${CONFIG[tipo].tableHeaders.length}" class="text-center">
+                    <td colspan="${APP_CONFIG[tipo].tableHeaders.length}" class="text-center">
                         No hay datos disponibles
-                    </td>
+                </td>
                 </tr>
             `;
             return;
         }
 
-        data.forEach(item => {
-            const row = document.createElement('tr');
-            const rowData = CONFIG[tipo].getRowData(item);
+            data.forEach(item => {
+                const row = document.createElement('tr');
+            const rowData = APP_CONFIG[tipo].getRowData(item);
             
             rowData.forEach(cell => {
                 const td = document.createElement('td');
@@ -424,15 +360,15 @@ const EntityManager = {
             actionsTd.innerHTML = `
                 <button class="btn btn-sm btn-primary edit-btn" data-id="${item.id}">
                     <i class="fas fa-edit"></i> Editar
-                </button>
+                        </button>
                 <button class="btn btn-sm btn-danger delete-btn" data-id="${item.id}">
                     <i class="fas fa-trash"></i> Eliminar
                 </button>
-            `;
+                `;
             row.appendChild(actionsTd);
 
-            tbody.appendChild(row);
-        });
+                tbody.appendChild(row);
+            });
 
         // Configurar eventos para los botones de acción
         this.setupActionButtons(tipo, tbody);
@@ -444,7 +380,7 @@ const EntityManager = {
             btn.addEventListener('click', async (e) => {
                 const id = e.target.dataset.id;
                 try {
-                    const data = await Utils.makeRequest(`${CONFIG[tipo].apiUrl}${id}/`);
+                    const data = await Utils.makeRequest(`${APP_CONFIG[tipo].apiUrl}${id}/`);
                     this.populateForm(tipo, data);
         } catch (error) {
                     console.error(`Error al cargar datos para editar ${tipo}:`, error);
@@ -458,7 +394,7 @@ const EntityManager = {
                 const id = e.target.dataset.id;
                 if (confirm('¿Está seguro de que desea eliminar este registro?')) {
                     try {
-                        await Utils.makeRequest(`${CONFIG[tipo].apiUrl}${id}/`, 'DELETE');
+                        await Utils.makeRequest(`${APP_CONFIG[tipo].apiUrl}${id}/`, 'DELETE');
                         await this.loadData(tipo);
                         Utils.showMessage('Registro eliminado exitosamente');
         } catch (error) {
@@ -473,19 +409,19 @@ const EntityManager = {
     // Guarda una entidad (crear o actualizar)
     async saveEntity(tipo) {
         try {
-            const form = document.getElementById(CONFIG[tipo].formId);
+            const form = document.getElementById(APP_CONFIG[tipo].formId);
             if (!form) return;
 
             const formData = new FormData(form);
             const data = {};
-            CONFIG[tipo].fields.forEach(field => {
+            APP_CONFIG[tipo].fields.forEach(field => {
                 data[field.key] = formData.get(field.id);
             });
 
             const method = form.dataset.id ? 'PUT' : 'POST';
             const url = form.dataset.id 
-                ? `${CONFIG[tipo].apiUrl}${form.dataset.id}/`
-                : CONFIG[tipo].apiUrl;
+                ? `${APP_CONFIG[tipo].apiUrl}${form.dataset.id}/`
+                : APP_CONFIG[tipo].apiUrl;
 
             await Utils.makeRequest(url, method, data);
             await this.loadData(tipo);
@@ -500,10 +436,10 @@ const EntityManager = {
 
     // Popula el formulario con los datos para edición
     populateForm(tipo, data) {
-        const form = document.getElementById(CONFIG[tipo].formId);
+        const form = document.getElementById(APP_CONFIG[tipo].formId);
         if (!form) return;
 
-        CONFIG[tipo].fields.forEach(field => {
+        APP_CONFIG[tipo].fields.forEach(field => {
             const input = document.getElementById(field.id);
             if (input) {
                 input.value = data[field.key] || '';
@@ -519,7 +455,7 @@ const EntityManager = {
         if (!searchInput) return;
 
         const searchTerm = searchInput.value.toLowerCase();
-        const tabla = document.getElementById(CONFIG[tipo].tableId);
+        const tabla = document.getElementById(APP_CONFIG[tipo].tableId);
         if (!tabla) return;
 
         const tbody = tabla.querySelector('tbody');
@@ -952,7 +888,7 @@ function calcularValorAusentismos(salarioBase, horasAusentismo) {
  */
 async function obtenerRegistrosPeriodo(empleadoId, fechaInicio, fechaFin) {
     try {
-        const registros = await Utils.makeRequest(`${CONFIG.ausentismos.apiUrl}?empleado=${empleadoId}&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
+        const registros = await Utils.makeRequest(`${APP_CONFIG.ausentismos.apiUrl}?empleado=${empleadoId}&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
         
         const resultado = {
             ausentismos: 0,
@@ -1517,7 +1453,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Configurar formularios y botones para cada módulo
         ['proveedores', 'clientes', 'recursos_humanos'].forEach(tipo => {
             // Configurar formulario
-                const form = document.getElementById(CONFIG[tipo].formId);
+                const form = document.getElementById(APP_CONFIG[tipo].formId);
                 if (form) {
                 // Manejar envío del formulario
                 form.addEventListener('submit', async (e) => {
@@ -2137,7 +2073,7 @@ async function guardarRegistro(event) {
         }
 
         console.log('Guardando registro:', data);
-        await Utils.makeRequest(CONFIG.ausentismos.apiUrl, 'POST', data);
+        await Utils.makeRequest(APP_CONFIG.ausentismos.apiUrl, 'POST', data);
         
         Utils.showMessage('Registro guardado exitosamente', 'success');
         
@@ -2236,14 +2172,23 @@ async function buscarEmpleadoAusentismo() {
 // Función para cargar los registros de un empleado
 async function cargarRegistrosEmpleado(documento) {
     try {
+        if (!documento) {
+            throw new Error('Documento no proporcionado');
+        }
+
         console.log('Cargando registros para documento:', documento);
-        const registros = await Utils.makeRequest(`${CONFIG.ausentismos.apiUrl}?documento=${documento}`);
+        
+        // Verificar que existe la configuración
+        if (!APP_CONFIG.ausentismos || !APP_CONFIG.ausentismos.apiUrl) {
+            throw new Error('Configuración de ausentismos no encontrada');
+        }
+
+        const registros = await Utils.makeRequest(`${APP_CONFIG.ausentismos.apiUrl}?documento=${documento}`);
         console.log('Registros obtenidos:', registros);
         
         const tabla = document.getElementById('tabla-ausentismos');
         if (!tabla) {
-            console.error('Tabla de ausentismos no encontrada');
-            return;
+            throw new Error('Tabla de ausentismos no encontrada en el DOM');
         }
 
         const tbody = tabla.querySelector('tbody');
@@ -2271,7 +2216,7 @@ async function cargarRegistrosEmpleado(documento) {
             
             // Formatear la fecha
             const fecha = new Date(registro.fecha);
-            const fechaFormateada = fecha.toISOString().split('T')[0];
+            const fechaFormateada = fecha.toLocaleDateString('es-CO');
             
             // Formatear la duración
             let duracionFormateada = '';
@@ -2313,6 +2258,22 @@ async function cargarRegistrosEmpleado(documento) {
         
     } catch (error) {
         console.error('Error al cargar registros:', error);
+        const tabla = document.getElementById('tabla-ausentismos');
+        if (tabla) {
+            const tbody = tabla.querySelector('tbody');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center p-3">
+                            <div class="alert alert-danger mb-0">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Error al cargar los registros: ${error.message}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
         Utils.showMessage('Error al cargar los registros: ' + error.message, 'error');
     }
 }
@@ -2321,7 +2282,7 @@ async function cargarRegistrosEmpleado(documento) {
 async function eliminarRegistro(id) {
     if (confirm('¿Está seguro de que desea eliminar este registro?')) {
         try {
-            await Utils.makeRequest(`${CONFIG.ausentismos.apiUrl}${id}/`, 'DELETE');
+            await Utils.makeRequest(`${APP_CONFIG.ausentismos.apiUrl}${id}/`, 'DELETE');
             Utils.showMessage('Registro eliminado exitosamente', 'success');
             
             // Recargar los registros del empleado actual

@@ -1,15 +1,34 @@
 from django.db import models
+from django.utils import timezone
 
 class Liquidacion(models.Model):
+    empleado = models.ForeignKey('Empleado', on_delete=models.PROTECT, related_name='liquidaciones', null=True, blank=True)
     empleado_nombre = models.CharField(max_length=100)
     contrato = models.CharField(max_length=50)
-    fondo_pensiones = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    cesantias = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    eps = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    caja_compensacion = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    motivo_retiro = models.CharField(max_length=50, blank=True)
+    fecha_liquidacion = models.DateField(default=timezone.now)
+    
+    # Valores calculados
+    cesantias = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    intereses_cesantias = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    prima_servicios = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    vacaciones = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    indemnizacion = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
+    # Aportes de seguridad social
+    fondo_pensiones = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    eps = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    caja_compensacion = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     def __str__(self):
         return f"Liquidación para {self.empleado_nombre}"
+
+    def save(self, *args, **kwargs):
+        # Al guardar una liquidación, marcar al empleado como retirado
+        if self.empleado and self.empleado.estado != 'retirado':
+            self.empleado.estado = 'retirado'
+            self.empleado.save()
+        super().save(*args, **kwargs)
 
 class Empleado(models.Model):
     nombre = models.CharField(max_length=100)
@@ -41,6 +60,10 @@ class Empleado(models.Model):
         ('temporal', 'Temporal'),
     ])
     contacto = models.CharField(max_length=100)
+    estado = models.CharField(max_length=20, choices=[
+        ('activo', 'Activo'),
+        ('retirado', 'Retirado')
+    ], default='activo')
 
     class Meta:
         db_table = 'rrhh_empleado'
