@@ -53,6 +53,49 @@ const Inventario = {
         document.getElementById('search-categorias')?.addEventListener('input', (e) => {
             this.buscarCategorias(e.target.value);
         });
+
+        document.getElementById('btn-reporte-pdf')?.addEventListener('click', function() {
+            window.open('/api/inventario/reporte/pdf/', '_blank');
+        });
+        document.getElementById('btn-reporte-excel')?.addEventListener('click', function() {
+            window.open('/api/inventario/reporte/excel/', '_blank');
+        });
+
+        // Stock Bajo
+        document.getElementById('btn-stock-bajo-pdf')?.addEventListener('click', function() {
+            window.open('/api/inventario/stock_bajo/pdf/', '_blank');
+        });
+        document.getElementById('btn-stock-bajo-excel')?.addEventListener('click', function() {
+            window.open('/api/inventario/stock_bajo/excel/', '_blank');
+        });
+
+        // Valor de Inventario
+        document.getElementById('btn-valor-inventario-pdf')?.addEventListener('click', function() {
+            window.open('/api/inventario/valor_inventario/pdf/', '_blank');
+        });
+        document.getElementById('btn-valor-inventario-excel')?.addEventListener('click', function() {
+            window.open('/api/inventario/valor_inventario/excel/', '_blank');
+        });
+
+        // Movimientos por Período
+        document.getElementById('btn-movimientos-pdf')?.addEventListener('click', function() {
+            const inicio = document.getElementById('fecha-inicio').value;
+            const fin = document.getElementById('fecha-fin').value;
+            if (!inicio || !fin) {
+                alert('Selecciona las fechas de inicio y fin');
+                return;
+            }
+            window.open(`/api/inventario/movimientos/pdf/?fecha_inicio=${inicio}&fecha_fin=${fin}`, '_blank');
+        });
+        document.getElementById('btn-movimientos-excel')?.addEventListener('click', function() {
+            const inicio = document.getElementById('fecha-inicio').value;
+            const fin = document.getElementById('fecha-fin').value;
+            if (!inicio || !fin) {
+                alert('Selecciona las fechas de inicio y fin');
+                return;
+            }
+            window.open(`/api/inventario/movimientos/excel/?fecha_inicio=${inicio}&fecha_fin=${fin}`, '_blank');
+        });
     },
 
     // Cargar productos
@@ -73,8 +116,10 @@ const Inventario = {
             const response = await fetch(this.urls.categorias, { headers: { 'Accept': 'application/json' } });
             const data = await response.json();
             this.renderCategorias(data);
+            this.renderCategoriasSelect(data);
         } catch (error) {
             console.error('Error al cargar categorías:', error);
+            this.showAlert('Error al cargar categorías', 'danger');
         }
     },
 
@@ -98,8 +143,8 @@ const Inventario = {
             <tr>
                 <td>${producto.codigo}</td>
                 <td>${producto.nombre}</td>
-                <td>${producto.categoria?.nombre || ''}</td>
-                <td>${producto.unidad_medida?.abreviatura || ''}</td>
+                <td>${producto.categoria_nombre || ''}</td>
+                <td>${producto.unidad_medida_nombre || ''}</td>
                 <td>${producto.stock_actual}</td>
                 <td>${producto.stock_minimo}</td>
                 <td>${producto.precio_compra}</td>
@@ -131,11 +176,11 @@ const Inventario = {
                 <td>${categoria.nombre}</td>
                 <td>${categoria.descripcion || ''}</td>
                 <td>
-                    <span class="badge ${this.getEstadoBadgeClass(categoria.estado)}">
-                        ${categoria.estado}
+                    <span class="badge ${categoria.activa ? 'bg-success' : 'bg-secondary'}">
+                        ${categoria.activa ? 'Activa' : 'Inactiva'}
                     </span>
                 </td>
-                <td>${categoria.total_productos || 0}</td>
+                <td>${categoria.stock_total ? categoria.stock_total : 0}</td>
                 <td>
                     <button class="btn btn-sm btn-primary" onclick="Inventario.editarCategoria(${categoria.id})">
                         <i class="fas fa-edit"></i>
@@ -146,6 +191,19 @@ const Inventario = {
                 </td>
             </tr>
         `).join('');
+    },
+
+    // Renderizar categorías en el select
+    renderCategoriasSelect: function(categorias) {
+        const select = document.getElementById('categoria-producto');
+        if (!select) return;
+
+        select.innerHTML = `
+            <option value="">Seleccione una categoría</option>
+            ${categorias.map(categoria => `
+                <option value="${categoria.id}">${categoria.nombre}</option>
+            `).join('')}
+        `;
     },
 
     // Renderizar unidades de medida en el select
@@ -388,7 +446,7 @@ const Inventario = {
             this.renderProductos(data);
         } catch (error) {
             console.error('Error al buscar productos:', error);
-        }
+    }
     },
 
     // Buscar categorías
@@ -500,7 +558,7 @@ const Inventario = {
                     data.forEach(mov => {
                         mensaje += `${mov.fecha}: ${mov.tipo} - ${mov.producto.nombre} (${mov.cantidad})\n`;
                     });
-                }
+}
                 break;
         }
 

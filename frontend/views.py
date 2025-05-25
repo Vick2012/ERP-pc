@@ -11,6 +11,9 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from recursos_humanos.models import Empleado, Ausentismo
 from recursos_humanos.serializers import EmpleadoSerializer, AusentismoSerializer
+from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
+import json
 
 # ---------------------- PÁGINAS HTML ----------------------
 
@@ -202,3 +205,20 @@ class AusentismoListCreateView(generics.ListCreateAPIView):
 class AusentismoDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ausentismo.objects.all()
     serializer_class = AusentismoSerializer
+
+@csrf_exempt
+def contacto_email(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        nombre = data.get('nombre')
+        correo = data.get('correo')
+        mensaje = data.get('mensaje')
+        cuerpo = f"Nombre: {nombre}\nCorreo: {correo}\nMensaje:\n{mensaje}"
+        send_mail(
+            subject='Nuevo mensaje de contacto EventSync',
+            message=cuerpo,
+            from_email='eventsync2026@gmail.com',
+            recipient_list=['eventsync2026@gmail.com'],
+        )
+        return JsonResponse({'ok': True, 'msg': 'Mensaje enviado correctamente'})
+    return JsonResponse({'ok': False, 'msg': 'Método no permitido'}, status=405)

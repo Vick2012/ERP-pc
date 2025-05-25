@@ -1,7 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <!-- Metadatos básicos -->
     <meta charset="UTF-8" />
@@ -23,7 +22,6 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}" />
     <link rel="icon" href="{% static 'img/EnentSync.png' %}" type="image/png" />
     <!-- Scripts -->
-    <script src="{% static 'js/app.js' %}" defer></script>
     <script src="{% static 'js/recursos_humanos.js' %}" defer></script>
     <script src="{% static 'js/inventario.js' %}" defer></script>
 </head>
@@ -452,7 +450,7 @@
                                         <th>Nombre</th>
                                         <th>Descripción</th>
                                         <th>Estado</th>
-                                        <th>Productos</th>
+                                        <th>Stock Total</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -517,45 +515,37 @@
 
                     <!-- Panel de Reportes -->
                     <div class="tab-pane fade" id="reportes-panel" role="tabpanel" aria-labelledby="reportes-tab">
-                        <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Stock Bajo</h5>
-                                        <p class="card-text">Productos con stock por debajo del mínimo</p>
-                                        <button class="btn btn-primary" onclick="Inventario.generateReport('stock-bajo')">
-                                            Generar Reporte
-                                        </button>
+                        <div class="container">
+                            <div class="reporte-grid">
+                                <!-- Stock Bajo -->
+                                <div class="reporte-card">
+                                    <h4>Stock Bajo</h4>
+                                    <p>Productos con stock por debajo del mínimo</p>
+                                    <div class="reporte-botones">
+                                        <button class="btn btn-danger" id="btn-stock-bajo-pdf"><i class="fas fa-file-pdf"></i> PDF</button>
+                                        <button class="btn btn-success" id="btn-stock-bajo-excel"><i class="fas fa-file-excel"></i> Excel</button>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6 mb-4">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Valor de Inventario</h5>
-                                        <p class="card-text">Valor total del inventario actual</p>
-                                        <button class="btn btn-primary" onclick="Inventario.generateReport('valor-inventario')">
-                                            Generar Reporte
-                                        </button>
+
+                                <!-- Valor de Inventario -->
+                                <div class="reporte-card">
+                                    <h4>Valor de Inventario</h4>
+                                    <p>Valor total del inventario actual</p>
+                                    <div class="reporte-botones">
+                                        <button class="btn btn-danger" id="btn-valor-inventario-pdf"><i class="fas fa-file-pdf"></i> PDF</button>
+                                        <button class="btn btn-success" id="btn-valor-inventario-excel"><i class="fas fa-file-excel"></i> Excel</button>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6 mb-4">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Movimientos por Período</h5>
-                                        <p class="card-text">Reporte de movimientos de inventario</p>
-                                        <div class="mb-3">
-                                            <label for="fecha-inicio" class="form-label">Fecha Inicio:</label>
-                                            <input type="date" id="fecha-inicio" class="form-control">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="fecha-fin" class="form-label">Fecha Fin:</label>
-                                            <input type="date" id="fecha-fin" class="form-control">
-                                        </div>
-                                        <button class="btn btn-primary" onclick="Inventario.generateReport('movimientos')">
-                                            Generar Reporte
-                                        </button>
+
+                                <!-- Movimientos por Período -->
+                                <div class="reporte-card">
+                                    <h4>Movimientos por Período</h4>
+                                    <p>Reporte de movimientos de inventario</p>
+                                    <input type="date" id="fecha-inicio" class="form-control mb-2">
+                                    <input type="date" id="fecha-fin" class="form-control mb-2">
+                                    <div class="reporte-botones">
+                                        <button class="btn btn-danger" id="btn-movimientos-pdf"><i class="fas fa-file-pdf"></i> PDF</button>
+                                        <button class="btn btn-success" id="btn-movimientos-excel"><i class="fas fa-file-excel"></i> Excel</button>
                                     </div>
                                 </div>
                             </div>
@@ -600,27 +590,27 @@
                     <h3 class="text-primary mb-3">Agregar/Editar Proveedor</h3>
                     <div class="mb-3">
                         <label for="nombre-proveedor" class="form-label">Nombre:</label>
-                        <input type="text" id="nombre-proveedor" class="form-control" placeholder="Empresa" required>
+                        <input type="text" id="nombre-proveedor" name="nombre-proveedor" class="form-control" placeholder="Empresa" required>
                     </div>
                     <div class="mb-3">
                         <label for="contacto-proveedor" class="form-label">Contacto:</label>
-                        <input type="text" id="contacto-proveedor" class="form-control" placeholder="Contacto" required>
+                        <input type="text" id="contacto-proveedor" name="contacto-proveedor" class="form-control" placeholder="Contacto" required>
                     </div>
                     <div class="mb-3">
                         <label for="direccion-proveedor" class="form-label">Dirección:</label>
-                        <input type="text" id="direccion-proveedor" class="form-control" placeholder="Dirección">
+                        <input type="text" id="direccion-proveedor" name="direccion-proveedor" class="form-control" placeholder="Dirección">
                     </div>
                     <div class="mb-3">
                         <label for="telefono-proveedor" class="form-label">Teléfono:</label>
-                        <input type="text" id="telefono-proveedor" class="form-control" placeholder="Teléfono">
+                        <input type="text" id="telefono-proveedor" name="telefono-proveedor" class="form-control" placeholder="Teléfono">
                     </div>
                     <div class="mb-3">
                         <label for="email-proveedor" class="form-label">Email:</label>
-                        <input type="email" id="email-proveedor" class="form-control" placeholder="Email">
+                        <input type="email" id="email-proveedor" name="email-proveedor" class="form-control" placeholder="Email">
                     </div>
                     <div class="mb-3">
                         <label for="tipo_proveedor" class="form-label">Tipo de Proveedor:</label>
-                        <input type="text" id="tipo_proveedor" class="form-control" placeholder="Tipo de proveedor">
+                        <input type="text" id="tipo_proveedor" name="tipo_proveedor" class="form-control" placeholder="Tipo de proveedor">
                     </div>
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary">Guardar</button>
@@ -658,24 +648,97 @@
                     <i class="fas fa-plus"></i> Agregar Cliente
                 </button>
                 <form id="formulario-cliente" class="mt-4 p-4 bg-white rounded shadow hidden">
+                    {% csrf_token %}
                     <h3 class="text-primary mb-3">Agregar/Editar Cliente</h3>
+                    <input type="hidden" id="cliente-id" name="cliente-id">
                     <div class="mb-3">
                         <label for="nombre-cliente" class="form-label">Nombre:</label>
-                        <input type="text" id="nombre-cliente" class="form-control" placeholder="Nombre" required>
+                        <input type="text" id="nombre-cliente" name="nombre-cliente" class="form-control" placeholder="Nombre" required>
                     </div>
                     <div class="mb-3">
                         <label for="contacto-cliente" class="form-label">Contacto:</label>
-                        <input type="text" id="contacto-cliente" class="form-control" placeholder="Contacto" required>
+                        <input type="text" id="contacto-cliente" name="contacto-cliente" class="form-control" placeholder="Contacto" required>
                     </div>
                     <div class="mb-3">
                         <label for="preferencias-cliente" class="form-label">Preferencias:</label>
-                        <input type="text" id="preferencias-cliente" class="form-control" placeholder="Preferencias">
+                        <input type="text" id="preferencias-cliente" name="preferencias-cliente" class="form-control" placeholder="Preferencias">
                     </div>
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary">Guardar</button>
                         <button type="button" class="btn btn-secondary" id="cancel-clientes">Cancelar</button>
                     </div>
                 </form>
+            </div>
+        </section>
+        <!-- Sección de Contacto -->
+        <section id="contacto" class="container py-5">
+            <h3 class="text-center mb-5 display-6">Contáctanos</h3>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <form id="contact-form" class="bg-white p-4 rounded shadow">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nombre</label>
+                            <input type="text" class="form-control" id="contact-name" placeholder="Tu nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="contact-email" placeholder="tucorreo@ejemplo.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mensaje</label>
+                            <textarea class="form-control" id="contact-message" rows="5" placeholder="Escribe tu mensaje..." required></textarea>
+                        </div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-primary" id="btn-enviar-contacto">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Mensaje
+                            </button>
+                        </div>
+                    </form>
+                        </div>
+                <div class="col-md-4">
+                    <div class="bg-white p-4 rounded shadow h-100">
+                        <h4 class="mb-4">Información de Contacto</h4>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-phone text-primary me-3 fs-4"></i>
+                            <div>
+                                <h5 class="mb-1">Teléfono</h5>
+                                <p class="mb-0">601 4563214</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-envelope text-primary me-3 fs-4"></i>
+                            <div>
+                                <h5 class="mb-1">Email</h5>
+                                <p class="mb-0">eventsync2026@gmail.com.co</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-map-marker-alt text-primary me-3 fs-4"></i>
+                            <div>
+                                <h5 class="mb-1">Ubicación</h5>
+                                <p class="mb-0">Bogotá, Colombia</p>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <h5 class="mb-3">Síguenos</h5>
+                            <div class="d-flex gap-3">
+                                <a href="https://www.facebook.com/profile.php?id=61575777395451" class="text-primary fs-4" target="_blank">
+                                    <i class="fab fa-facebook"></i>
+                                </a>
+                                <a href="#" class="text-primary fs-4">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="text-primary fs-4">
+                                    <i class="fab fa-linkedin"></i>
+                                </a>
+                                <a href="#" class="text-primary fs-4">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         <!-- Footer -->
@@ -686,7 +749,7 @@
                         <h3 class="text-white">Contacto</h3>
                         <p>Teléfono: 601 4563214</p>
                         <!-- Corregido: Email incorrecto -->
-                        <p>Email: EventSync2025@gmail.com.co</p>
+                        <p>Email: eventsync2026@gmail.com.co</p>
                     </div>
                     <div class="col-md-4 mb-4">
                         <h3 class="text-white">Redes Sociales</h3>
@@ -727,7 +790,6 @@
         <!-- Luego Bootstrap -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Nuestros scripts personalizados -->
-        <script src="{% static 'js/app.js' %}"></script>
         <script src="{% static 'js/recursos_humanos.js' %}"></script>
         <script src="{% static 'js/liquidacion.js' %}"></script>
         <!-- Script de inicialización -->
@@ -768,6 +830,12 @@
             });
         </script>
     </main>
+    <script src="{% static 'js/app.js' %}"></script>
+    <script>
+        console.log('app.js REALMENTE CARGADO');
+        console.log(APP_CONFIG.proveedores);
+        console.log(APP_CONFIG.proveedores?.fields);
+    </script>
 </body>
 
 </html>

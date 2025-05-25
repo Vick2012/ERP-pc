@@ -2,9 +2,12 @@ from rest_framework import serializers
 from .models import Categoria, UnidadMedida, Producto, Movimiento
 
 class CategoriaSerializer(serializers.ModelSerializer):
+    productos_count = serializers.IntegerField(read_only=True)
+    stock_total = serializers.DecimalField(read_only=True, max_digits=10, decimal_places=2)
+
     class Meta:
         model = Categoria
-        fields = '__all__'
+        fields = ['id', 'nombre', 'descripcion', 'activa', 'productos_count', 'stock_total']
 
 class UnidadMedidaSerializer(serializers.ModelSerializer):
     class Meta:

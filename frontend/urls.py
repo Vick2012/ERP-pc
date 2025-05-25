@@ -4,7 +4,8 @@ from .views import (
     index, inicio, logout_user, list_contacts, auth_status, register,
     login_user, save_contact, ContactListCreateView,
     desprendible_nomina_template, verificar_nomina, generar_pdf_nomina,
-    EmpleadoListCreateView, EmpleadoDetailView, AusentismoListCreateView, AusentismoDetailView
+    EmpleadoListCreateView, EmpleadoDetailView, AusentismoListCreateView, AusentismoDetailView,
+    contacto_email
 )
 
 app_name = 'frontend'
@@ -37,4 +38,6 @@ urlpatterns = [
     path('api/recursos_humanos/empleados/<int:pk>/', EmpleadoDetailView.as_view(), name='empleado_detail'),
     path('api/ausentismos/', AusentismoListCreateView.as_view(), name='ausentismos_api'),
     path('api/ausentismos/<int:pk>/', AusentismoDetailView.as_view(), name='ausentismo_detail'),
+
+    path('contacto/email/', contacto_email, name='contacto_email'),
 ]

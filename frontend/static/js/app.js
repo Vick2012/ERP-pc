@@ -46,6 +46,14 @@ const APP_CONFIG = {
             item.telefono,
             item.email,
             item.tipo_proveedor
+        ],
+        fields: [
+            { key: 'nombre', id: 'nombre-proveedor' },
+            { key: 'contacto', id: 'contacto-proveedor' },
+            { key: 'direccion', id: 'direccion-proveedor' },
+            { key: 'telefono', id: 'telefono-proveedor' },
+            { key: 'email', id: 'email-proveedor' },
+            { key: 'tipo_proveedor', id: 'tipo_proveedor' }
         ]
     },
     clientes: {
@@ -58,6 +66,11 @@ const APP_CONFIG = {
             item.nombre,
             item.contacto,
             item.preferencias
+        ],
+        fields: [
+            { key: 'nombre', id: 'nombre-cliente' },
+            { key: 'contacto', id: 'contacto-cliente' },
+            { key: 'preferencias', id: 'preferencias-cliente' }
         ]
     }
 };
@@ -137,27 +150,17 @@ const StorageManager = {
 const Utils = {
     // Obtiene el token CSRF para solicitudes seguras
     getCsrfToken() {
-        try {
-            // Intentar obtener el token del nuevo sistema de almacenamiento
-            let token = StorageManager.getItem('csrftoken');
-
-            if (!token) {
-                // Si no está en el almacenamiento, intentar obtenerlo del DOM
-                token = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
-
-                if (token) {
-                    // Guardar el token para futuros usos
-                    StorageManager.setItem('csrftoken', token);
-                } else {
-                    throw new Error("Token CSRF no encontrado.");
-                }
-            }
-
-            return token;
-        } catch (error) {
-            console.error('Error al obtener token CSRF:', error);
-            throw error;
-        }
+        // 1. Buscar en el DOM (input oculto típico de Django)
+        let token = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        if (token) return token;
+        // 2. Buscar en meta tag (si existe)
+        token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (token) return token;
+        // 3. Buscar en cookies
+        token = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+        if (token) return token;
+        // Si no se encuentra, lanzar error
+        throw new Error("Token CSRF no encontrado.");
     },
 
     // Realiza solicitudes HTTP a la API con manejo de errores mejorado
@@ -409,13 +412,41 @@ const EntityManager = {
     // Guarda una entidad (crear o actualizar)
     async saveEntity(tipo) {
         try {
+            // Parche definitivo: redefinir toda la config de proveedores si falta fields
+            if (tipo === 'proveedores' && (!APP_CONFIG.proveedores || !APP_CONFIG.proveedores.fields)) {
+                APP_CONFIG.proveedores = {
+                    apiUrl: '/api/proveedores/',
+                    tableId: 'tabla-proveedores',
+                    formId: 'formulario-proveedor',
+                    searchFields: ['nombre', 'contacto', 'tipo_proveedor'],
+                    getRowData: (item) => [
+                        item.id,
+                        item.nombre,
+                        item.contacto,
+                        item.direccion,
+                        item.telefono,
+                        item.email,
+                        item.tipo_proveedor
+                    ],
+                    fields: [
+                        { key: 'nombre', id: 'nombre-proveedor' },
+                        { key: 'contacto', id: 'contacto-proveedor' },
+                        { key: 'direccion', id: 'direccion-proveedor' },
+                        { key: 'telefono', id: 'telefono-proveedor' },
+                        { key: 'email', id: 'email-proveedor' },
+                        { key: 'tipo_proveedor', id: 'tipo_proveedor' }
+                    ]
+                };
+            }
             const form = document.getElementById(APP_CONFIG[tipo].formId);
             if (!form) return;
 
             const formData = new FormData(form);
             const data = {};
             APP_CONFIG[tipo].fields.forEach(field => {
-                data[field.key] = formData.get(field.id);
+                let value = formData.get(field.id);
+                if (value === null || value === undefined) value = "";
+                data[field.key] = value;
             });
 
             const method = form.dataset.id ? 'PUT' : 'POST';
@@ -436,13 +467,18 @@ const EntityManager = {
 
     // Popula el formulario con los datos para edición
     populateForm(tipo, data) {
+        console.log('populateForm - tipo:', tipo);
+        console.log('populateForm - data:', data);
         const form = document.getElementById(APP_CONFIG[tipo].formId);
         if (!form) return;
 
         APP_CONFIG[tipo].fields.forEach(field => {
             const input = document.getElementById(field.id);
             if (input) {
+                console.log(`Llenando campo ${field.id} con:`, data[field.key]);
                 input.value = data[field.key] || '';
+            } else {
+                console.warn(`No se encontró el input con id: ${field.id}`);
             }
         });
 
@@ -1967,6 +2003,44 @@ document.addEventListener('DOMContentLoaded', () => {
         // Deshabilitar inicialmente
         nuevoBoton.disabled = true;
     }
+
+    // Configurar eventos para el módulo de ausentismos
+    const buscarEmpleadoBtn = document.getElementById('buscar-empleado-ausentismo');
+    if (buscarEmpleadoBtn) {
+        buscarEmpleadoBtn.addEventListener('click', buscarEmpleadoAusentismo);
+    }
+
+    const ausentismoDocumentoInput = document.getElementById('buscar-documento-ausentismo');
+    if (ausentismoDocumentoInput) {
+        ausentismoDocumentoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarEmpleadoAusentismo();
+            }
+        });
+    }
+
+    const limpiarBtn = document.getElementById('limpiar-ausentismos');
+    if (limpiarBtn) {
+        limpiarBtn.addEventListener('click', limpiarFormularioAusentismo);
+    }
+
+    const formAusentismos = document.getElementById('form-ausentismos');
+    if (formAusentismos) {
+        formAusentismos.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await guardarRegistro(e);
+        });
+    }
+
+    // Agregar event listener para el registro de usuario
+    const registerForm = document.getElementById('register-form');
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await AuthManager.register();
+        });
+    }
 });
 
 /**
@@ -2313,38 +2387,38 @@ function limpiarFormularioAusentismo() {
     document.getElementById('ausentismo-duracion').classList.add('d-none');
 }
 
-// ... (mantener el código existente) ...
+function enviarContacto() {
+    const nombre = document.getElementById('contact-name').value;
+    const correo = document.getElementById('contact-email').value;
+    const mensaje = document.getElementById('contact-message').value;
 
-// Agregar al DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-    // ... (código existente) ...
+    fetch('/contacto/email/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ nombre, correo, mensaje })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            alert('¡Te contactaremos pronto!');
+            document.getElementById('contact-form').reset();
+        } else {
+            alert('Error al enviar el mensaje: ' + data.msg);
+        }
+    })
+    .catch(error => {
+        alert('Error de red al enviar el mensaje.');
+    });
+}
 
-    // Configurar eventos para el módulo de ausentismos
-    const buscarEmpleadoBtn = document.getElementById('buscar-empleado-ausentismo');
-    if (buscarEmpleadoBtn) {
-        buscarEmpleadoBtn.addEventListener('click', buscarEmpleadoAusentismo);
-    }
+window.enviarContacto = enviarContacto;
 
-    const documentoInput = document.getElementById('buscar-documento-ausentismo');
-    if (documentoInput) {
-        documentoInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                buscarEmpleadoAusentismo();
-            }
-        });
-    }
-
-    const limpiarBtn = document.getElementById('limpiar-ausentismos');
-    if (limpiarBtn) {
-        limpiarBtn.addEventListener('click', limpiarFormularioAusentismo);
-    }
-
-    const formAusentismos = document.getElementById('form-ausentismos');
-    if (formAusentismos) {
-        formAusentismos.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await guardarRegistro(e);
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('btn-enviar-contacto');
+    if (btn) {
+        btn.addEventListener('click', enviarContacto);
     }
 });
